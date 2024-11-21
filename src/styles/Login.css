@@ -1,0 +1,129 @@
+:root{
+    --dgrey: #1a1a1a;
+    --tgrey: #58585830;
+    --orange: #FF8f00;
+    --torange: #FF8f0030;
+}
+
+body {
+    margin: 0;
+}
+
+.login-page {
+    background: var(--dgrey);
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.login-box {
+    border: 0.1rem solid var(--orange);
+    transform: scale(1.25);
+    height: 40rem;
+    width: 25rem;
+    background-color: var(--tgrey);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem; 
+    border-radius: 8px;
+}
+
+.login-box h1 {
+    padding: 1rem;
+    font-family: monospace;
+    font-size: 3rem;
+    color: var(--orange);
+}
+
+.login-box form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-box form a{
+    color: white;
+}
+
+.login-box form button {
+    font-family: monospace;
+    font-size: 1.5rem;
+    width: 80%;
+    padding: 0.5rem; 
+    margin: 1.5rem 0; 
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.login-box form .under-inputs{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+}
+
+.login-box form .under-inputs input{
+    color: white;
+    transition: 1s;
+}
+
+.login-box form .under-inputs label{
+    color: white;
+    transition: 1s;
+}
+
+.login-box form .login {
+    padding-bottom: 0.5rem;
+    margin-bottom: 3rem;
+    background-color: var(--orange);
+    color: white;
+    cursor: pointer;
+    border: none;
+    transition: 1s;
+}
+
+.login-box form .signup{
+    color: white;
+    background-color: transparent;
+    border: 0;
+    transition: 1s;
+}
+
+.login-box form p{
+    padding-top: 1rem;
+    margin-bottom: 0;
+    color: white;
+}
+
+.login-box form .login:hover {
+    transition: 1s;
+    background-color: var(--torange);
+}
+
+.login-box form .signup:hover {
+    transition: 1s;
+    background-color: var(--torange);
+    border-top: 1rem;
+    border-left: 1rem;
+    border-right: 1rem;
+    border-bottom: 0px;
+}
+
+.login-box form .under-inputs label:hover{
+    color: var(--orange);
+    transition: 1s;
+}
+
+.login-box form .under-inputs a:hover{
+    color: var(--orange);
+    transition: 1s;
+}
