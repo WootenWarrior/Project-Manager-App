@@ -54,14 +54,15 @@ body {
 }
 
 .login-box form button {
+    display: inline-block;
     font-family: monospace;
     font-size: 1.5rem;
-    width: 100%;
     padding: 0.5rem; 
     margin: 1.5rem 0; 
     border: 1px solid #ccc;
     border-radius: 4px;
     text-align: center;
+    cursor: pointer;
 }
 
 .login-box form .under-inputs{
@@ -69,6 +70,7 @@ body {
     align-items: center;
     justify-content: space-between;
     gap: 2rem;
+    cursor: pointer;
 }
 
 .login-box form .under-inputs input{
@@ -79,6 +81,7 @@ body {
 .login-box form .under-inputs label{
     color: white;
     transition: 1s;
+    cursor: pointer;
 }
 
 .login-box form .login {
@@ -91,14 +94,23 @@ body {
     transition: 1s;
 }
 
-.login-box form .signup{
+.login-box .signup{
     color: white;
     background-color: transparent;
     border: 0;
     transition: 1s;
+    display: inline-block;
+    font-family: monospace;
+    font-size: 1.5rem;
+    padding: 0.5rem; 
+    margin: 1.5rem 0; 
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-align: center;
+    cursor: pointer;
 }
 
-.login-box form p{
+.login-box p{
     padding-top: 1rem;
     margin-bottom: 0;
     color: white;
@@ -109,13 +121,9 @@ body {
     background-color: var(--torange);
 }
 
-.login-box form .signup:hover {
+.login-box .signup:hover {
     transition: 1s;
-    background-color: var(--torange);
-    border-top: 1rem;
-    border-left: 1rem;
-    border-right: 1rem;
-    border-bottom: 0px;
+    background-color: var(--orange);
 }
 
 .login-box form .under-inputs label:hover{

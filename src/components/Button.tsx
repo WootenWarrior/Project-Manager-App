@@ -1,4 +1,3 @@
-//Defined optional values for the button input
 interface ButtonProps {
     text?: string;
     icon?: React.ReactNode;

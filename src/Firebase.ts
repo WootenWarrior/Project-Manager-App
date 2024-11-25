@@ -1,12 +1,9 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc, collection, getFirestore } from "firebase/firestore";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+
+// Web app's Firebase configuration
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_APP_API_KEY,
   authDomain: import.meta.env.VITE_APP_AUTH_DOMAIN,
@@ -16,7 +13,6 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_APP_APP_ID,
   measurementId: import.meta.env.VITE_APP_MEASUREMENT_ID
 };
-console.log(firebaseConfig);
 
 // service-account@single-mix-442716-q2.iam.gserviceaccount.com
 // Initialize Firebase
@@ -24,3 +20,60 @@ const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+interface UserData {
+  email: string;
+  password: string;
+  createdAt: Date;
+}
+
+export const userSignup = async (data: UserData) => {
+  try {
+    console.log(import.meta.env.VITE_APP_API_KEY);
+    await createUserWithEmailAndPassword(auth, data.email, data.password);
+    return "Success";
+  } catch (error: any) {
+    if (error.code) {
+      switch (error.code) {
+        case "auth/email-already-in-use":
+          return "This email is already in use.";
+        case "auth/invalid-email":
+          return "The email address is badly formatted.";
+        case "auth/weak-password":
+          return "The password must be at least 6 characters long.";
+        case "auth/operation-not-allowed":
+          return "Email/password accounts are currently disabled.";
+        case "auth/network-request-failed":
+          return "Network error. Check your internet connection.";
+        default:
+          console.error("Error:", error.message);
+      }
+    }
+  }
+};
+
+export const userLogin = async (email: string, password: string) => {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    return "Success";
+  } catch (error: any) {
+    if (error.code) {
+      switch (error.code) {
+        case "auth/invalid-email":
+          return "Invalid email format.";
+        case "auth/wrong-password":
+          return "Incorrect password.";
+        case "auth/user-not-found":
+          return "No user found with this email.";
+        case "auth/user-disabled": 
+          return "This account has been disabled.";
+        case "auth/too-many-requests":
+          return "Too many login attempts. Please try again later.";
+        case "auth/network-request-failed":
+          return "Network error. Check your connection.";
+        default:
+          console.error("Error:", error.message);
+      }
+    }
+  }
+};

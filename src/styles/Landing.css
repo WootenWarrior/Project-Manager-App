@@ -1,0 +1,55 @@
+:root{
+    --dgrey: #1a1a1a;
+    --tgrey: #58585830;
+    --orange: #FF8f00;
+    --torange: #FF8f0030;
+}
+
+.landing-page {
+    position: relative;
+    min-height: 100vh;
+    background-color: var(--dgrey);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.landing-page .background-shapes {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.shape {
+    position: absolute;
+    background-color: #3498db;
+    border-radius: 50%;
+    opacity: 0.5;
+    animation: moveShape 10s infinite linear;
+}
+
+@keyframes moveShape {
+    0% {
+      transform: translate(0, 0);
+    }
+    100% {
+      transform: translate(calc(100vw - 100px), calc(100vh - 100px));
+    }
+}
+
+@keyframes moveShape2 {
+    0% {
+      transform: translate(0, 0);
+    }
+    100% {
+      transform: translate(calc(-100vw + 100px), calc(-100vh + 100px));
+    }
+}

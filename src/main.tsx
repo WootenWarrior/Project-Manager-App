@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { Landing, Login, Signup } from './pages/index.ts'
+import { Dashboard, Landing, Login, Signup } from './pages/index.ts'
 import { createBrowserRouter,RouterProvider } from 'react-router-dom';
 
 const router = createBrowserRouter([
@@ -15,7 +15,12 @@ const router = createBrowserRouter([
   {
     path:"/Signup",
     element:<Signup />
+  },
+  {
+    path:"/Dashboard",
+    element:<Dashboard />
   }
+
 ])
 
 createRoot(document.getElementById('root')!).render(
