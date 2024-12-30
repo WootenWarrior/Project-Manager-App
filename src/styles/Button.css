@@ -1,0 +1,19 @@
+.default-button{
+    --text-color: "black";
+    --background: "white";
+
+    font-size: medium;
+    border: 1px solid black;
+    border-radius: 1rem;
+    padding: 1rem 2rem 1rem 2rem;
+    cursor: pointer;
+    background-color: var(--background);
+    color: var(--text-color);
+    transition: 1s;
+}
+
+.default-button:hover {
+    background-color: #ff6347;
+    color: white;
+    border-color: #ff6347;
+}

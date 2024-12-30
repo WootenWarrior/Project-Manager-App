@@ -1,6 +1,5 @@
 import "../styles/Input.css"
 
-//Defined optional values for the input input
 interface InputProps {
     type?: string;
     icon?: React.ReactNode;
@@ -8,9 +7,10 @@ interface InputProps {
     placeholder?: string;
     value?: string | number;
     onchange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    textcolor?: string;
 }
 
-const Input: React.FC<InputProps> = ({type,icon,name,placeholder,onchange}) =>{
+const Input: React.FC<InputProps> = ({type,icon,name,placeholder,onchange,textcolor}) =>{
     return(
         <div className="input-container">
             <span className="icon">{icon}</span>

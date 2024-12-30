@@ -39,17 +39,18 @@ function Login() {
                 <h1>LOGIN</h1>
                 <form className="form" onSubmit={handleLogin}>
                     <Input
-                    icon={<FaUser/>}
-                    type="text"
-                    name="email"
-                    placeholder="Enter Email"
-                    onchange={(e) => setEmail(e.target.value)}/>
+                        icon={<FaUser/>}
+                        type="text"
+                        name="email"
+                        placeholder="Enter Email"
+                        onchange={(e) => setEmail(e.target.value)}
+                        textcolor="black"/>
                     <Input
-                    icon={<FaLock/>}
-                    type="password"
-                    name="password"
-                    placeholder="Enter Password"
-                    onchange={(e) => setPassword(e.target.value)}/>
+                        icon={<FaLock/>}
+                        type="password"
+                        name="password"
+                        placeholder="Enter Password"
+                        onchange={(e) => setPassword(e.target.value)}/>
                     <div className="under-inputs">
                         <label>
                             <input 
@@ -62,13 +63,13 @@ function Login() {
                         <a href="">Forgot Password?</a>
                     </div>
                     <Button text="Login" 
-                    icon={<BiLogIn/>} 
-                    classname="login"/>
-                    {error && <p style={{ color: "red" }}>{error}</p>}
+                    aftericon={<BiLogIn/>} 
+                    classname="default-button"/>
+                    {error && <p className="error" style={{ color: "red"}}>{error}</p>}
                 </form>
                 <p>Don't have an account?</p>
                 <Button text="Sign Up" 
-                classname="signup"
+                classname="default-button"
                 onclick={goToSignup}/>
             </div>
         </div>

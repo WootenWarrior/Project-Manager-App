@@ -57,14 +57,20 @@ export const userLogin = async (email: string, password: string) => {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     return "Success";
   } catch (error: any) {
+    if(email == "") {
+      return "Please enter your email.";
+    }
+    if(password == "") {
+      return "Please enter a password.";
+    }
     if (error.code) {
       switch (error.code) {
         case "auth/invalid-email":
           return "Invalid email format.";
         case "auth/wrong-password":
           return "Incorrect password.";
-        case "auth/user-not-found":
-          return "No user found with this email.";
+        case "auth/invalid-credential":
+          return "Email or password is incorrect.";
         case "auth/user-disabled": 
           return "This account has been disabled.";
         case "auth/too-many-requests":

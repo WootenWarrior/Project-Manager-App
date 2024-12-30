@@ -42,21 +42,21 @@ function Signup(){
                 <h1>SIGN UP</h1>
                 <form className="form" onSubmit={handleSignup}>
                     <Input 
-                    type="text" 
-                    icon={<MdOutlineEmail/>} 
-                    name="email"
-                    placeholder="Enter Email"
-                    value={email}
-                    onchange={(e) => setEmail(e.target.value)}/>
+                        type="text" 
+                        icon={<MdOutlineEmail/>} 
+                        name="email"
+                        placeholder="Enter Email"
+                        value={email}
+                        onchange={(e) => setEmail(e.target.value)}/>
                     <Input 
-                    type="password" 
-                    icon={<FaLock/>} 
-                    name="password"
-                    placeholder="Enter Password"
-                    value={password}
-                    onchange={(e) => setPassword(e.target.value)}/>
+                        type="password" 
+                        icon={<FaLock/>} 
+                        name="password"
+                        placeholder="Enter Password"
+                        value={password}
+                        onchange={(e) => setPassword(e.target.value)}/>
                     <Button text="Sign up"
-                    classname="signup"/>
+                        classname="default-button"/>
                 </form>
                 {error && <p style={{ color: "red" }}>{error}</p>}
             </div>

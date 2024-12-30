@@ -1,0 +1,26 @@
+.dashboard-page{
+    background-color: var(--backgroundbase);
+    height: 100vh;
+    width: 95vw;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.dashboard-page .project-list{
+    height: 80%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin: 1rem;
+}
+
+.dashboard-page .project-list .projects{
+    height: 70%;
+}
+
+.dashboard-page .project-description{
+    width: 0%;
+    display: none;
+}

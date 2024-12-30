@@ -1,12 +1,5 @@
-:root{
-    --dgrey: #1a1a1a;
-    --tgrey: #58585830;
-    --orange: #FF8f00;
-    --torange: #FF8f0030;
-}
-
 .signup-page {
-    background-color: var(--dgrey);
+    background-color: var(--backgroundbase);
     height: 100vh;
     width: 100vw;
     display: flex;
@@ -16,11 +9,11 @@
 }
 
 .signup-box{
-    border: 0.1rem solid white;
+    border: 0.1rem solid var(--darkcolor);
     transform: scale(1.25);
-    height: 40rem;
-    width: 25rem;
-    background-color: var(--tgrey);
+    height: 60%;
+    width: 40%;
+    background-color: var(--backgroundbase);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -34,7 +27,7 @@
     padding: 1rem;
     font-family: monospace;
     font-size: 3rem;
-    color: white;
+    color: var(--darkcolor);
 }
 
 .signup-box form {
@@ -43,30 +36,5 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-}
-
-.signup-box form .signup {
-    display: inline-block;
-    transition: 1s;
-    font-family: monospace;
-    font-size: 1.5rem;
-    padding: 0.5rem; 
-    margin: 1.5rem 0; 
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    text-align: center;
-    border-top: 1rem;
-    border-left: 1rem;
-    border-right: 1rem;
-    border-bottom: 0px;
-    cursor: pointer;
-}
-
-.signup-box form .signup:hover {
-    transition: 1s;
-    background-color: var(--orange);
-    border-top: 1rem;
-    border-left: 1rem;
-    border-right: 1rem;
-    border-bottom: 0px;
+    gap: 1rem 2rem;
 }
