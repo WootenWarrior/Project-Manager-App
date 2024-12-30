@@ -10,8 +10,8 @@ interface ButtonProps {
     backgroundcolor?: string;
 }
 
-const Button: React.FC<ButtonProps> = (
-    {text, aftericon, beforeicon, onclick, classname, textcolor, backgroundcolor}) => {
+const Button: React.FC<ButtonProps> = 
+({text, aftericon, beforeicon, onclick, classname, textcolor, backgroundcolor}) => {
     return(
         <button onClick={onclick} className={classname}
             style={{"--text-color": textcolor,

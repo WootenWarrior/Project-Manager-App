@@ -1,14 +1,26 @@
+.dashboard{
+    width: 100vw;
+    max-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
 .dashboard-page{
     background-color: var(--backgroundbase);
     height: 100vh;
     width: 95vw;
+    max-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: space-around;
+    overflow: hidden;
 }
 
 .dashboard-page .project-list{
     height: 80%;
+    width: 80%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -17,10 +29,60 @@
 }
 
 .dashboard-page .project-list .projects{
-    height: 70%;
+    height: calc(70% - 1rem);
+    width: 100%;
+    place-items: center;
+    display: grid;
+    align-items: center;
+    justify-content: center;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+    overflow-y: scroll;
 }
 
-.dashboard-page .project-description{
+.dashboard-page .project-list .projects .option{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.dashboard-page .project-info{
     width: 0%;
     display: none;
+}
+
+.create_project_menu{
+    transition: 1s;
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    z-index: 100;
+    display: block;
+    width: 100%;
+    display: none;
+}
+
+.create_project_menu .inputs{
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   flex-direction: column;
+}
+
+.create_project_menu.active{
+    transition: 1s;
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    z-index: 100;
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-color: var(--backgroundbase50);
 }

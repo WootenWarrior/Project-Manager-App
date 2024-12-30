@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, collection, getFirestore } from "firebase/firestore";
+import { doc, addDoc, setDoc, collection, getFirestore } from "firebase/firestore";
 
 
 // Web app's Firebase configuration
@@ -83,3 +83,19 @@ export const userLogin = async (email: string, password: string) => {
     }
   }
 };
+
+export async function CreateProject(title:string,description:string,imageUrl:string) {
+  try {
+    const newProject = {
+      title: title,
+      description: description,
+      imageUrl: imageUrl,
+      createdAt: new Date(),
+    };
+
+    await addDoc(collection(db, "projects"), newProject);
+  }
+  catch (e) {
+    console.error("Error adding doc: ", e);
+  }
+}
