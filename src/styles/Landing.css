@@ -1,11 +1,3 @@
-:root{
-  --darkcolor: black;
-  --lightcolor: white;
-  --backgroundbase: #DCDCDC;
-  --backgroundbase50: #dcdcdc50;
-  --navbarheight: 10rem;
-}
-
 body{
   width: 100%;
   height: 200vh;

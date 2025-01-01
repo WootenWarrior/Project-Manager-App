@@ -14,8 +14,8 @@ const Button: React.FC<ButtonProps> =
 ({text, aftericon, beforeicon, onclick, classname, textcolor, backgroundcolor}) => {
     return(
         <button onClick={onclick} className={classname}
-            style={{"--text-color": textcolor,
-            "--background": backgroundcolor} as React.CSSProperties}>
+            style={{"--default-button-text-color": textcolor,
+            "--default-button-background": backgroundcolor} as React.CSSProperties}>
             {beforeicon && <span className="button-before-icon">{beforeicon}</span>}
             {text && <span>{text}</span>}
             {aftericon && <span className="button-after-icon">{aftericon}</span>}

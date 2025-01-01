@@ -1,3 +1,4 @@
+import './styles/Global.css'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Dashboard, Landing, Login, Signup } from './pages/index.ts'

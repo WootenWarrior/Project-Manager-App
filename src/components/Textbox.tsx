@@ -6,16 +6,18 @@ interface TextboxProps {
     textcolor?: string;
     width?: number;
     height?: number;
+    placeholder?: string;
 }
 
 const Textbox: React.FC<TextboxProps> = 
-({classname, backgroundcolour, textcolor, width, height}) => {
+({classname, backgroundcolour, textcolor, width, height, placeholder}) => {
     return (
-        <textarea className={classname}
+        <textarea className={classname} 
+            placeholder={placeholder}
             style={{background: backgroundcolour,
-            color: textcolor,
-            width: width,
-            height: height}}>
+                color: textcolor,
+                width: width,
+                height: height}}>
         </textarea>
     )
 }

@@ -1,23 +1,13 @@
-:root{
-    --darkcolor: black;
-    --lightcolor: white;
-    --backgroundbase: #DCDCDC;
-}
-
 .input-container {
     display: flex;
     align-items: center;
     margin-bottom: 1rem;
-}
-
-.input-container .icon {
+} .icon {
     margin-right: 1rem;
     transform: scale(1.25);
     color: var(--darkcolor);
     transition: 1s;
-}
-
-.input-container input{
+} input{
     transition: 1s;
     font-family: monospace;
     font-size: 1.5rem;
@@ -31,9 +21,7 @@
     border-top: 1rem;
     border-left: 1rem;
     border-right: 1rem;
-}
-
-.input-container input::placeholder {
+} input::placeholder {
     transition: 1s;
     color: var(--fontcolor); 
     opacity: 1; 

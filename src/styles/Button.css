@@ -1,14 +1,14 @@
 .default-button{
-    --text-color: "black";
-    --background: "white";
+    --default-button-text-color: black;
+    --default-button-background: transparent;
 
     font-size: medium;
     border: 1px solid black;
     border-radius: 1rem;
     padding: 1rem 2rem 1rem 2rem;
     cursor: pointer;
-    background-color: var(--background);
-    color: var(--text-color);
+    background-color: var(--default-button-background);
+    color: var(--default-button-text-color);
     transition: 1s;
 }
 

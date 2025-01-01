@@ -65,10 +65,17 @@
 }
 
 .create_project_menu .inputs{
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   flex-direction: column;
+    width: 50%;
+    height: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background-color: var(--lightcolor);
+    border-radius: 1rem;
+    border: 1px solid var(--darkcolor);
+    padding: 1rem;
+    margin-bottom: 2rem;
 }
 
 .create_project_menu.active{

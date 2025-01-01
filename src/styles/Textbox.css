@@ -1,0 +1,5 @@
+.default-textbox{
+    border-radius: 1rem;
+    resize: none;
+    font-size: large;
+}

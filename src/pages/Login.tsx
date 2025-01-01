@@ -64,13 +64,16 @@ function Login() {
                     </div>
                     <Button text="Login" 
                     aftericon={<BiLogIn/>} 
-                    classname="default-button"/>
+                    classname="default-button"
+                    backgroundcolor="black"
+                    textcolor="white"/>
                     {error && <p className="error" style={{ color: "red"}}>{error}</p>}
                 </form>
                 <p>Don't have an account?</p>
                 <Button text="Sign Up" 
                 classname="default-button"
-                onclick={goToSignup}/>
+                onclick={goToSignup}
+                backgroundcolor="transparent"/>
             </div>
         </div>
     )

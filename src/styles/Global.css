@@ -1,0 +1,13 @@
+:root {
+    /* Colour themes */
+    --darkcolor: black;
+    --lightcolor: white;
+    --backgroundbase: #DCDCDC;
+    --backgroundbase50: #dcdcdc75;
+
+    /* Navbars */
+    --navbarheight: 10rem;
+
+    /* Fonts */
+    font-size: x-small;
+}

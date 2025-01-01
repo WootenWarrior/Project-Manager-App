@@ -55,14 +55,16 @@ function Dashboard() {
                 </div>
             </div>
             <div className={`create_project_menu ${menuActive ? 'active' : ''}`}>
-                <div className="inputs">
+                <form className="inputs">
+                    <h1>Create new project</h1>
                     <Input
-                    textcolor="black"
-                    placeholder="Enter project name"/>
+                    textcolor="black"/>
                     <Textbox
+                    classname="default-textbox"
                     textcolor="black"
-                    backgroundcolour="transparent"/>
-                </div>
+                    backgroundcolour="transparent"
+                    placeholder="Enter project description..."/>
+                </form>
                 <div className="buttons">
                     <Button
                         classname="default-button"
