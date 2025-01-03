@@ -3,7 +3,7 @@ import Image from '../assets/react.svg';
 import { useState } from "react";
 import { Button, Option, Input, Textbox } from "../components";
 import { FaPlus } from "react-icons/fa6";
-import { CreateProject } from "../Firebase";
+//import { CreateProject } from "../Firebase";
 
 
 function Dashboard() {
@@ -58,12 +58,15 @@ function Dashboard() {
                 <form className="inputs">
                     <h1>Create new project</h1>
                     <Input
-                    textcolor="black"/>
+                    textcolor="black"
+                    width="100%"/>
                     <Textbox
                     classname="default-textbox"
                     textcolor="black"
                     backgroundcolour="transparent"
-                    placeholder="Enter project description..."/>
+                    placeholder="Enter project description..."
+                    width="100%"
+                    height="40%"/>
                 </form>
                 <div className="buttons">
                     <Button

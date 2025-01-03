@@ -2,7 +2,11 @@ interface ColorTheme {
     
 }
 
-const applyThemeColors = () => {}
+const applyThemeColors: React.FC<ColorTheme> = () => {
+    return(
+        <></>
+    )
+}
     
 
 export default applyThemeColors;

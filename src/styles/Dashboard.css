@@ -65,7 +65,7 @@
 }
 
 .create_project_menu .inputs{
-    width: 50%;
+    width: 30%;
     height: 50%;
     display: flex;
     align-items: center;
@@ -76,6 +76,13 @@
     border: 1px solid var(--darkcolor);
     padding: 1rem;
     margin-bottom: 2rem;
+}
+
+.create_project_menu .buttons{
+    width: 20%;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
 }
 
 .create_project_menu.active{

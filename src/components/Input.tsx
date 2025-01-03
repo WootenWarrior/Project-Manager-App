@@ -8,13 +8,14 @@ interface InputProps {
     value?: string | number;
     onchange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
     textcolor?: string;
+    width?: string;
 }
 
-const Input: React.FC<InputProps> = ({type,icon,name,placeholder,onchange,textcolor}) =>{
+const Input: React.FC<InputProps> = ({type,icon,name,placeholder,onchange,textcolor,width}) =>{
     return(
         <div className="input-container">
             <span className="icon">{icon}</span>
-            <input 
+            <input style={{width: width, color: textcolor}}
             type={type} 
             name={name} 
             placeholder={placeholder} 

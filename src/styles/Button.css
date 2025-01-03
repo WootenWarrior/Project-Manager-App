@@ -13,7 +13,7 @@
 }
 
 .default-button:hover {
-    background-color: #ff6347;
-    color: white;
-    border-color: #ff6347;
+    background-color: var(--highlight);
+    color: var(--backgroundbase);
+    border-color: var(--highlight);
 }

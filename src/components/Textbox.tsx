@@ -4,8 +4,8 @@ interface TextboxProps {
     classname?: string;
     backgroundcolour?: string;
     textcolor?: string;
-    width?: number;
-    height?: number;
+    width?: string;
+    height?: string;
     placeholder?: string;
 }
 
