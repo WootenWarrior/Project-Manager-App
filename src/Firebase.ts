@@ -15,6 +15,7 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
+console.log(import.meta.env.VITE_APP_API_KEY)
 const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
