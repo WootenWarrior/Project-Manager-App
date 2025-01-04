@@ -15,7 +15,6 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-console.log(import.meta.env.VITE_APP_API_KEY)
 const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
@@ -29,7 +28,6 @@ interface UserData {
 
 export const userSignup = async (data: UserData) => {
   try {
-    console.log(import.meta.env.VITE_APP_API_KEY);
     await createUserWithEmailAndPassword(auth, data.email, data.password);
     return "Success";
   } catch (error: any) {

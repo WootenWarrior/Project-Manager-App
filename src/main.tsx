@@ -20,9 +20,11 @@ const router = createBrowserRouter([
   {
     path:"/Dashboard",
     element:<Dashboard />
+  }],
+  {
+    basename:"/Project-Manager-App/"
   }
-
-])
+)
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
