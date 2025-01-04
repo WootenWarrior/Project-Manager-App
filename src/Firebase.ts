@@ -14,7 +14,6 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_APP_MEASUREMENT_ID
 };
 
-// service-account@single-mix-442716-q2.iam.gserviceaccount.com
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
