@@ -27,4 +27,4 @@ dist-ssr
 .env
 
 # Server and backend files
-src/server/
+src/server/*
