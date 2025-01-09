@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { Button,Input } from "../components"
 import "../styles/Login.css"
-import { FaUser,FaLock } from "react-icons/fa";
+import { FaUser,FaEye,FaEyeSlash } from "react-icons/fa";
 import { BiLogIn } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
-import { userLogin } from "../Firebase";
 
 function Login() {
     const navigate = useNavigate();
@@ -18,36 +17,46 @@ function Login() {
 
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const loginMessage = await userLogin(email,password);
+        try {
+            const res = await fetch("/api/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
+            });
 
-        if(loginMessage == "Success"){
-            navigate("/Dashboard")
-        }
-        else{
-            if(loginMessage){
-                setError(loginMessage);
+            if (!res.ok) {
+                const errorData = await res.text();  // Try to get the response text in case it's not JSON
+                setError(errorData);
+                console.log('Error:', errorData);
+                return;
             }
-            else{
-                console.log("Error occurred with no message output.");
-            }
+
+            const data = await res.json();
+        } catch (e) {
+            console.log(e);
+            navigate("/");
+            return;
         }
+        navigate("/Dashboard");
     }
 
     return (
         <div className="login-page">
             <div className="login-box">
                 <h1>LOGIN</h1>
-                <form className="form" onSubmit={handleLogin}>
+                <form className="form" onSubmit={handleLogin} action="/api/login">
                     <Input
                         icon={<FaUser/>}
-                        type="text"
+                        visible={true}
                         name="email"
                         placeholder="Enter Email"
                         onchange={(e) => setEmail(e.target.value)}
                         textcolor="black"/>
                     <Input
-                        icon={<FaLock/>}
-                        type="password"
+                        visible={false}
+                        icon={<FaEye/>}
+                        alternateIcon={<FaEyeSlash/>}
+                        select={true}
                         name="password"
                         placeholder="Enter Password"
                         onchange={(e) => setPassword(e.target.value)}/>

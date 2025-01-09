@@ -1,8 +1,8 @@
 import "../styles/Signup.css"
 import React, { useState } from "react";
-import { userSignup } from "../Firebase";
+import { userSignup } from "../server/Firebase";
 import { Button, Input } from "../components";
-import { FaLock } from "react-icons/fa";
+import { FaEye,FaEyeSlash } from "react-icons/fa";
 import { MdOutlineEmail } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 
@@ -42,15 +42,16 @@ function Signup(){
                 <h1>SIGN UP</h1>
                 <form className="form" onSubmit={handleSignup}>
                     <Input 
-                        type="text" 
+                        visible={true}
                         icon={<MdOutlineEmail/>} 
                         name="email"
                         placeholder="Enter Email"
                         value={email}
                         onchange={(e) => setEmail(e.target.value)}/>
                     <Input 
-                        type="password" 
-                        icon={<FaLock/>} 
+                        visible={false}
+                        icon={<FaEye/>}
+                        alternateIcon={<FaEyeSlash/>}
                         name="password"
                         placeholder="Enter Password"
                         value={password}
