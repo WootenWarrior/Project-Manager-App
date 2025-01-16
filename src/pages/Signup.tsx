@@ -1,6 +1,6 @@
 import "../styles/Signup.css"
 import React, { useState } from "react";
-import { userSignup } from "../server/Firebase";
+import { userSignup } from "../utils/Firebase";
 import { Button, Input } from "../components";
 import { FaEye,FaEyeSlash } from "react-icons/fa";
 import { MdOutlineEmail } from "react-icons/md";

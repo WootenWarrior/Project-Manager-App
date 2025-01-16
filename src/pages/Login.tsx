@@ -4,6 +4,7 @@ import "../styles/Login.css"
 import { FaUser,FaEye,FaEyeSlash } from "react-icons/fa";
 import { BiLogIn } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
+import { userLogin } from "../utils/Firebase";
 
 function Login() {
     const navigate = useNavigate();
@@ -18,20 +19,32 @@ function Login() {
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
+            const loginMessage = await userLogin(email,password);
+            
+            if(!(loginMessage && loginMessage == "Success")){
+                console.log('Error:', loginMessage);
+                return;
+            }
+            console.log("login success");
+
             const res = await fetch("/api/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ email }),
             });
 
-            if (!res.ok) {
-                const errorData = await res.text();  // Try to get the response text in case it's not JSON
+            if(!res.ok){
+                const errorData = await res.text();
                 setError(errorData);
                 console.log('Error:', errorData);
                 return;
             }
 
             const data = await res.json();
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("user", data.uid);
+
+            console.log(data)
         } catch (e) {
             console.log(e);
             navigate("/");
