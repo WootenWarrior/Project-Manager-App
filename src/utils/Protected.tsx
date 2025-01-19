@@ -1,8 +1,9 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 export const ProtectedRoute = () => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+    const navigate = useNavigate();
     useEffect(() => {
         const verifyUser = async () => {
             try {
@@ -18,25 +19,26 @@ export const ProtectedRoute = () => {
                 if(!res.ok){
                     const errorData = await res.text();
                     console.log('Error:', errorData);
+                    navigate("/login");
                     return;
                 }
 
                 const data = await res.json();
 
-                setIsAuthenticated(data.verified && (data.user == uid));
+                setIsAuthenticated(data.verified && (data.uid == uid));
             } catch (error) {
                 console.error("Error verifying user:", error);
                 setIsAuthenticated(false);
+                navigate("/login");
+                return;
             }
         }
         verifyUser();
     }, []);
 
-    if (isAuthenticated === null) {
+    if (!isAuthenticated) {
         // Loading menu
         return <div>Loading...</div>;
     }
-    
-    console.log("User verified: ", isAuthenticated)
     return isAuthenticated ? <Outlet /> : <Navigate to="/Login" />;
 }

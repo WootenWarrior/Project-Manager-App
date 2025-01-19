@@ -15,13 +15,12 @@ function Signup(){
     const handleSignup = async (e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError("");
-        const data = {
+        const userData = {
             email: email,
             password: password,
             createdAt: new Date(),
         }
-        
-        const message = await userSignup(data);
+        const message = await userSignup(userData);
 
         if(message == "Success"){
             navigate("/Login")
@@ -55,9 +54,9 @@ function Signup(){
                         name="password"
                         placeholder="Enter Password"
                         value={password}
-                        onchange={(e) => setPassword(e.target.value)}/>
-                    <Button text="Sign up"
-                        classname="default-button"/>
+                        onchange={(e) => setPassword(e.target.value)}
+                        select={true}/>
+                    <Button text="Sign up" classname="default-button"/>
                 </form>
                 {error && <p style={{ color: "red" }}>{error}</p>}
             </div>

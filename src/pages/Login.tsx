@@ -25,7 +25,6 @@ function Login() {
                 console.log('Error:', loginMessage);
                 return;
             }
-            console.log("login success");
 
             const res = await fetch("/api/login", {
                 method: "POST",
@@ -43,14 +42,12 @@ function Login() {
             const data = await res.json();
             localStorage.setItem("token", data.token);
             localStorage.setItem("user", data.uid);
-
-            console.log(data)
+            navigate("/Dashboard");
         } catch (e) {
             console.log(e);
             navigate("/");
             return;
         }
-        navigate("/Dashboard");
     }
 
     return (
