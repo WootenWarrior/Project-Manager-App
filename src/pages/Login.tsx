@@ -11,6 +11,7 @@ function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [rememberMe, setRememberMe] = useState(false);
 
     const goToSignup = () => {
         navigate("/Signup");
@@ -35,13 +36,18 @@ function Login() {
             if(!res.ok){
                 const errorData = await res.text();
                 setError(errorData);
-                console.log('Error:', errorData);
+                console.log(errorData);
                 return;
             }
 
-            const data = await res.json();
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("user", data.uid);
+            const { token, uid } = await res.json();
+            if (rememberMe) {
+                localStorage.setItem("token", token);
+                localStorage.setItem("user", uid);
+            } else {
+                sessionStorage.setItem("token", token);
+                sessionStorage.setItem("user", uid);
+            }
             navigate("/Dashboard");
         } catch (e) {
             console.log(e);
@@ -76,7 +82,8 @@ function Login() {
                             type="checkbox" 
                             id="remember" 
                             name="remember" 
-                            value="remember"/>
+                            value="remember"
+                            onChange={(e) => setRememberMe(e.target.checked)}/>
                             Remember me
                         </label>
                         <a href="">Forgot Password?</a>

@@ -2,7 +2,7 @@ import './styles/Global.css'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ProtectedRoute } from './utils/Protected.tsx'
-import { Dashboard, Landing, Login, Signup } from './pages/index.ts'
+import { Dashboard, Landing, Login, Signup, Project } from './pages/index.ts'
 import { createBrowserRouter,RouterProvider } from 'react-router-dom';
 
 const router = createBrowserRouter([
@@ -27,7 +27,18 @@ const router = createBrowserRouter([
         element: <Dashboard />,
       },
     ]
-  }],
+  },
+  {
+    path: "Project/:projectId",
+    element: <ProtectedRoute />,
+    children: [
+      {
+        path: "",
+        element: <Project />,
+      },
+    ]
+  }
+],
   {
     basename:"/Project-Manager-App/"
   }

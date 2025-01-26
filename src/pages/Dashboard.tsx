@@ -1,38 +1,64 @@
 import "../styles/Dashboard.css"
-import Image from '../assets/react.svg';
 import { useState, useEffect } from "react";
 import { Button, Option, Input, Textbox } from "../components";
 import { FaPlus } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
-
+import { handleLogout } from "../utils/Logout";
 
 function Dashboard() {
     const navigate = useNavigate();
-    const [options, setOptions] = useState<{id: number}[]>([]);
+    const [options, setOptions] = useState<{ 
+        id: number; 
+        title: string; 
+        description: string; 
+        url: string; 
+        time: string 
+    }[]>([]);
     const [error, setError] = useState("");
     const [menuActive, setMenuActive] = useState(false);
-    const [projectData, setProjectData] = useState({
+    const [projectData, setProjectData] = useState<{
+        title: string;
+        description: string;
+        image: File | null;
+    }>({
         title: '',
         description: '',
-        imageUrl: '',
-        createdAt: Date.now()
+        image: null,
     });
 
-    const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) : void => {
-        const { name, value } = event.target;
+    const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) : void => {
+        const { name, value } = e.target;
         setProjectData((prevData) => ({
             ...prevData,
             [name]: value,
         }));
     };
 
-    const handleDescriptionChange = (event: React.ChangeEvent<HTMLTextAreaElement>) : void => {
-        const { name, value } = event.target;
+    const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) : void => {
+        const { name, value } = e.target;
         setProjectData((prevData) => ({
             ...prevData,
             [name]: value,
         }));
     };
+
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            if (!file.type.startsWith("image/")) {
+                setError("Invalid image file.");
+                return;
+            }
+            setProjectData((prevData) => ({
+                ...prevData,
+                image: file,
+            }));
+        }
+    }
+
+    const handleProjectSelect = (projectId: string): void => {
+        navigate(`/Project/${projectId}`);
+    }
 
     const showMenu = () => {
         setMenuActive(true);
@@ -43,9 +69,12 @@ function Dashboard() {
     
     const createProject = async () => {
         try {
-            const uid = localStorage.getItem("user");
+            const uid = sessionStorage.getItem("user") || localStorage.getItem("user");
 
-            projectData.createdAt = Date.now();
+            if (projectData.title === "") {
+                setError("Project title required.");
+                return;
+            }
 
             const res = await fetch("/api/create", {
                 method: "POST",
@@ -56,12 +85,14 @@ function Dashboard() {
             if(!res.ok){
                 const errorData = await res.text();
                 setError(errorData);
-                console.log('Error:', errorData);
+                console.log(errorData);
                 return;
             }
 
             const data = await res.json();
             console.log(data);
+
+            navigate(`/Project/${data.projectId}`);
         } catch (error) {
             console.log(error);
         }
@@ -70,33 +101,41 @@ function Dashboard() {
     useEffect(() => {
         const setupDashboard = async () => {
             try {
-                const uid = localStorage.getItem("user");
+                const uid = localStorage.getItem("user") || sessionStorage.getItem("user");
+                if (!uid) {
+                    console.log("Error: No user id in session.")
+                    handleLogout(navigate);
+                    return;
+                }
+
                 const res = await fetch(`/api/dashboard?uid=${uid}`);
 
                 if(!res.ok){
                     const errorData = await res.text();
                     console.log('Unexpected error when fetching user dashboard data: ', errorData);
-                    navigate("/login");
+                    handleLogout(navigate);
                     return;
                 }
 
                 const data = await res.json();
-                console.log(data);
-
                 const projects = data.projects;
+
                 if (projects && Array.isArray(projects)) {
-                    const formattedOptions = projects.map((project: any) => ({
-                        id: project.id,
-                        ...project,
+                    const mappedOptions = data.projects.map((project: any) => ({
+                        id: project.id || "",
+                        title: project.name || "",
+                        description: project.description|| "",
+                        imageUrl: project.imageURL|| "",
+                        time: new Date(project.createdAt).toLocaleString() || "",
                     }));
-                    setOptions(formattedOptions);
+                    setOptions(mappedOptions);
                 }
                 else {
                     console.log("Problem with fetched projects.")
                 }
             } catch (error) {
                 console.log('Unexpected error: ', error);
-                navigate("/login");
+                handleLogout(navigate);
                 return;
             }
         }
@@ -117,10 +156,12 @@ function Dashboard() {
                     <div className="projects">
                         {options.map((option) => (
                         <Option key={option.id}
-                            imageUrl={Image}
+                            title={option.title}
+                            imageUrl={option.url}
                             width="200px"
                             height="200px"
-                            description="i am a project"/>))}
+                            description={option.description}
+                            onclick={() => handleProjectSelect(String(option.id))}/>))}
                     </div>
                 </div>
                 <div className="project-info">
@@ -143,6 +184,14 @@ function Dashboard() {
                     width="100%"
                     height="40%"
                     onchange={handleDescriptionChange}/>
+                    <div className="image-upload">
+                        <label htmlFor="project-image">Upload Project Image:</label>
+                        <input
+                            type="file"
+                            id="project-image"
+                            accept="image/*"
+                            onChange={handleImageUpload}/>
+                    </div>
                 </form>
                 <div className="buttons">
                     <Button

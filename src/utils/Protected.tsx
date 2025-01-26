@@ -1,14 +1,24 @@
-import { Navigate, Outlet, useNavigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { handleLogout } from "./Logout";
+import { Loading } from "../pages";
+import { useNavigate } from "react-router-dom";
 
 export const ProtectedRoute = () => {
+    const nav = useNavigate();
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-    const navigate = useNavigate();
+
     useEffect(() => {
         const verifyUser = async () => {
             try {
-                const token = localStorage.getItem("token");
-                const uid = localStorage.getItem("user");
+                const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+                const uid = localStorage.getItem("user") || sessionStorage.getItem("user");
+
+                if (!token || !uid) {
+                    console.log("Missing session uid or token.")
+                    handleLogout(nav);
+                    return;
+                }
 
                 const res = await fetch("/api/protected", {
                     method: "POST",
@@ -19,7 +29,7 @@ export const ProtectedRoute = () => {
                 if(!res.ok){
                     const errorData = await res.text();
                     console.log('Error:', errorData);
-                    navigate("/login");
+                    handleLogout(nav);
                     return;
                 }
 
@@ -29,7 +39,7 @@ export const ProtectedRoute = () => {
             } catch (error) {
                 console.error("Error verifying user:", error);
                 setIsAuthenticated(false);
-                navigate("/login");
+                handleLogout(nav);
                 return;
             }
         }
@@ -37,8 +47,8 @@ export const ProtectedRoute = () => {
     }, []);
 
     if (!isAuthenticated) {
-        // Loading menu
-        return <div>Loading...</div>;
+        return <Loading />;
     }
+
     return isAuthenticated ? <Outlet /> : <Navigate to="/Login" />;
 }
