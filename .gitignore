@@ -25,6 +25,3 @@ dist-ssr
 
 # Environment variables
 .env
-
-# Server and backend files
-src/server/*
