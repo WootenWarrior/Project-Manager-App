@@ -28,18 +28,18 @@ function Dashboard() {
     });
 
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) : void => {
-        const { name, value } = e.target;
+        const { value } = e.target;
         setProjectData((prevData) => ({
             ...prevData,
-            [name]: value,
+            title: value,
         }));
     };
 
     const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) : void => {
-        const { name, value } = e.target;
+        const { value } = e.target;
         setProjectData((prevData) => ({
             ...prevData,
-            [name]: value,
+            description: value,
         }));
     };
 
