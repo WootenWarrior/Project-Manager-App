@@ -1,4 +1,4 @@
 {
-    "server-origin" : "http://localhost:3000/Project-Manager-App/",
-    "server-connection" : "http://localhost"
+    "server-origin" : "https://project-manager-app-6rbg.onrender.com/",
+    "server-connection" : "https://project-manager-app-6rbg.onrender.com"
 }

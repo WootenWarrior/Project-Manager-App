@@ -4,6 +4,7 @@ import { Button, Option, Input, Textbox } from "../components";
 import { FaPlus } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { handleLogout } from "../utils/Logout";
+import { URL } from "../utils/BackendURL";
 
 function Dashboard() {
     const navigate = useNavigate();
@@ -76,7 +77,7 @@ function Dashboard() {
                 return;
             }
 
-            const res = await fetch("/api/create", {
+            const res = await fetch(`${URL}/api/create`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ uid: uid, projectData: projectData }),
@@ -108,7 +109,7 @@ function Dashboard() {
                     return;
                 }
 
-                const res = await fetch(`/api/dashboard?uid=${uid}`);
+                const res = await fetch(`${URL}/api/dashboard?uid=${uid}`);
 
                 if(!res.ok){
                     const errorData = await res.text();

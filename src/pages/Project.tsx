@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import "../styles/ProjectEditor.css";
 import { useEffect } from "react";
+import { URL } from "../utils/BackendURL";
 
 function Project() {
     const { projectId } = useParams();
@@ -9,7 +10,7 @@ function Project() {
         const uid = sessionStorage.getItem("user") || localStorage.getItem("user");
         const loadProjectData = async () => {
             try {
-                const res = await fetch("/api/project", {
+                const res = await fetch(`${URL}/api/project`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ projectId, uid }),

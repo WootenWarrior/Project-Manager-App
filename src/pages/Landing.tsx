@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom"
 import { Button } from "../components";
 import "../styles/Landing.css"
 
+
 function Landing() {
     const navigate = useNavigate();
 

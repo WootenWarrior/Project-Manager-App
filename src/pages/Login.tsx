@@ -5,6 +5,7 @@ import { FaUser,FaEye,FaEyeSlash } from "react-icons/fa";
 import { BiLogIn } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 import { userLogin } from "../utils/Firebase";
+import { URL } from "../utils/BackendURL";
 
 function Login() {
     const navigate = useNavigate();
@@ -27,7 +28,7 @@ function Login() {
                 return;
             }
 
-            const res = await fetch("/api/login", {
+            const res = await fetch(`${URL}/api/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email }),
@@ -60,7 +61,7 @@ function Login() {
         <div className="login-page">
             <div className="login-box">
                 <h1>LOGIN</h1>
-                <form className="form" onSubmit={handleLogin} action="/api/login">
+                <form className="form" onSubmit={handleLogin}>
                     <Input
                         icon={<FaUser/>}
                         visible={true}
