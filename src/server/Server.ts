@@ -4,6 +4,9 @@ import { generateToken, verifyToken } from "./JwtSession";
 import { readFileSync } from 'fs';
 import admin from 'firebase-admin';
 import { createRequire } from "module";
+import { getServerOrigin } from "./GetServerOrigin";
+
+const serverOrigin = getServerOrigin();
 
 const MAX_PROJECTS = 10;
 interface projectData {
@@ -28,7 +31,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-    origin: config['server-origin'],
+    origin: serverOrigin,
     methods: ["GET", "POST", "PUT", "DELETE"],
 }));
 
