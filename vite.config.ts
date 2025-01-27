@@ -6,6 +6,7 @@ export default defineConfig({
   base: '/Project-Manager-App/',
   plugins: [react()],
   server: {
+    allowedHosts:["project-manager-app-6rbg.onrender.com"],
     proxy: {
       '/api': {
         target: 'http://localhost:3000',
