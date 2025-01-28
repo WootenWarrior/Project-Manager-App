@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://localhost:5173/Project-Manager-App/",
+  "homepage": "/",
   "scripts": {
     "start": "npx tsx src/server/Server.ts",
     "dev": "cross-env NODE_ENV=dev vite --host --mode dev",
