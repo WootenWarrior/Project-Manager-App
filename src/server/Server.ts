@@ -7,6 +7,9 @@ import { createRequire } from "module";
 import { getServerOrigin } from "./GetServerOrigin";
 import { fileURLToPath } from "url";
 
+const serverOrigin = getServerOrigin();
+
+const MAX_PROJECTS = 10;
 interface projectData {
     title: string,
     description: string,
@@ -16,6 +19,7 @@ interface projectData {
 
 const require = createRequire(import.meta.url);
 const serviceAccount = require("./ServiceAccount.json");
+<<<<<<< HEAD
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
 });
@@ -23,10 +27,19 @@ admin.initializeApp({
 const serverOrigin = getServerOrigin();
 const MAX_PROJECTS = 10;
 const db = admin.firestore();
+=======
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+});
+const db = admin.firestore();
+
+>>>>>>> parent of c03da98 (Updated to serve a React frontend in express)
 const configPath = './src/server/serverconfig.json';
 const config = JSON.parse(readFileSync(configPath, 'utf8'));
 const PORT = 3000;
 const app = express();
+<<<<<<< HEAD
 const path = require("path");
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,11 +49,16 @@ app.get("*", (req, res) => {
     console.log(req);
     res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
+=======
+
+>>>>>>> parent of c03da98 (Updated to serve a React frontend in express)
 app.use(express.json());
 app.use(cors({
     origin: serverOrigin,
     methods: ["GET", "POST", "PUT", "DELETE"],
 }));
+
+
 
 const createProject = async (email: string, projectData: projectData) => {
     try {
