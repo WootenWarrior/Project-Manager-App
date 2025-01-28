@@ -5,6 +5,7 @@ import { readFileSync } from 'fs';
 import admin from 'firebase-admin';
 import { createRequire } from "module";
 import { getServerOrigin } from "./GetServerOrigin";
+import { fileURLToPath } from "url";
 
 interface projectData {
     title: string,
@@ -27,6 +28,8 @@ const config = JSON.parse(readFileSync(configPath, 'utf8'));
 const PORT = 3000;
 const app = express();
 const path = require("path");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 app.use(express.static(path.join(__dirname, "dist")));
 app.get("*", (req, res) => {
