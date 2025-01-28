@@ -13,20 +13,20 @@ interface projectData {
     createdAt: Date,
 }
 
-const serverOrigin = getServerOrigin();
-const MAX_PROJECTS = 10;
 const require = createRequire(import.meta.url);
 const serviceAccount = require("./ServiceAccount.json");
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+});
+
+const serverOrigin = getServerOrigin();
+const MAX_PROJECTS = 10;
 const db = admin.firestore();
 const configPath = './src/server/serverconfig.json';
 const config = JSON.parse(readFileSync(configPath, 'utf8'));
 const PORT = 3000;
 const app = express();
 const path = require("path");
-
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-});
 
 app.use(express.static(path.join(__dirname, "dist")));
 app.get("*", (req, res) => {
