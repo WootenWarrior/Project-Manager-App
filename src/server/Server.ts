@@ -35,6 +35,8 @@ app.use(cors({
     methods: ["GET", "POST", "PUT", "DELETE"],
 }));
 
+
+
 const createProject = async (email: string, projectData: projectData) => {
     try {
         const project = db.collection(`users/${email}/projects`);
@@ -51,6 +53,11 @@ const createProject = async (email: string, projectData: projectData) => {
         throw new Error("Failed to create project.");
     }
 }
+
+app.get("/", (req, res) => {
+    console.log(req.body);
+    res.send("/");
+});
 
 app.post("/api/create", async (req: Request, res: Response) => {
     try {
