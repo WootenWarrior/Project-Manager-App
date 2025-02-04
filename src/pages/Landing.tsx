@@ -23,15 +23,15 @@ function Landing() {
                         onclick={goToLogin} 
                         classname="default-button"
                         textcolor="black"
-                        backgroundcolor="transparent">
-                    </Button>
+                        backgroundcolor="transparent"
+                    />
                     <Button
                         text="SIGN-UP"
                         onclick={goToSignup}
                         classname="default-button"
                         textcolor="white"
-                        backgroundcolor="black">
-                    </Button>
+                        backgroundcolor="black"
+                    />
                 </div>
             </div>
             <div className="landing-visuals">

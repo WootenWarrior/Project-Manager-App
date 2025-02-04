@@ -10,7 +10,7 @@ export interface OptionProps {
     onclick?: () => void;
 }
 
-export const projectOption: React.FC<OptionProps> = ({width, height, title, url, description, onclick}) => {
+const projectOption: React.FC<OptionProps> = ({width, height, title, url, description, onclick}) => {
     return (
         <button className="option" onClick={onclick}
         style={{background:"white", 
@@ -38,3 +38,5 @@ export const projectOption: React.FC<OptionProps> = ({width, height, title, url,
         </button>
     );
 }
+
+export default projectOption;

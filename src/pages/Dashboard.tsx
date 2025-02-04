@@ -152,17 +152,21 @@ function Dashboard() {
                         beforeicon={<FaPlus/>}
                         text="Create project"
                         classname="default-button"
-                        onclick={showMenu}/>
+                        onclick={showMenu}
+                    />
                     {error && <p style={{ color: "red" }}>{error}</p>}
                     <div className="projects">
                         {options.map((option) => (
-                        <Option key={option.id}
-                            title={option.title}
-                            imageUrl={option.url}
-                            width="200px"
-                            height="200px"
-                            description={option.description}
-                            onclick={() => handleProjectSelect(String(option.id))}/>))}
+                            <Option key={option.id}
+                                title={option.title}
+                                id={option.id}
+                                url={option.url}
+                                width="200px"
+                                height="200px"
+                                description={option.description}
+                                onclick={() => handleProjectSelect(String(option.id))}
+                            />
+                        ))}
                     </div>
                 </div>
                 <div className="project-info">
@@ -173,38 +177,43 @@ function Dashboard() {
                 <form className="inputs">
                     <h1>Create new project</h1>
                     <Input
-                    textcolor="black"
-                    width="100%"
-                    onchange={handleTitleChange}
-                    visible={true}/>
+                        textcolor="black"
+                        width="100%"
+                        onchange={handleTitleChange}
+                        visible={true}
+                    />
                     <Textbox
-                    classname="default-textbox"
-                    textcolor="black"
-                    backgroundcolour="transparent"
-                    placeholder="Enter project description..."
-                    width="100%"
-                    height="40%"
-                    onchange={handleDescriptionChange}/>
+                        classname="default-textbox"
+                        textcolor="black"
+                        backgroundcolour="transparent"
+                        placeholder="Enter project description..."
+                        width="100%"
+                        height="40%"
+                        onchange={handleDescriptionChange}
+                    />
                     <div className="image-upload">
                         <label htmlFor="project-image">Upload Project Image:</label>
                         <input
                             type="file"
                             id="project-image"
                             accept="image/*"
-                            onChange={handleImageUpload}/>
+                            onChange={handleImageUpload}
+                        />
                     </div>
                 </form>
                 <div className="buttons">
                     <Button
                         classname="default-button"
                         text="cancel"
-                        onclick={hideMenu}/>
+                        onclick={hideMenu}
+                    />
                     <Button
                         classname="default-button"
                         text="Create"
                         backgroundcolor="black"
                         textcolor="white"
-                        onclick={createProject}/>
+                        onclick={createProject}
+                    />
                 </div>
             </div>
         </span>
