@@ -5,16 +5,11 @@ import { FaPlus } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { handleLogout } from "../utils/Logout";
 import { URL } from "../utils/BackendURL";
+import { OptionProps } from "../components/ProjectOption";
 
 function Dashboard() {
     const navigate = useNavigate();
-    const [options, setOptions] = useState<{ 
-        id: number; 
-        title: string; 
-        description: string; 
-        url: string; 
-        time: string 
-    }[]>([]);
+    const [options, setOptions] = useState<OptionProps[]>([]);
     const [error, setError] = useState("");
     const [menuActive, setMenuActive] = useState(false);
     const [projectData, setProjectData] = useState<{
@@ -70,7 +65,12 @@ function Dashboard() {
     
     const createProject = async () => {
         try {
-            const uid = sessionStorage.getItem("user") || localStorage.getItem("user");
+            const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+
+            if (!token) {
+                setError("Missing session uid or token.")
+                return;
+            }
 
             if (projectData.title === "") {
                 setError("Project title required.");
@@ -80,7 +80,7 @@ function Dashboard() {
             const res = await fetch(`${URL}/api/create`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ uid: uid, projectData: projectData }),
+                body: JSON.stringify({ token, projectData }),
             });
 
             if(!res.ok){
@@ -102,14 +102,14 @@ function Dashboard() {
     useEffect(() => {
         const setupDashboard = async () => {
             try {
-                const uid = localStorage.getItem("user") || sessionStorage.getItem("user");
-                if (!uid) {
-                    console.log("Error: No user id in session.")
+                const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+                if (!token) {
+                    console.log("Error: No token in session.")
                     handleLogout(navigate);
                     return;
                 }
 
-                const res = await fetch(`${URL}/api/dashboard?uid=${uid}`);
+                const res = await fetch(`${URL}/api/dashboard?token=${token}`);
 
                 if(!res.ok){
                     const errorData = await res.text();

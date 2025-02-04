@@ -1,15 +1,16 @@
 import placeholderImage from "../assets/No-Image-Placeholder.svg.png";
 
-interface OptionProps {
+export interface OptionProps {
+    id: number;
     width?: string;
     height?: string;
     title?: string;
-    imageUrl?: string;
+    url?: string;
     description?: string;
     onclick?: () => void;
 }
 
-const projectOption: React.FC<OptionProps> = ({width, height, title, imageUrl, description, onclick}) => {
+export const projectOption: React.FC<OptionProps> = ({width, height, title, url, description, onclick}) => {
     return (
         <button className="option" onClick={onclick}
         style={{background:"white", 
@@ -22,7 +23,7 @@ const projectOption: React.FC<OptionProps> = ({width, height, title, imageUrl, d
         overflow:"hidden",
         cursor:"pointer"}}>
             <img 
-                src={imageUrl || placeholderImage}
+                src={url || placeholderImage}
                 alt="Project image"
                 style={{width:"100%", 
                 height:"100%", 
@@ -37,5 +38,3 @@ const projectOption: React.FC<OptionProps> = ({width, height, title, imageUrl, d
         </button>
     );
 }
-
-export default projectOption

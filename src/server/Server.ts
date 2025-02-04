@@ -61,8 +61,14 @@ app.get("/", (req, res) => {
 app.post("/api/create", async (req: Request, res: Response) => {
     try {
         const data = req.body;
-        const uid = data.uid;
+        const token = data.token;
+        const verifiedToken = verifyToken(token);
+        if(!verifiedToken){
+            res.status(401).json({ message: "Token verification failed." });
+            return;
+        }
 
+        const uid = verifiedToken.userId;
         const user = await admin.auth().getUser(uid);
         const email = user.email;
 
@@ -106,13 +112,15 @@ app.post("/api/login", async (req: Request, res: Response) => {
 
 app.get("/api/dashboard", async (req: Request, res: Response) => {
     try {
-        const { uid } = req.query;
-        if (!uid) {
-            res.status(400).json({ error: "User ID is required", query: uid });
+        const token = String(req.query);
+        const verifiedToken = verifyToken(token);
+        if(!verifiedToken){
+            res.status(401).json({ message: "Token verification failed." });
+            return;
         }
 
-        const userId = String(uid);
-        const user = await admin.auth().getUser(userId);
+        const uid = verifiedToken.userId;
+        const user = await admin.auth().getUser(uid);
         const email = user.email;
 
         const projectsRef = db.collection(`users/${email}/projects`);
@@ -137,16 +145,18 @@ app.get("/api/dashboard", async (req: Request, res: Response) => {
 app.post("/api/project", async (req: Request, res: Response) => {
     try {
         const usersCollection = admin.firestore().collection("users");
-        const { projectId, uid } = req.body;
+        const { projectId, token } = req.body;
         if (!projectId) {
             res.status(404).json({ error: "Project id not set." });
             return;
         }
-        if (!uid) {
-            res.status(403).json({ error: "User id not found in session." });
+        const verifiedToken = verifyToken(token);
+        if(!verifiedToken){
+            res.status(401).json({ message: "Token verification failed." });
             return;
         }
 
+        const uid = verifiedToken.userId;
         const user = await admin.auth().getUser(uid);
         const email = user.email;
         if (!email) {
@@ -168,16 +178,23 @@ app.post("/api/project", async (req: Request, res: Response) => {
 });
 
 
-app.post("/api/protected", (req: Request, res: Response) => {
+app.post("/api/protected", async (req: Request, res: Response) => {
     try {
-        const { uid, token } = req.body;
+        const { token } = req.body;
 
         const verifiedToken = verifyToken(token);
         if(!verifiedToken){
             res.status(401).json({ message: "Token verification failed." });
             return;
         }
-        res.status(200).json({ verified: true, uid: uid });
+        const uid = verifiedToken.userId;
+        const user = await admin.auth().getUser(uid);
+        if(!user){
+            res.status(401).json({ message: "Invalid session user ID." });
+            return;
+        }
+
+        res.status(200).json({ verified: true, uid });
     } catch (error) {
         res.status(401).json({ message: "Unexpected error: ", error });
     }

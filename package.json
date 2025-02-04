@@ -15,6 +15,7 @@
     "run:all": "concurrently \"npm:start\" \"npm:run\""
   },
   "dependencies": {
+    "@atlaskit/pragmatic-drag-and-drop": "^1.5.0",
     "@types/jsonwebtoken": "^9.0.7",
     "concurrently": "^9.1.2",
     "cors": "^2.8.5",

@@ -40,7 +40,40 @@ function Landing() {
                     TAILORED FOR YOU.</p>
                 </div>
                 <div className="gif">
+
                 </div>
+            </div>
+            <div className="about-section">
+                <div className="panel">
+                    <div className="gif">
+                        
+                    </div>
+                    <div className="text">
+                        <p>QUICKLY EDIT TASKS <br/>
+                        AND SET TODOS.</p>
+                    </div>
+                </div>
+                <div className="panel">
+                    <div className="text">
+                        <p>KEEP TRACK OF TASKS <br/>
+                        AND SET NOTIFICATIONS.</p>
+                    </div>
+                    <div className="gif">
+
+                    </div>
+                </div>
+                <div className="panel">
+                    <div className="gif">
+
+                    </div>
+                    <div className="text">
+                        <p>ARRANGE STAGES AND <br/>
+                        CUSTOMISE EACH PROJECT. </p>
+                    </div>
+                </div>
+            </div>
+            <div className="footer">
+                
             </div>
         </div>
     )

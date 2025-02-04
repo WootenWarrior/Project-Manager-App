@@ -20,7 +20,6 @@ function Login() {
 
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log(URL);
         try {
             const loginMessage = await userLogin(email,password);
             

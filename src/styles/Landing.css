@@ -5,7 +5,7 @@ body{
   font-family: 'Inter', Arial, Helvetica, sans-serif;
 }
 
-.landing-page {
+.landing-page{
   height: 200vh;
 }
 
@@ -40,9 +40,6 @@ body{
 
 .landing-page .landing-visuals .text{
   font-size: x-large;
-}
-
-.landing-page .landing-visuals .text{
   display: flex;
   align-items: center;
   justify-content: center;
@@ -54,4 +51,42 @@ body{
   height: 40rem;
   outline: 1px solid black;
   border-radius: 20px;
+}
+
+.landing-page .about-section{
+  height: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-direction: column;
+  padding-bottom: var(--navbarheight);
+}
+
+.landing-page .about-section .panel{
+  width: 100%;
+  height: calc(100vh - var(--navbarheight));
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.landing-page .about-section .panel .text{
+  font-size: x-large;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.landing-page .about-section .panel .gif{
+  width: 50rem;
+  height: 40rem;
+  outline: 1px solid black;
+  border-radius: 20px;
+}
+
+.landing-page .footer{
+  width: 100%;
+  min-height: var(--navbarheight);
+  background-color: grey;
 }

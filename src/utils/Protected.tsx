@@ -23,7 +23,7 @@ export const ProtectedRoute = () => {
                 const res = await fetch("/api/protected", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ uid, token }),
+                    body: JSON.stringify({ token }),
                 });
 
                 if(!res.ok){

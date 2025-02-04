@@ -7,13 +7,13 @@ function Project() {
     const { projectId } = useParams();
 
     useEffect(() => {
-        const uid = sessionStorage.getItem("user") || localStorage.getItem("user");
+        const token = sessionStorage.getItem("token") || localStorage.getItem("token");
         const loadProjectData = async () => {
             try {
                 const res = await fetch(`${URL}/api/project`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ projectId, uid }),
+                    body: JSON.stringify({ projectId, token }),
                 });
 
                 if(!res.ok){
@@ -30,6 +30,8 @@ function Project() {
         }
         loadProjectData();
     });
+
+
 
     return (
         <div className="project">
