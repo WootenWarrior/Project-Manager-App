@@ -7,7 +7,8 @@ interface StageProps {
 
 const Stage: React.FC<StageProps> = ({taskList}) => {
     const [tasks, setTasks] = useState<TaskProps[]>(taskList);
-    const handleTaskSelect = (taskID:string):void => {
+    const [isTaskPageActive, showTaskPage] = useState<boolean>();
+    const handleTaskSelect = (id :string) :void => {
         
     }
     return (
