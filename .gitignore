@@ -26,4 +26,4 @@ dist-ssr
 # Environment variables
 .env
 
-src\server\ServiceAccount.json
+src/server/*.json
