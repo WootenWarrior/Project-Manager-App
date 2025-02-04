@@ -112,7 +112,8 @@ app.post("/api/login", async (req: Request, res: Response) => {
 
 app.get("/api/dashboard", async (req: Request, res: Response) => {
     try {
-        const token = String(req.query);
+        const token = String(req.query.token);
+        
         const verifiedToken = verifyToken(token);
         if(!verifiedToken){
             res.status(401).json({ message: "Token verification failed." });

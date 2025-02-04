@@ -68,7 +68,8 @@ function Login() {
                         name="email"
                         placeholder="Enter Email"
                         onchange={(e) => setEmail(e.target.value)}
-                        textcolor="black"/>
+                        textcolor="black"
+                    />
                     <Input
                         visible={false}
                         icon={<FaEye/>}
@@ -76,31 +77,35 @@ function Login() {
                         select={true}
                         name="password"
                         placeholder="Enter Password"
-                        onchange={(e) => setPassword(e.target.value)}/>
+                        onchange={(e) => setPassword(e.target.value)}
+                    />
                     <div className="under-inputs">
                         <label>
                             <input 
-                            type="checkbox" 
-                            id="remember" 
-                            name="remember" 
-                            value="remember"
-                            onChange={(e) => setRememberMe(e.target.checked)}/>
+                                type="checkbox" 
+                                id="remember" 
+                                name="remember" 
+                                value="remember"
+                                onChange={(e) => setRememberMe(e.target.checked)}
+                            />
                             Remember me
                         </label>
                         <a href="">Forgot Password?</a>
                     </div>
                     <Button text="Login" 
-                    aftericon={<BiLogIn/>} 
-                    classname="default-button"
-                    backgroundcolor="black"
-                    textcolor="white"/>
+                        aftericon={<BiLogIn/>} 
+                        classname="default-button"
+                        backgroundcolor="black"
+                        textcolor="white"
+                    />
                     {error && <p className="error" style={{ color: "red"}}>{error}</p>}
                 </form>
                 <p>Don't have an account?</p>
                 <Button text="Sign Up" 
-                classname="default-button"
-                onclick={goToSignup}
-                backgroundcolor="transparent"/>
+                    classname="default-button"
+                    onclick={goToSignup}
+                    backgroundcolor="transparent"
+                />
             </div>
         </div>
     )

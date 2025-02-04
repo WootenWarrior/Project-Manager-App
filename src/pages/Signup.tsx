@@ -46,7 +46,8 @@ function Signup(){
                         name="email"
                         placeholder="Enter Email"
                         value={email}
-                        onchange={(e) => setEmail(e.target.value)}/>
+                        onchange={(e) => setEmail(e.target.value)}
+                    />
                     <Input 
                         visible={false}
                         icon={<FaEye/>}
@@ -55,7 +56,8 @@ function Signup(){
                         placeholder="Enter Password"
                         value={password}
                         onchange={(e) => setPassword(e.target.value)}
-                        select={true}/>
+                        select={true}
+                    />
                     <Button text="Sign up" classname="default-button"/>
                 </form>
                 {error && <p style={{ color: "red" }}>{error}</p>}
