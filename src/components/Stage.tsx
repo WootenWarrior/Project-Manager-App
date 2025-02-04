@@ -1,5 +1,6 @@
 import { Task, TaskProps } from "./Task";
 import { useState } from "react";
+import Button from "./Button";
 
 interface StageProps {
     taskList: TaskProps[]
@@ -7,10 +8,18 @@ interface StageProps {
 
 const Stage: React.FC<StageProps> = ({taskList}) => {
     const [tasks, setTasks] = useState<TaskProps[]>(taskList);
-    const [isTaskPageActive, showTaskPage] = useState<boolean>();
-    const handleTaskSelect = (id :string) :void => {
-        
+
+    const addTask = () => {
+        setTasks((tasks) => ({
+            ...tasks,
+
+        }))
     }
+
+    const handleTaskSelect = (id: string) => {
+        console.log(id);
+    }
+    
     return (
         <div className="stage">
             <div className="tasks">
@@ -23,6 +32,7 @@ const Stage: React.FC<StageProps> = ({taskList}) => {
                     />
                 ))} 
             </div>
+            <Button onclick={addTask}/>
         </div>
     )
 }

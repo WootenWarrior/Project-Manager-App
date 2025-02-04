@@ -10,6 +10,7 @@ export interface TaskProps {
 
 export const Task: React.FC<TaskProps> = ({name, completed, onclick}) => {
     const [isCompleted, setCompleted] = useState<boolean>(completed);
+    console.log(isCompleted,setCompleted);
     return (
         <Button classname="task" 
             onclick={onclick}
