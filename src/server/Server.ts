@@ -6,16 +6,30 @@ import admin from 'firebase-admin';
 import { createRequire } from "module";
 import { getServerOrigin } from "./GetServerOrigin";
 
-const serverOrigin = getServerOrigin();
+// INTERFACES
 
-const MAX_PROJECTS = 10;
 interface projectData {
     title: string,
     description: string,
     imageURL: string,
     createdAt: Date,
 }
+interface stageData {
+    stageID: string;
+    stageName: string;
+    taskList: taskData[];
+}
+interface taskData {
+    id: number;
+    name: string;
+    completed: boolean;
+}
 
+
+// SETUP
+
+const serverOrigin = getServerOrigin();
+const MAX_PROJECTS = 10;
 const require = createRequire(import.meta.url);
 const serviceAccount = require("./ServiceAccount.json");
 admin.initializeApp({
@@ -24,9 +38,9 @@ admin.initializeApp({
 const db = admin.firestore();
 const configPath = './src/server/serverconfig.json';
 const config = JSON.parse(readFileSync(configPath, 'utf8'));
+
 const PORT = 3000;
 const app = express();
-
 
 app.use(express.json());
 app.use(cors({
@@ -35,6 +49,7 @@ app.use(cors({
 }));
 
 
+//DATABASE EDITING FUNCTIONS
 
 const createProject = async (email: string, projectData: projectData) => {
     try {
@@ -52,6 +67,33 @@ const createProject = async (email: string, projectData: projectData) => {
         throw new Error("Failed to create project.");
     }
 }
+
+const createStage = async (email: string, stageData: stageData, projectID: string) => {
+    try {
+        const stage = db.collection(`users/${email}/projects/${projectID}/stages`);
+        await stage.doc(stageData.stageID).set(stageData);
+
+        console.log(`User: ${email}, created stage: ${stageData.stageID}`);
+        return stageData.stageID;
+    } catch (error) {
+        throw new Error("Failed to create stage.");
+    }
+}
+
+const createTask = async (email: string, taskData: taskData, projectID: string, stageID: string) => {
+    try {
+        const stage = db.collection(`users/${email}/projects/${projectID}/${stageID}`);
+        const doc = await stage.add(taskData);
+
+        console.log(`User: ${email}, created task: ${doc.id}`);
+        return doc.id;
+    } catch (error) {
+        throw new Error("Failed to create task.");
+    }
+}
+
+
+// ROUTES
 
 app.get("/", (req, res) => {
     console.log(req.body);
@@ -90,6 +132,64 @@ app.post("/api/create", async (req: Request, res: Response) => {
     } catch (error) {
         console.log("Error when creating project: ", error);
         res.status(500).json({ error: "An error occurred during project creation." });
+    }
+});
+
+app.post("/api/new-stage", async (req: Request, res: Response) => {
+    try {
+        const data = req.body;
+        const token = data.token;
+        const verifiedToken = verifyToken(token);
+        if(!verifiedToken){
+            res.status(401).json({ message: "Token verification failed." });
+            return;
+        }
+        const uid = verifiedToken.userId;
+        const user = await admin.auth().getUser(uid);
+        const email = user.email;
+
+        if (!email){
+            res.status(401).json({ message: "Error matching user id to email." });
+            return;
+        }
+
+        const stage = data.newStage;
+        const projectID = data.projectID;
+
+        if (!stage) {
+            res.status(401).json({ message: "Missing stage data." });
+            return;
+        }
+        if (!projectID) {
+            res.status(401).json({ message: "Missing project ID." });
+            return;
+        }
+
+        const docid = createStage(email, stage, projectID);
+        console.log(`Stage ${docid} added succesfully.`)
+
+        res.status(200).json({ message: "Stage added succesfully.", docid });
+    } catch (error) {
+        console.log("Error when creating stage: ", error);
+        res.status(500).json({ error: "An error occurred during stage creation." });
+    }
+});
+
+app.post("/api/new-task", async (req: Request, res: Response) => {
+    try {
+        const data = req.body;
+        const token = data.token;
+        const verifiedToken = verifyToken(token);
+        if(!verifiedToken){
+            res.status(401).json({ message: "Token verification failed." });
+            return;
+        }
+
+        const task = data.newTask;
+        console.log("Task added succesfully.")
+    } catch (error) {
+        console.log("Error when creating task: ", error);
+        res.status(500).json({ error: "An error occurred during task creation." });
     }
 });
 
@@ -200,6 +300,9 @@ app.post("/api/protected", async (req: Request, res: Response) => {
         res.status(401).json({ message: "Unexpected error: ", error });
     }
 });
+
+
+// SERVER ENTRY
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${config["server-connection"],PORT}`);

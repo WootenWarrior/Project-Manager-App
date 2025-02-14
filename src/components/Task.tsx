@@ -2,19 +2,29 @@ import { useState } from "react";
 import Button from "./Button";
 
 export interface TaskProps {
-    id: number;
+    taskID: string;
     name: string;
     completed: boolean;
-    onclick?: () => void;
+    onclick?: (id:string) => void;
 }
 
-export const Task: React.FC<TaskProps> = ({name, completed, onclick}) => {
+const Task: React.FC<TaskProps> = ({taskID, name, completed, onclick}) => {
     const [isCompleted, setCompleted] = useState<boolean>(completed);
     console.log(isCompleted,setCompleted);
+
+    const handleSelect = () => {
+        if (!onclick) {
+            return;
+        }
+        onclick(String(taskID));
+    }
+
     return (
-        <Button classname="task" 
-            onclick={onclick}
+        <Button classname="default-button" 
+            onclick={handleSelect}
             text={name}>
         </Button>
     )
 }
+
+export default Task;

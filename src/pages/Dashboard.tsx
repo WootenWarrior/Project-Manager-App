@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { handleLogout } from "../utils/Logout";
 import { URL } from "../utils/BackendURL";
 import { OptionProps } from "../components/ProjectOption";
+import HiddenMenu from "../components/HiddenMenu";
 
 function Dashboard() {
     const navigate = useNavigate();
@@ -173,49 +174,33 @@ function Dashboard() {
                     <h1>Project</h1>
                 </div>
             </div>
-            <div className={`create_project_menu ${menuActive ? 'active' : ''}`}>
-                <form className="inputs">
-                    <h1>Create new project</h1>
-                    <Input
-                        textcolor="black"
-                        width="100%"
-                        onchange={handleTitleChange}
-                        visible={true}
-                    />
-                    <Textbox
-                        classname="default-textbox"
-                        textcolor="black"
-                        backgroundcolour="transparent"
-                        placeholder="Enter project description..."
-                        width="100%"
-                        height="40%"
-                        onchange={handleDescriptionChange}
-                    />
-                    <div className="image-upload">
-                        <label htmlFor="project-image">Upload Project Image:</label>
-                        <input
-                            type="file"
-                            id="project-image"
-                            accept="image/*"
-                            onChange={handleImageUpload}
-                        />
-                    </div>
-                </form>
-                <div className="buttons">
-                    <Button
-                        classname="default-button"
-                        text="cancel"
-                        onclick={hideMenu}
-                    />
-                    <Button
-                        classname="default-button"
-                        text="Create"
-                        backgroundcolor="black"
-                        textcolor="white"
-                        onclick={createProject}
+            <HiddenMenu visible={menuActive} close={hideMenu} create={createProject}>
+                <h1>Create new project</h1>
+                <Input
+                    textcolor="black"
+                    width="100%"
+                    onchange={handleTitleChange}
+                    visible={true}
+                />
+                <Textbox
+                    classname="default-textbox"
+                    textcolor="black"
+                    backgroundcolour="transparent"
+                    placeholder="Enter project description..."
+                    width="100%"
+                    height="40%"
+                    onchange={handleDescriptionChange}
+                />
+                <div className="image-upload">
+                    <label htmlFor="project-image">Upload Project Image:</label>
+                    <input
+                        type="file"
+                        id="project-image"
+                        accept="image/*"
+                        onChange={handleImageUpload}
                     />
                 </div>
-            </div>
+            </HiddenMenu>
         </span>
     )
 }
