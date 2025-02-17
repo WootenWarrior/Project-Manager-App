@@ -19,6 +19,9 @@ function Project() {
     const [taskName, setTaskName] = useState("");
     const [stageName, setStageName] = useState("");
 
+    // TEMP BUG FIXES
+    console.log(selectedTaskId);
+
 
     // MENU TOGGLES
 
