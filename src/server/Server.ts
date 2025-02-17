@@ -4,6 +4,7 @@ import { generateToken, verifyToken } from "./JwtSession";
 import { readFileSync } from 'fs';
 import admin from 'firebase-admin';
 import { getServerOrigin } from "./ServerUtils";
+import path from 'path';
 
 // INTERFACES
 
@@ -104,9 +105,16 @@ const createTask = async (email: string, taskData: taskData, projectID: string, 
 
 // ROUTES
 
-app.get("/", (req, res) => {
-    console.log(req.body);
-    res.send("/");
+app.use(express.static(path.join(__dirname, 'build')));
+
+// Catch-all route to serve index.html for any other requests
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+  console.log(req);
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
 
 app.post("/api/create", async (req: Request, res: Response) => {
