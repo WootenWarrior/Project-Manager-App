@@ -3,7 +3,7 @@ import cors from "cors";
 import { generateToken, verifyToken } from "./JwtSession";
 import { readFileSync } from 'fs';
 import admin from 'firebase-admin';
-import { getServerOrigin } from "./ServerUtils";
+import { getServerOrigin, getServiceAccountOrigin } from "./ServerUtils";
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -31,7 +31,7 @@ interface taskData {
 // SETUP
 
 const serverOrigin = getServerOrigin();
-const serviceAccountPath = '/etc/secrets/ServiceAccount.json';
+const serviceAccountPath = getServiceAccountOrigin();
 
 let serviceAccount;
 
@@ -39,7 +39,7 @@ try {
     const serviceAccountData = readFileSync(serviceAccountPath, 'utf8');
     serviceAccount = JSON.parse(serviceAccountData);
 } catch (error) {
-    console.error('Failed to load service account from secrets:', error);
+    console.error('Failed to load service account: ', error);
     process.exit(1);
 }
 const MAX_PROJECTS = 10;
@@ -112,7 +112,6 @@ app.use(express.static(path.join(__dirname, "/dist")));
 // Catch-all route to serve index.html for any other requests
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, "/dist", 'index.html'));
-  console.log(req);
 });
 
 app.post("/api/create", async (req: Request, res: Response) => {
