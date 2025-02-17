@@ -30,8 +30,6 @@ const Stage: React.FC<StageProps> = ({stageName, taskList, showTaskMenu, stageID
         setTasks((prevTasks) => [...prevTasks, newTask]);
     }
 
-    console.log(addTask);
-
     return (
         <div className="stage" id={stageName}>
             <div className="tasks">

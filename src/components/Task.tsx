@@ -33,9 +33,6 @@ const Task: React.FC<TaskProps> = ({taskID, name, completed, onclick}) => {
         setCompleted(true);
     }
 
-    console.log(isCompleted);
-    console.log(completeTask);
-
     return (
         <div ref={setNodeRef} style={style} className="task">
             <div className="drag-handle" {...listeners} {...attributes}>

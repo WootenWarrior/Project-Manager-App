@@ -4,7 +4,7 @@ import { generateToken, verifyToken } from "./JwtSession";
 import { readFileSync } from 'fs';
 import admin from 'firebase-admin';
 import { createRequire } from "module";
-import { getServerOrigin } from "./GetServerOrigin";
+import { getServerOrigin } from "./ServerUtils";
 
 // INTERFACES
 
@@ -30,9 +30,18 @@ interface taskData {
 // SETUP
 
 const serverOrigin = getServerOrigin();
+const serviceAccountPath = '/etc/secrets/ServiceAccount.json';
+
+let serviceAccount;
+
+try {
+    const serviceAccountData = readFileSync(serviceAccountPath, 'utf8');
+    serviceAccount = JSON.parse(serviceAccountData);
+} catch (error) {
+    console.error('Failed to load service account from secrets:', error);
+    process.exit(1);
+}
 const MAX_PROJECTS = 10;
-const require = createRequire(import.meta.url);
-const serviceAccount = require("./ServiceAccount.json");
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
 });

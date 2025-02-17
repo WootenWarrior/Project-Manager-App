@@ -1,5 +1,7 @@
 {
     "prod-origin": "https://project-manager-app-6rbg.onrender.com/",
     "dev-origin": "http://localhost:3000/",
-    "server-connection" : "https://project-manager-app-6rbg.onrender.com"
+    "server-connection" : "https://project-manager-app-6rbg.onrender.com",
+    "prodSA": "/etc/secrets/ServiceAccount.json",
+    "devSA": "src/server/ServiceAccount.json"
 }
