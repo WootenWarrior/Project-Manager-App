@@ -115,10 +115,6 @@ app.get('*', (req, res) => {
   console.log(req);
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
 app.post("/api/create", async (req: Request, res: Response) => {
     try {
         const data = req.body;
