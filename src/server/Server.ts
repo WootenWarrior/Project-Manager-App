@@ -3,7 +3,6 @@ import cors from "cors";
 import { generateToken, verifyToken } from "./JwtSession";
 import { readFileSync } from 'fs';
 import admin from 'firebase-admin';
-import { createRequire } from "module";
 import { getServerOrigin } from "./ServerUtils";
 
 // INTERFACES
