@@ -3,8 +3,8 @@ import cors from "cors";
 import { generateToken, verifyToken } from "./JwtSession";
 import { readFileSync } from 'fs';
 import admin from 'firebase-admin';
-import { getServerOrigin, getServiceAccountOrigin } from "./ServerUtils";
-import path from 'path';
+import { getServerOrigin, getServiceAccountOrigin, getStaticFilePath } from "./ServerUtils";
+import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 // INTERFACES
@@ -105,15 +105,6 @@ const createTask = async (email: string, taskData: taskData, projectID: string, 
 
 
 // ROUTES
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-app.use(express.static(path.join(__dirname, "/dist")));
-
-// Catch-all route to serve index.html for any other requests
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, "/dist", 'index.html'));
-  console.log(req);
-});
 
 app.post("/api/create", async (req: Request, res: Response) => {
     try {
@@ -361,6 +352,25 @@ app.post("/api/protected", async (req: Request, res: Response) => {
         res.status(200).json({ verified: true, uid });
     } catch (error) {
         res.status(401).json({ message: "Unexpected error: ", error });
+    }
+});
+
+
+// Catch-all route
+
+const filename = fileURLToPath(import.meta.url);
+const _dirname = path.dirname(filename);
+const static_path = getStaticFilePath();
+app.use(express.static(path.join(_dirname, static_path)));
+console.log(path.join(_dirname, static_path));
+
+app.get('*', (req, res) => {
+    try {
+        const data = req.body;
+        res.sendFile(path.join(_dirname, static_path, 'index.html'));
+        res.status(200).json({ message: "Unexpected route handled in catch all.", data});
+    } catch (error) {
+        res.status(404).json({ message: "Unexpected error: ", error });
     }
 });
 
