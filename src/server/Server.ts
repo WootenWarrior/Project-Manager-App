@@ -112,6 +112,7 @@ app.use(express.static(path.join(__dirname, "/dist")));
 // Catch-all route to serve index.html for any other requests
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, "/dist", 'index.html'));
+  console.log(req);
 });
 
 app.post("/api/create", async (req: Request, res: Response) => {
