@@ -48,17 +48,8 @@
     border-radius: 2rem;
     border: 1px solid black;
     display: flex;
-    justify-content: space-between;
+    justify-content: left;
     flex-direction: row;
-}
-
-.project .panels .project-creation-window .stages .stage{
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: space-between;
-    flex-direction: column;
-    background-color: var(--dark-grey);
-    border-radius: 2rem;
-    border: 1px solid black;
+    overflow-x: scroll;
+    overflow-y: hidden;
 }

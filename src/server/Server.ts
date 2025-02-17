@@ -20,7 +20,8 @@ interface stageData {
     taskList: taskData[];
 }
 interface taskData {
-    id: number;
+    taskID: string;
+    stageID: string;
     name: string;
     completed: boolean;
 }
@@ -49,7 +50,7 @@ app.use(cors({
 }));
 
 
-//DATABASE EDITING FUNCTIONS
+// FUNCTIONS
 
 const createProject = async (email: string, projectData: projectData) => {
     try {
@@ -70,8 +71,8 @@ const createProject = async (email: string, projectData: projectData) => {
 
 const createStage = async (email: string, stageData: stageData, projectID: string) => {
     try {
-        const stage = db.collection(`users/${email}/projects/${projectID}/stages`);
-        await stage.doc(stageData.stageID).set(stageData);
+        const stages = db.collection(`users/${email}/projects/${projectID}/stages`);
+        await stages.doc(stageData.stageID).set(stageData);
 
         console.log(`User: ${email}, created stage: ${stageData.stageID}`);
         return stageData.stageID;
@@ -82,11 +83,11 @@ const createStage = async (email: string, stageData: stageData, projectID: strin
 
 const createTask = async (email: string, taskData: taskData, projectID: string, stageID: string) => {
     try {
-        const stage = db.collection(`users/${email}/projects/${projectID}/${stageID}`);
-        const doc = await stage.add(taskData);
+        const tasks = db.collection(`users/${email}/projects/${projectID}/stages/${stageID}/tasks`);
+        await tasks.doc(taskData.taskID).set(taskData);
 
-        console.log(`User: ${email}, created task: ${doc.id}`);
-        return doc.id;
+        console.log(`User: ${email}, created task: ${taskData.taskID}`);
+        return taskData.taskID;
     } catch (error) {
         throw new Error("Failed to create task.");
     }
@@ -113,7 +114,6 @@ app.post("/api/create", async (req: Request, res: Response) => {
         const uid = verifiedToken.userId;
         const user = await admin.auth().getUser(uid);
         const email = user.email;
-
         if (!email){
             res.status(401).json({ message: "Error matching user id to email." });
             return;
@@ -144,10 +144,10 @@ app.post("/api/new-stage", async (req: Request, res: Response) => {
             res.status(401).json({ message: "Token verification failed." });
             return;
         }
+
         const uid = verifiedToken.userId;
         const user = await admin.auth().getUser(uid);
         const email = user.email;
-
         if (!email){
             res.status(401).json({ message: "Error matching user id to email." });
             return;
@@ -185,8 +185,32 @@ app.post("/api/new-task", async (req: Request, res: Response) => {
             return;
         }
 
+        const uid = verifiedToken.userId;
+        const user = await admin.auth().getUser(uid);
+        const email = user.email;
+        if (!email){
+            res.status(401).json({ message: "Error matching user id to email." });
+            return;
+        }
+
         const task = data.newTask;
-        console.log("Task added succesfully.")
+        const stageID = data.stageID;
+        const projectID = data.projectID;
+        if (!task) {
+            res.status(401).json({ message: "Missing task data." });
+            return;
+        }
+        if (!stageID) {
+            res.status(401).json({ message: "Missing stage ID." });
+            return;
+        }
+        if (!projectID) {
+            res.status(401).json({ message: "Missing project ID." });
+            return;
+        }
+
+        const docid = createTask(email, task, stageID, projectID);
+        console.log(`Task ${docid} added succesfully.`)
     } catch (error) {
         console.log("Error when creating task: ", error);
         res.status(500).json({ error: "An error occurred during task creation." });
@@ -223,6 +247,10 @@ app.get("/api/dashboard", async (req: Request, res: Response) => {
         const uid = verifiedToken.userId;
         const user = await admin.auth().getUser(uid);
         const email = user.email;
+        if (!email){
+            res.status(401).json({ message: "Error matching user id to email." });
+            return;
+        }
 
         const projectsRef = db.collection(`users/${email}/projects`);
         const projectsSnapshot = await projectsRef.get();
@@ -246,8 +274,8 @@ app.get("/api/dashboard", async (req: Request, res: Response) => {
 app.post("/api/project", async (req: Request, res: Response) => {
     try {
         const usersCollection = admin.firestore().collection("users");
-        const { projectId, token } = req.body;
-        if (!projectId) {
+        const { projectID, token } = req.body;
+        if (!projectID) {
             res.status(404).json({ error: "Project id not set." });
             return;
         }
@@ -265,13 +293,34 @@ app.post("/api/project", async (req: Request, res: Response) => {
             return;
         }
 
-        const doc = await usersCollection.doc(email).collection("projects").doc(projectId).get();
-        if (!doc.exists) {
+        const projectDoc = await usersCollection
+            .doc(email)
+            .collection("projects")
+            .doc(projectID)
+            .get();
+        if (!projectDoc.exists) {
             res.status(403).json({ error: "You do not own this project." });
             return;
         }
+        let projectData = projectDoc.data();
 
-        const projectData = doc.data();
+        const stagesSnapshot = await usersCollection
+            .doc(email)
+            .collection("projects")
+            .doc(projectID)
+            .collection("stages")
+            .get();
+        if (!stagesSnapshot) {
+            res.status(403).json({ error: `Problem with fetching stages from project: ${projectID}.` });
+            return;
+        }
+        const stages = stagesSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+
+        projectData = { ...projectData, stages };
+
         res.status(200).json({ message: "Project retrieved successfully.", projectData });
     } catch (error) {
         res.status(500).json({ error: "Failed to load project data." });

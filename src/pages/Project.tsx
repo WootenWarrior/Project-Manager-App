@@ -6,7 +6,7 @@ import { Stage, Button, Input, HiddenMenu } from "../components/index";
 import { TaskProps } from "../components/Task";
 import { StageProps } from "../components/Stage";
 import { FaPlus } from "react-icons/fa6";
-import { FaRegSave } from "react-icons/fa";
+import { DndContext } from '@dnd-kit/core';
 
 
 function Project() {
@@ -48,7 +48,7 @@ function Project() {
             stageID: stageID,
             stageName: stageName,
             taskList: [],
-            showMenu: showTaskMenu
+            showTaskMenu: showTaskMenu
         };
 
         try {
@@ -85,6 +85,7 @@ function Project() {
         const newTaskId = `task-${Date.now()}`;
         const newTask: TaskProps = {
             taskID: newTaskId,
+            stageID: stageID,
             name: taskName,
             completed: false,
         };
@@ -93,16 +94,20 @@ function Project() {
         const res = await fetch(`${URL}/api/new-task`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ newTask, stageID, token }),
+            body: JSON.stringify({ newTask, stageID, projectID, token }),
         });
+
+        if(!res.ok){
+            const errorData = await res.text();
+            console.log(errorData);
+            return;
+        }
+
+        const data = await res.json();
+        console.log(data);
 
         setTaskMenuActive(false);
     }
-
-    const save = async () => {
-
-    }
-
     
     // FRONTEND INPUT CHANGES
 
@@ -145,7 +150,7 @@ function Project() {
                         stageName: stageID,
                         stageID: stageData.stageName,
                         taskList: stageData.taskList as TaskProps[], 
-                        showMenu: showStageMenu
+                        showTaskMenu: showTaskMenu
                     }));
     
                     setStages(stages);
@@ -155,7 +160,7 @@ function Project() {
             }
         }
         loadProjectData();
-    });
+    }, []);
 
     return (
         <div className="project">
@@ -164,21 +169,23 @@ function Project() {
                     <h2>Toolbar</h2>
                 </div>
                 <div className="project-creation-window">
-                    <div className="stages">
-                        {stages.map((stage) => (
-                            <Stage key={stage.stageID}
-                                stageID={stage.stageID}
-                                stageName={stage.stageName}
-                                taskList={stage.taskList} 
-                                showMenu={() => showTaskMenu(stage.stageName)}
-                            />
-                        ))}
-                    </div>
-                    <Button onclick={() => showStageMenu()} 
-                        classname="default-button" 
-                        text="Add Stage"
-                        beforeicon={<FaPlus/>}
-                    />
+                    <DndContext>
+                        <div className="stages">
+                            {stages.map((stage) => (
+                                <Stage key={stage.stageID}
+                                    stageID={stage.stageID}
+                                    stageName={stage.stageName}
+                                    taskList={stage.taskList} 
+                                    showTaskMenu={showTaskMenu}
+                                />
+                            ))}
+                        </div>
+                        <Button onclick={() => showStageMenu()} 
+                            classname="default-button" 
+                            text="Add Stage"
+                            beforeicon={<FaPlus/>}
+                        />
+                    </DndContext>
                 </div>
                 <HiddenMenu classname="hidden-stage-menu"
                     visible={stageMenuActive} 
