@@ -4,7 +4,7 @@ import { generateToken, verifyToken } from "./JwtSession";
 import { readFileSync } from 'fs';
 import admin from 'firebase-admin';
 import { getServerOrigin, getServiceAccountOrigin, getStaticFilePath } from "./ServerUtils";
-import path, { dirname } from 'path';
+import path from 'path';
 import { fileURLToPath } from 'url';
 
 // INTERFACES
