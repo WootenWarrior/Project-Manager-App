@@ -4,6 +4,6 @@
     "server-connection" : "https://project-manager-app-6rbg.onrender.com",
     "prod-service-account": "/etc/secrets/ServiceAccount.json",
     "dev-service-account": "src/server/ServiceAccount.json",
-    "prod-file-path": "../dist",
+    "prod-file-path": "../../dist",
     "dev-file-path": "../../dist"
 }
