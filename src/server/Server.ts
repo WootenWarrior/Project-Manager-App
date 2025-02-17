@@ -107,11 +107,11 @@ const createTask = async (email: string, taskData: taskData, projectID: string, 
 // ROUTES
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-app.use(express.static(path.join(__dirname, 'build')));
+app.use(express.static(path.join(__dirname, "/dist")));
 
 // Catch-all route to serve index.html for any other requests
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+  res.sendFile(path.join(__dirname, "/dist", 'index.html'));
   console.log(req);
 });
 
