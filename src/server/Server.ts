@@ -5,6 +5,7 @@ import { readFileSync } from 'fs';
 import admin from 'firebase-admin';
 import { getServerOrigin } from "./ServerUtils";
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 // INTERFACES
 
@@ -104,7 +105,8 @@ const createTask = async (email: string, taskData: taskData, projectID: string, 
 
 
 // ROUTES
-
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, 'build')));
 
 // Catch-all route to serve index.html for any other requests
