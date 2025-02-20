@@ -2,14 +2,7 @@ import { useState } from "react";
 import Button from "./Button";
 import { useDraggable } from "@dnd-kit/core";
 import '../styles/Task.css';
-
-export interface TaskProps {
-    taskID: string;
-    stageID: string;
-    name: string;
-    completed: boolean;
-    onclick?: (id:string) => void;
-}
+import { TaskProps } from "../utils/Interfaces";
 
 const Task: React.FC<TaskProps> = ({taskID, name, completed, onclick}) => {
     const [isCompleted, setCompleted] = useState<boolean>(completed);
@@ -19,7 +12,7 @@ const Task: React.FC<TaskProps> = ({taskID, name, completed, onclick}) => {
         transform: transform
           ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
           : undefined,
-        transition: transform ? "transform 200ms ease" : undefined,
+        transition: transform ? "transform 20ms ease" : undefined,
     };
 
     const handleSelect = () => {
@@ -33,19 +26,17 @@ const Task: React.FC<TaskProps> = ({taskID, name, completed, onclick}) => {
         setCompleted(true);
     }
 
-    // TEMP BUG FIXES
-    console.log(completeTask);
-    console.log(isCompleted);
-
     return (
         <div ref={setNodeRef} style={style} className="task">
-            <div className="drag-handle" {...listeners} {...attributes}>
-                <span>::</span>
+            <div className="task-toolbar">
+                <Button classname="select-button" 
+                    onclick={handleSelect}
+                    text={name}>
+                </Button>
+                <div className="drag-handle" {...listeners} {...attributes}>
+                    <span><b>::</b></span>
+                </div>
             </div>
-            <Button classname="default-button" 
-                onclick={handleSelect}
-                text={name}>
-            </Button>
         </div>
     )
 }

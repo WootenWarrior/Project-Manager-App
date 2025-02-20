@@ -1,6 +1,25 @@
 .task {
     width: 100%;
-    height: 100%;
+    height: 10rem;
     border-radius: 2rem;
-    background-color: brown;
+    background-color: rgba(165, 42, 42, 0.303);
+    border: 1px solid black;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.task .task-toolbar {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    width: 100%;
+}
+
+.task .task-toolbar .drag-handle {
+    font-size: large;
+    cursor: grab;
+    height: 100%;
 }

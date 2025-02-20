@@ -17,3 +17,23 @@
     color: var(--backgroundbase);
     border-color: var(--highlight);
 }
+
+.select-button {
+    --select-button-text-color: black;
+    --select-button-background: transparent;
+
+    font-size: medium;
+    padding: 1rem;
+    cursor: pointer;
+    background-color: var(--select-button-background);
+    color: var(--select-button-text-color);
+    transition: 0.3s ease-in-out;
+    width: 100%;
+    text-align: center;
+    display: block;
+}
+
+.select-button:hover {
+    background-color: var(--highlight);
+    color: var(--backgroundbase);
+}

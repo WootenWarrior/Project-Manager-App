@@ -1,14 +1,5 @@
 import "../styles/Button.css"
-
-interface ButtonProps {
-    text?: string;
-    aftericon?: React.ReactNode;
-    beforeicon?: React.ReactNode;
-    onclick?: () => void;
-    classname?: string;
-    textcolor?: string;
-    backgroundcolor?: string;
-}
+import { ButtonProps } from "../utils/Interfaces"
 
 const Button: React.FC<ButtonProps> = 
 ({text, aftericon, beforeicon, onclick, classname, textcolor, backgroundcolor}) => {

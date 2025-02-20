@@ -3,8 +3,7 @@ import "../styles/ProjectEditor.css";
 import { useEffect, useState } from "react";
 import { URL } from "../utils/BackendURL";
 import { Stage, Button, Input, HiddenMenu } from "../components/index";
-import { TaskProps } from "../components/Task";
-import { StageProps } from "../components/Stage";
+import { TaskProps, StageProps } from "../utils/Interfaces";
 import { FaPlus } from "react-icons/fa6";
 import { DndContext } from '@dnd-kit/core';
 
@@ -20,23 +19,21 @@ function Project() {
     const [stageName, setStageName] = useState("");
 
     // TEMP BUG FIXES
-    console.log(selectedTaskId);
 
 
     // MENU TOGGLES
 
-    const showTaskMenu = (taskId: string) => {
+    const showTaskMenu = (stageID: string) => {
+        setSelectedStageId(stageID);
         setTaskMenuActive(true);
-        setSelectedTaskId(taskId)
     }
     const hideTaskMenu = () => {
         setTaskMenuActive(false);
-        setSelectedTaskId(null);
+        setSelectedStageId(null);
     }
 
     const showStageMenu = () => {
         setStageMenuActive(true);
-        console.log("Shown");
     }
     const hideStageMenu = () => {
         setStageMenuActive(false);
@@ -51,7 +48,7 @@ function Project() {
             stageID: stageID,
             stageName: stageName,
             taskList: [],
-            showTaskMenu: showTaskMenu
+            showTaskMenu: showTaskMenu,
         };
 
         try {
@@ -80,10 +77,9 @@ function Project() {
 
     const addTaskToStage = async (stageID: string | null) => {
         if (!stageID) {
-            console.log("Error with selected stage ID")
+            console.log("No selected stage ID set.")
             return;
         }
-        setSelectedStageId(stageID);
 
         const newTaskId = `task-${Date.now()}`;
         const newTask: TaskProps = {
@@ -93,23 +89,75 @@ function Project() {
             completed: false,
         };
 
-        const token = sessionStorage.getItem("token") || localStorage.getItem("token");
-        const res = await fetch(`${URL}/api/new-task`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ newTask, stageID, projectID, token }),
-        });
+        try {
+            const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+            const res = await fetch(`${URL}/api/new-task`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ newTask, stageID, projectID, token }),
+            });
 
-        if(!res.ok){
-            const errorData = await res.text();
-            console.log(errorData);
-            return;
+            if(!res.ok){
+                const errorData = await res.text();
+                console.log(errorData);
+                return;
+            }
+
+            const data = await res.json();
+            console.log(data);
+
+            setStages((prevStages) =>
+                prevStages.map((stage) =>
+                    stage.stageID === stageID
+                        ? { ...stage, taskList: [...stage.taskList, newTask] }
+                        : stage
+                )  
+            );
+        } catch (error) {
+            console.log(error);
         }
 
-        const data = await res.json();
-        console.log(data);
-
         setTaskMenuActive(false);
+    }
+
+    const loadProjectData = async () => {
+        try {
+            const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+            const res = await fetch(`${URL}/api/project`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ projectID, token }),
+            });
+
+            if(!res.ok){
+                const errorData = await res.text();
+                console.log(errorData);
+                return;
+            }
+
+            const data = await res.json();
+
+            const projectData = data.projectData
+
+            console.log(projectData.stages);
+
+            if (projectData.stages) {
+                const stages: StageProps[] = Object.entries(
+                    projectData.stages as Record<string, StageProps>
+                ).map(
+                    ([stageNum, stageData]) => ({
+                    key: stageNum,
+                    stageName: stageData.stageName,
+                    stageID: stageData.stageID,
+                    taskList: stageData.taskList,
+                    showTaskMenu: showTaskMenu,
+                }));
+
+                setStages(stages);
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
     
     // FRONTEND INPUT CHANGES
@@ -122,46 +170,9 @@ function Project() {
     }
 
 
-    // ONLOAD
+    // Data Updates
 
     useEffect(() => {
-        const token = sessionStorage.getItem("token") || localStorage.getItem("token");
-        const loadProjectData = async () => {
-            try {
-                const res = await fetch(`${URL}/api/project`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ projectID, token }),
-                });
-
-                if(!res.ok){
-                    const errorData = await res.text();
-                    console.log(errorData);
-                    return;
-                }
-
-                const data = await res.json();
-                console.log(data);
-
-                const projectData = data.projectData
-
-                if (projectData.stages) {
-                    const stages: StageProps[] = Object.entries(
-                        projectData.stages as Record<string, StageProps>
-                    ).map(
-                        ([stageID, stageData]) => ({
-                        stageName: stageID,
-                        stageID: stageData.stageName,
-                        taskList: stageData.taskList as TaskProps[], 
-                        showTaskMenu: showTaskMenu
-                    }));
-    
-                    setStages(stages);
-                }
-            } catch (error) {
-                console.log(error);
-            }
-        }
         loadProjectData();
     }, []);
 

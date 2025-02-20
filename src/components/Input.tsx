@@ -1,18 +1,6 @@
 import "../styles/Input.css"
 import { useState } from "react";
-
-interface InputProps {
-    visible?: boolean;
-    icon?: React.ReactNode;
-    alternateIcon?: React.ReactNode;
-    name?: string;
-    placeholder?: string;
-    value?: string | number;
-    onchange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    textcolor?: string;
-    width?: string;
-    select?: boolean;
-}
+import { InputProps } from "../utils/Interfaces";
 
 const Input: React.FC<InputProps> = ({visible,icon,alternateIcon,name,
     placeholder,onchange,textcolor,width,select}) =>{

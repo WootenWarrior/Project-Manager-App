@@ -2,39 +2,18 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import { generateToken, verifyToken } from "./JwtSession";
 import { readFileSync } from 'fs';
-import admin from 'firebase-admin';
+import admin, { initializeApp } from 'firebase-admin';
 import { getServerOrigin, getServiceAccountOrigin, getStaticFilePath } from "./ServerUtils";
 import path from 'path';
 import { fileURLToPath } from 'url';
-
-// INTERFACES
-
-interface projectData {
-    title: string,
-    description: string,
-    imageURL: string,
-    createdAt: Date,
-}
-interface stageData {
-    stageID: string;
-    stageName: string;
-    taskList: taskData[];
-}
-interface taskData {
-    taskID: string;
-    stageID: string;
-    name: string;
-    completed: boolean;
-}
+import { projectData, stageData, taskData } from "./ServerUtils";
 
 
-// SETUP
+// SETUP    
 
 const serverOrigin = getServerOrigin();
 const serviceAccountPath = getServiceAccountOrigin();
-
 let serviceAccount;
-
 try {
     const serviceAccountData = readFileSync(serviceAccountPath, 'utf8');
     serviceAccount = JSON.parse(serviceAccountData);
@@ -42,10 +21,9 @@ try {
     console.error('Failed to load service account: ', error);
     process.exit(1);
 }
+admin.initializeApp({credential: admin.credential.cert(serviceAccount)},);
+
 const MAX_PROJECTS = 10;
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-});
 const db = admin.firestore();
 const configPath = './src/server/serverconfig.json';
 const config = JSON.parse(readFileSync(configPath, 'utf8'));
@@ -93,6 +71,7 @@ const createStage = async (email: string, stageData: stageData, projectID: strin
 
 const createTask = async (email: string, taskData: taskData, projectID: string, stageID: string) => {
     try {
+        console.log(`Stage ID: ${stageID}, Project ID ${projectID}`)
         const tasks = db.collection(`users/${email}/projects/${projectID}/stages/${stageID}/tasks`);
         await tasks.doc(taskData.taskID).set(taskData);
 
@@ -214,8 +193,9 @@ app.post("/api/new-task", async (req: Request, res: Response) => {
             return;
         }
 
-        const docid = createTask(email, task, stageID, projectID);
-        console.log(`Task ${docid} added succesfully.`)
+        const docid = createTask(email, task, projectID, stageID);
+        console.log(`Task ${docid} added succesfully.`);
+        res.status(200).json({ message: "Stage added succesfully.", docid });
     } catch (error) {
         console.log("Error when creating task: ", error);
         res.status(500).json({ error: "An error occurred during task creation." });
@@ -224,7 +204,7 @@ app.post("/api/new-task", async (req: Request, res: Response) => {
 
 app.post("/api/login", async (req: Request, res: Response) => {
     try {
-        const { email } = req.body;
+        const { email, password } = req.body;
 
         const userRecord = await admin.auth().getUserByEmail(email);
         const uid = userRecord.uid;
@@ -319,10 +299,29 @@ app.post("/api/project", async (req: Request, res: Response) => {
             res.status(403).json({ error: `Problem with fetching stages from project: ${projectID}.` });
             return;
         }
-        const stages = stagesSnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
+
+        const stages = await Promise.all(
+            stagesSnapshot.docs.map(async (stageDoc) => {
+                const stageData = stageDoc.data();
+                const tasksSnapshot = await usersCollection
+                    .doc(email)
+                    .collection("projects")
+                    .doc(projectID)
+                    .collection("stages")
+                    .doc(stageDoc.id)
+                    .collection("tasks")
+                    .get();
+                const tasks = tasksSnapshot.docs.map(taskDoc => ({
+                    id: taskDoc.id,
+                    ...taskDoc.data()
+                }));
+                return {
+                    id: stageDoc.id,
+                    ...stageData,
+                    taskList: tasks,
+                };
+            })
+        );
 
         projectData = { ...projectData, stages };
 
@@ -351,7 +350,7 @@ app.post("/api/protected", async (req: Request, res: Response) => {
 
         res.status(200).json({ verified: true, uid });
     } catch (error) {
-        res.status(401).json({ message: "Unexpected error: ", error });
+        res.status(500).json({ message: "Unexpected error: ", error });
     }
 });
 

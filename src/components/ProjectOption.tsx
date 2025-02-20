@@ -1,14 +1,5 @@
 import placeholderImage from "../assets/No-Image-Placeholder.svg.png";
-
-export interface OptionProps {
-    id: number;
-    width?: string;
-    height?: string;
-    title?: string;
-    url?: string;
-    description?: string;
-    onclick?: () => void;
-}
+import { OptionProps } from "../utils/Interfaces";
 
 const projectOption: React.FC<OptionProps> = ({width, height, title, url, description, onclick}) => {
     return (

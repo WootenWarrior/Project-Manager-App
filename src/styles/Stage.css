@@ -8,14 +8,16 @@
     background-color: var(--dark-grey);
     border-radius: 2rem;
     border: 1px solid black;
+    overflow-y: scroll;
+    overflow-x: hidden;
 }
 
-.stage button{
+.stage .default-button{
     transition: 0.5s;
     opacity: 0;
 }
 
-.stage:hover button{
+.stage:hover .default-button{
     transition: 0.5s;
     opacity: 1;
 }
