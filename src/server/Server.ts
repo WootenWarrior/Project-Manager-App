@@ -363,11 +363,9 @@ app.post("/api/protected", async (req: Request, res: Response) => {
 
 // Catch-all route
 
-app.get('*', (req, res) => {
+app.get('*', (_req, res) => {
     try {
-        const data = req.body;
         res.sendFile(path.join(_dirname, static_path, 'index.html'));
-        res.status(200).json({ message: "Unexpected route handled in catch all.", data});
     } catch (error) {
         res.status(404).json({ message: "Unexpected error: ", error });
     }
