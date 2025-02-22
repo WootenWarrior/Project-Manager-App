@@ -37,6 +37,12 @@ app.use(cors({
     methods: ["GET", "POST", "PUT", "DELETE"],
 }));
 
+const filename = fileURLToPath(import.meta.url);
+const _dirname = path.dirname(filename);
+const static_path = getStaticFilePath();
+app.use(express.static(path.join(_dirname, static_path)));
+console.log(path.join(_dirname, static_path));
+
 
 // FUNCTIONS
 
@@ -356,12 +362,6 @@ app.post("/api/protected", async (req: Request, res: Response) => {
 
 
 // Catch-all route
-
-const filename = fileURLToPath(import.meta.url);
-const _dirname = path.dirname(filename);
-const static_path = getStaticFilePath();
-app.use(express.static(path.join(_dirname, static_path)));
-console.log(path.join(_dirname, static_path));
 
 app.get('*', (req, res) => {
     try {
