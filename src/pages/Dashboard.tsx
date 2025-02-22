@@ -5,7 +5,7 @@ import { FaPlus } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { handleLogout } from "../utils/Logout";
 import { URL } from "../utils/BackendURL";
-import { OptionProps } from "../components/ProjectOption";
+import { OptionProps } from "../utils/Interfaces";
 import HiddenMenu from "../components/HiddenMenu";
 
 function Dashboard() {
