@@ -205,7 +205,7 @@ app.post("/api/new-task", async (req: Request, res: Response) => {
 app.post("/api/login", async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
-        console.log(password);
+        console.log(password);  
         const userRecord = await admin.auth().getUserByEmail(email);
         const uid = userRecord.uid;
 
