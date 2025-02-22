@@ -34,7 +34,6 @@
 .project .panels .project-creation-window{
     width: 100%;
     height: 90%;
-    border-radius: 2rem;
     border: 1px solid black;
     display: flex;
     justify-content: space-between;
@@ -45,7 +44,6 @@
 .project .panels .project-creation-window .stages{
     width: 100%;
     height: 100%;
-    border-radius: 2rem;
     border: 1px solid black;
     display: flex;
     justify-content: left;

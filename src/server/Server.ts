@@ -2,7 +2,7 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import { generateToken, verifyToken } from "./JwtSession";
 import { readFileSync } from 'fs';
-import admin, { initializeApp } from 'firebase-admin';
+import admin from 'firebase-admin';
 import { getServerOrigin, getServiceAccountOrigin, getStaticFilePath } from "./ServerUtils";
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -205,7 +205,7 @@ app.post("/api/new-task", async (req: Request, res: Response) => {
 app.post("/api/login", async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
-
+        console.log(password);
         const userRecord = await admin.auth().getUserByEmail(email);
         const uid = userRecord.uid;
 

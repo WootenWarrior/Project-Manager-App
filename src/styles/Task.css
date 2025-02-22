@@ -23,3 +23,10 @@
     cursor: grab;
     height: 100%;
 }
+
+.task .task-body {
+    display: flex;
+    justify-content: start;
+    align-items: start;
+    flex-direction: column;
+}

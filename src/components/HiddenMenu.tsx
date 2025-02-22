@@ -1,7 +1,7 @@
 import Button from "./Button";
-import { MenuProps } from "../utils/Interfaces";
+import { HiddenMenuProps } from "../utils/Interfaces";
 
-const HiddenMenu: React.FC<MenuProps> = ({classname, visible, close, create, children}) => {
+const HiddenMenu: React.FC<HiddenMenuProps> = ({classname, visible, close, create, children, createButtonText, closeButtonText}) => {
     return (
         <div className={classname ? classname : "hidden-menu"}>
             <div className={`create_project_menu ${visible ? 'active' : ''}`}>
@@ -10,11 +10,11 @@ const HiddenMenu: React.FC<MenuProps> = ({classname, visible, close, create, chi
                 </form>
                 <div className="buttons">
                     <Button classname="default-button"
-                        text="Cancel"
+                        text={closeButtonText ? closeButtonText : "close"}
                         onclick={() => close()}
                     />
                     <Button classname="default-button"
-                        text="Create"
+                        text={createButtonText ? createButtonText : "create"}
                         onclick={create}
                     />
                 </div>

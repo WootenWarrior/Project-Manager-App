@@ -13,12 +13,12 @@ function Project() {
     const [stages, setStages] = useState<StageProps[]>([]);
     const [taskMenuActive, setTaskMenuActive] = useState(false);
     const [stageMenuActive, setStageMenuActive] = useState(false);
+    const [taskEditActive, setTaskEditActive] = useState(false);
     const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
     const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
     const [taskName, setTaskName] = useState("");
     const [stageName, setStageName] = useState("");
-
-    // TEMP BUG FIXES
+    const [filterText, setFilterText] = useState("");
 
 
     // MENU TOGGLES
@@ -39,6 +39,15 @@ function Project() {
         setStageMenuActive(false);
     }
 
+    const showTaskEdit = (taskID: string) => {
+        setSelectedTaskId(taskID);
+        loadTaskData(taskID);
+        setTaskEditActive(true);
+    }
+    const hideTaskEdit = () => {
+        setTaskEditActive(false);
+    }
+
 
     // API CALL FUNCTIONS
 
@@ -49,6 +58,7 @@ function Project() {
             stageName: stageName,
             taskList: [],
             showTaskMenu: showTaskMenu,
+            showTaskEdit: showTaskEdit
         };
 
         try {
@@ -151,6 +161,7 @@ function Project() {
                     stageID: stageData.stageID,
                     taskList: stageData.taskList,
                     showTaskMenu: showTaskMenu,
+                    showTaskEdit: showTaskEdit
                 }));
 
                 setStages(stages);
@@ -158,6 +169,17 @@ function Project() {
         } catch (error) {
             console.log(error);
         }
+    }
+
+    const updateTask = async (taskID: string | null) => {
+        if (!taskID) {
+            console.log("No selected task ID set.")
+            return;
+        }
+    }
+
+    const loadTaskData = async (taskID: string | null) => {
+        console.log(taskID);
     }
     
     // FRONTEND INPUT CHANGES
@@ -168,6 +190,9 @@ function Project() {
     const handleStageNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setStageName(e.target.value);
     }
+    const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFilterText(e.target.value);
+    };
 
 
     // Data Updates
@@ -181,6 +206,13 @@ function Project() {
             <div className="panels">
                 <div className="toolbar">
                     <h2>Toolbar</h2>
+                    <Input
+                        textcolor="black"
+                        width="100%"
+                        placeholder="Filter tasks..."
+                        onchange={handleFilterChange}
+                        visible={true}
+                    />
                 </div>
                 <div className="project-creation-window">
                     <DndContext>
@@ -191,6 +223,8 @@ function Project() {
                                     stageName={stage.stageName}
                                     taskList={stage.taskList} 
                                     showTaskMenu={showTaskMenu}
+                                    showTaskEdit={showTaskEdit}
+                                    filterText={filterText}
                                 />
                             ))}
                         </div>
@@ -201,7 +235,7 @@ function Project() {
                         />
                     </DndContext>
                 </div>
-                <HiddenMenu classname="hidden-stage-menu"
+                <HiddenMenu classname="hidden-stage-create"
                     visible={stageMenuActive} 
                     close={hideStageMenu} 
                     create={() => addStage()}>
@@ -213,7 +247,7 @@ function Project() {
                         visible={true}
                     />
                 </HiddenMenu>
-                <HiddenMenu classname="hidden-task-menu"
+                <HiddenMenu classname="hidden-task-create"
                     visible={taskMenuActive} 
                     close={hideTaskMenu} 
                     create={() => addTaskToStage(selectedStageId)}>
@@ -224,6 +258,15 @@ function Project() {
                         onchange={handleTaskNameChange}
                         visible={true}
                     />
+                </HiddenMenu>
+                <HiddenMenu classname="hidden-task-edit"
+                    visible={taskEditActive}
+                    close={hideTaskEdit}
+                    create={() => updateTask(selectedTaskId)}
+                    closeButtonText="x"
+                    createButtonText="Update">
+                    <h1>Edit task</h1>
+
                 </HiddenMenu>
             </div>
         </div>
