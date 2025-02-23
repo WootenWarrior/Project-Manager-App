@@ -42,6 +42,7 @@ const __dirname = path.dirname(filename);
 const static_path = getStaticFilePath();
 app.use(express.static(path.join(__dirname, static_path)));
 console.log(path.join(__dirname, static_path));
+console.log(express.static(path.join(__dirname, static_path)));
 
 
 // FUNCTIONS
