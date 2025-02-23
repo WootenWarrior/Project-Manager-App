@@ -366,7 +366,7 @@ app.post("/api/protected", async (req: Request, res: Response) => {
 
 app.get('*', (_req, res) => {
     try {
-        res.sendFile(path.join(__dirname, static_path, 'index.html'));
+        res.sendFile(path.join(__dirname, static_path));
         console.log(res.sendFile(path.join(__dirname, static_path, 'index.html')));
     } catch (error) {
         res.status(404).json({ message: "Unexpected error: ", error });
