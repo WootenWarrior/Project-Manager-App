@@ -38,10 +38,10 @@ app.use(cors({
 }));
 
 const filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(filename);
 const static_path = getStaticFilePath();
 app.use(express.static(path.join(__dirname, static_path)));
 console.log(path.join(__dirname, static_path));
-console.log(express.static(path.join(__dirname, static_path)));
 
 
 // FUNCTIONS
@@ -365,8 +365,9 @@ app.post("/api/protected", async (req: Request, res: Response) => {
 
 app.get('*', (_req, res) => {
     try {
-        res.sendFile(path.join(__dirname, static_path));
-        console.log(res.sendFile(path.join(__dirname, static_path, 'index.html')));
+        console.log("Serving static files from:", static_path);
+        console.log("Expecting index.html at:", path.join(static_path, 'index.html'));
+        res.sendFile(path.join(__dirname, static_path, 'index.html'));
     } catch (error) {
         res.status(404).json({ message: "Unexpected error: ", error });
     }
