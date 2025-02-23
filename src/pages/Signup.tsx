@@ -1,4 +1,4 @@
-import "../styles/Signup.css"
+import "../styles/pages/Signup.css"
 import React, { useState } from "react";
 import { userSignup } from "../utils/Firebase";
 import { Button, Input } from "../components";

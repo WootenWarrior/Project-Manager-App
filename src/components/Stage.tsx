@@ -1,7 +1,7 @@
 import { Task } from "./index";
 import { Button } from "./index";
 import { FaPlus } from "react-icons/fa6";
-import '../styles/Stage.css';
+import '../styles/components/Stage.css';
 import { StageProps } from "../utils/Interfaces";
 
 const Stage: React.FC<StageProps> = ({stageName, taskList, showTaskMenu, stageID, showTaskEdit, filterText}) => {
@@ -20,6 +20,10 @@ const Stage: React.FC<StageProps> = ({stageName, taskList, showTaskMenu, stageID
                     stageID={stageID}
                     name={task.name}
                     completed={task.completed}
+                    startDate={task.startDate}
+                    startTime={task.startTime}
+                    endDate={task.endDate}
+                    endTime={task.endTime}
                     onclick={showTaskEdit}
                 />
             ))}

@@ -46,8 +46,10 @@ export interface TaskProps {
     stageID: string;
     name: string;
     completed: boolean;
-    startDate?: Date;
-    deadline?: Date;
+    startDate: string;
+    endDate: string;
+    startTime: string;
+    endTime: string;
     onclick?: (id:string) => void;
 }
 
@@ -68,4 +70,15 @@ export interface TextboxProps {
     height?: string;
     placeholder?: string;
     onchange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
+}
+
+export interface TimeInputProps {
+    onTimeChange: (time: string) => void;
+    text?: string;
+}
+
+export interface DateInputProps {
+    onDateChange: (date: string) => void;
+    text?: string;
+    displayDate?: string;
 }

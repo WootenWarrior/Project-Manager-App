@@ -1,4 +1,4 @@
-import "../styles/Dashboard.css"
+import "../styles/pages/Dashboard.css"
 import { useState, useEffect } from "react";
 import { Button, Option, Input, Textbox } from "../components";
 import { FaPlus } from "react-icons/fa6";

@@ -3,10 +3,11 @@
     /* Colours */
     --darkcolor: black;
     --lightcolor: white;
-    --backgroundbase: #DCDCDC;
+    --backgroundbase: #647c9039;
     --backgroundbase50: #dcdcdc75;
     --highlight: #ff6347;
     --dark-grey: #85858575;
+    --background-image: #647c9039;
 
     /* Navbars */
     --navbarheight: 10rem;

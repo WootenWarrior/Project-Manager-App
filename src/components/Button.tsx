@@ -1,4 +1,4 @@
-import "../styles/Button.css"
+import "../styles/components/Button.css"
 import { ButtonProps } from "../utils/Interfaces"
 
 const Button: React.FC<ButtonProps> = 

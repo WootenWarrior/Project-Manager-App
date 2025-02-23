@@ -5,3 +5,5 @@ export { default as Textbox } from './Textbox';
 export { default as Task } from './Task';
 export { default as Stage } from './Stage';
 export { default as HiddenMenu } from './HiddenMenu';
+export { default as TimeInput } from './TimeInput';
+export { default as DateInput } from './DateInput';

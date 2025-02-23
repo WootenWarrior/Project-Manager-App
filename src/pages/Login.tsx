@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button,Input } from "../components"
-import "../styles/Login.css"
+import "../styles/pages/Login.css"
 import { FaUser,FaEye,FaEyeSlash } from "react-icons/fa";
 import { BiLogIn } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";

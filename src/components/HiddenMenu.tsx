@@ -1,5 +1,6 @@
 import Button from "./Button";
 import { HiddenMenuProps } from "../utils/Interfaces";
+import '../styles/components/HiddenMenu.css';
 
 const HiddenMenu: React.FC<HiddenMenuProps> = ({classname, visible, close, create, children, createButtonText, closeButtonText}) => {
     return (

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom"
 import { Button } from "../components";
-import "../styles/Landing.css"
+import "../styles/pages/Landing.css"
 
 
 function Landing() {

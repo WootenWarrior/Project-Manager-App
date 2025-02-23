@@ -1,8 +1,8 @@
 import { useParams } from "react-router-dom";
-import "../styles/ProjectEditor.css";
+import "../styles/pages/ProjectEditor.css";
 import { useEffect, useState } from "react";
 import { URL } from "../utils/BackendURL";
-import { Stage, Button, Input, HiddenMenu } from "../components/index";
+import { Stage, Button, Input, HiddenMenu, TimeInput, DateInput } from "../components/index";
 import { TaskProps, StageProps } from "../utils/Interfaces";
 import { FaPlus } from "react-icons/fa6";
 import { DndContext } from '@dnd-kit/core';
@@ -16,6 +16,18 @@ function Project() {
     const [taskEditActive, setTaskEditActive] = useState(false);
     const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
     const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
+    const [taskStart, setTaskStart] = useState<{ date: string; time: string }>({
+        date: new Date().toISOString().split("T")[0],
+        time: new Date().toTimeString().slice(0, 5),
+    });
+    const [taskEnd, setTaskEnd] = useState<{ date: string; time: string }>({
+        date: (() => {
+            const date = new Date();
+            date.setDate(date.getDate() + 7);
+            return date.toISOString().split("T")[0];
+        })(),
+        time: new Date().toTimeString().slice(0, 5),
+    });
     const [taskName, setTaskName] = useState("");
     const [stageName, setStageName] = useState("");
     const [filterText, setFilterText] = useState("");
@@ -97,6 +109,10 @@ function Project() {
             stageID: stageID,
             name: taskName,
             completed: false,
+            startDate: taskStart.date,
+            startTime: taskStart.time,
+            endDate: taskEnd.date,
+            endTime: taskEnd.time
         };
 
         try {
@@ -181,6 +197,7 @@ function Project() {
     const loadTaskData = async (taskID: string | null) => {
         console.log(taskID);
     }
+
     
     // FRONTEND INPUT CHANGES
 
@@ -192,6 +209,30 @@ function Project() {
     }
     const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFilterText(e.target.value);
+    };
+    const handleStartTimeChange = (time: string) => {
+        setTaskStart((prev) => ({
+            ...prev,
+            time: time,
+        }));
+    };
+    const handleStartDateChange = (date: string) => {
+        setTaskStart((prev) => ({
+            ...prev,
+            date: date,
+        }));
+    };
+    const handleEndTimeChange = (time: string) => {
+        setTaskEnd((prev) => ({
+            ...prev,
+            time: time,
+        }));
+    };
+    const handleEndDateChange = (date: string) => {
+        setTaskEnd((prev) => ({
+            ...prev,
+            date: date,
+        }));
     };
 
 
@@ -245,6 +286,7 @@ function Project() {
                         width="100%"
                         onchange={handleStageNameChange}
                         visible={true}
+                        placeholder="Enter stage name..."
                     />
                 </HiddenMenu>
                 <HiddenMenu classname="hidden-task-create"
@@ -257,7 +299,27 @@ function Project() {
                         width="100%"
                         onchange={handleTaskNameChange}
                         visible={true}
+                        placeholder="Enter task title..."
                     />
+                    <div className="task-timing-inputs">
+                        <div className="block">
+                            <DateInput text="Set start date: "
+                                onDateChange={handleStartDateChange}
+                            />
+                            <TimeInput text="Set start time: "
+                                onTimeChange={handleStartTimeChange}
+                            />
+                        </div>
+                        <div className="block">
+                            <DateInput text="Set end date: "
+                                displayDate={taskEnd.date}
+                                onDateChange={handleEndDateChange}
+                            />
+                            <TimeInput text="Set end time: "
+                                onTimeChange={handleEndTimeChange}
+                            />
+                        </div>
+                    </div>
                 </HiddenMenu>
                 <HiddenMenu classname="hidden-task-edit"
                     visible={taskEditActive}

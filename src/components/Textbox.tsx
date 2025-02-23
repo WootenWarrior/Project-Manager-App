@@ -1,4 +1,4 @@
-import '../styles/Textbox.css'
+import '../styles/components/Textbox.css'
 import { TextboxProps } from '../utils/Interfaces'
 
 const Textbox: React.FC<TextboxProps> = 

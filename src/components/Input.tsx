@@ -1,4 +1,4 @@
-import "../styles/Input.css"
+import "../styles/components/Input.css"
 import { useState } from "react";
 import { InputProps } from "../utils/Interfaces";
 
