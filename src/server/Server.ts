@@ -8,6 +8,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { projectData, stageData, taskData } from "./ServerUtils";
 
+// Temp
+console.log(path,fileURLToPath,getStaticFilePath)
 
 // SETUP    
 
@@ -37,13 +39,14 @@ app.use(cors({
     methods: ["GET", "POST", "PUT", "DELETE"],
 }));
 
+/*
 const filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(filename);
 const static_path = getStaticFilePath();
 app.use(express.static(path.join(__dirname, static_path)));
 console.log(path.join(__dirname, static_path));
 console.log(express.static(path.join(__dirname, static_path)));
-
+*/
 
 // FUNCTIONS
 
@@ -363,14 +366,14 @@ app.post("/api/protected", async (req: Request, res: Response) => {
 
 
 // Catch-all route
-
+/*
 app.get('*', (_req, res) => {
     try {
         res.sendFile(path.join(__dirname, static_path, 'index.html'));
     } catch (error) {
         res.status(404).json({ message: "Unexpected error: ", error });
     }
-});
+});*/
 
 
 // SERVER ENTRY
