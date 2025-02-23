@@ -46,9 +46,6 @@ const router = createBrowserRouter([
     ]
   }
 ],
-  {
-    basename:"/Project-Manager-App/"
-  }
 )
 
 createRoot(document.getElementById('root')!).render(
