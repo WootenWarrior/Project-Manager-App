@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/Project-Manager-App/',
+  base: '/',
   plugins: [react()],
   server: {
     allowedHosts:["project-manager-app-6rbg.onrender.com"],

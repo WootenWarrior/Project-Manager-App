@@ -5,7 +5,7 @@ import { readFileSync } from 'fs';
 import admin from 'firebase-admin';
 import { getServerOrigin, getServiceAccountOrigin, getStaticFilePath } from "./ServerUtils";
 import path from 'path';
-import { fileURLToPath } from 'url';
+//import { fileURLToPath } from 'url';
 import { projectData, stageData, taskData } from "./ServerUtils";
 
 
@@ -37,8 +37,8 @@ app.use(cors({
     methods: ["GET", "POST", "PUT", "DELETE"],
 }));
 
-const filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(filename);
+//const filename = fileURLToPath(import.meta.url);
+const __dirname = path.resolve();
 const static_path = getStaticFilePath();
 app.use(express.static(path.join(__dirname, static_path)));
 console.log(path.join(__dirname, static_path));
