@@ -14,6 +14,7 @@ function Project() {
     const [taskMenuActive, setTaskMenuActive] = useState(false);
     const [stageMenuActive, setStageMenuActive] = useState(false);
     const [taskEditActive, setTaskEditActive] = useState(false);
+    const [stageEditActive, setStageEditActive] = useState(false);
     const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
     const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
     const [taskStart, setTaskStart] = useState<{ date: string; time: string }>({
@@ -60,6 +61,15 @@ function Project() {
         setTaskEditActive(false);
     }
 
+    const showStageEdit = (stageID: string) => {
+        setSelectedStageId(stageID);
+        setStageEditActive(true);
+    }
+    const hideStageEdit = () => {
+        setSelectedStageId(null);
+        setStageEditActive(false);
+    }
+
 
     // API CALL FUNCTIONS
 
@@ -70,12 +80,13 @@ function Project() {
             stageName: stageName,
             taskList: [],
             showTaskMenu: showTaskMenu,
-            showTaskEdit: showTaskEdit
+            showTaskEdit: showTaskEdit,
+            showStageEdit: showStageEdit
         };
 
         try {
             const token = sessionStorage.getItem("token") || localStorage.getItem("token");
-            const res = await fetch(`${URL}/api/new-stage`, {
+            const res = await fetch(`${URL}/api/stage`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ newStage, token, projectID }),
@@ -117,7 +128,7 @@ function Project() {
 
         try {
             const token = sessionStorage.getItem("token") || localStorage.getItem("token");
-            const res = await fetch(`${URL}/api/new-task`, {
+            const res = await fetch(`${URL}/api/task`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ newTask, stageID, projectID, token }),
@@ -149,7 +160,7 @@ function Project() {
     const loadProjectData = async () => {
         try {
             const token = sessionStorage.getItem("token") || localStorage.getItem("token");
-            const res = await fetch(`${URL}/api/project`, {
+            const res = await fetch(`${URL}/api/get-project`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ projectID, token }),
@@ -177,7 +188,8 @@ function Project() {
                     stageID: stageData.stageID,
                     taskList: stageData.taskList,
                     showTaskMenu: showTaskMenu,
-                    showTaskEdit: showTaskEdit
+                    showTaskEdit: showTaskEdit,
+                    showStageEdit: showStageEdit
                 }));
 
                 setStages(stages);
@@ -187,7 +199,64 @@ function Project() {
         }
     }
 
+    const deleteStage = async (stageID: string | null) => {
+        if (!stageID) {
+            console.log("No stage ID set to delete.");
+            return;
+        }
+
+        const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+        const res = await fetch(`${URL}/api/stage`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ projectID, stageID, token }),
+        });
+
+        if(!res.ok){
+            const errorData = await res.text();
+            console.log(errorData);
+            return;
+        }
+
+        const data = await res.json();
+        console.log(data);
+    }
+
+    const deleteTask = async (stageID: string | null, taskID: string | null) => {
+        if (!stageID) {
+            console.log("No stage ID set to delete.");
+            return;
+        }
+        if (!taskID) {
+            console.log("No task ID set to delete.");
+            return;
+        }
+
+        const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+        const res = await fetch(`${URL}/api/task`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ projectID, stageID, taskID, token }),
+        });
+
+        if(!res.ok){
+            const errorData = await res.text();
+            console.log(errorData);
+            return;
+        }
+
+        const data = await res.json();
+        console.log(data);
+    }
+
     const updateTask = async (taskID: string | null) => {
+        if (!taskID) {
+            console.log("No selected task ID set.")
+            return;
+        }
+    }
+
+    const updateStage = async (taskID: string | null) => {
         if (!taskID) {
             console.log("No selected task ID set.")
             return;
@@ -265,6 +334,7 @@ function Project() {
                                     taskList={stage.taskList} 
                                     showTaskMenu={showTaskMenu}
                                     showTaskEdit={showTaskEdit}
+                                    showStageEdit={showStageEdit}
                                     filterText={filterText}
                                 />
                             ))}
@@ -328,7 +398,22 @@ function Project() {
                     closeButtonText="x"
                     createButtonText="Update">
                     <h1>Edit task</h1>
-
+                    <Button onclick={() => deleteTask("",selectedTaskId)}  /// CHANGE HERE
+                        text="Delete Stage"
+                        classname="default-button"
+                    />
+                </HiddenMenu>
+                <HiddenMenu classname="hidden-stage-edit"
+                    visible={stageEditActive}
+                    close={hideStageEdit}
+                    create={() => updateStage(selectedTaskId)}
+                    closeButtonText="x"
+                    createButtonText="Update">
+                    <h1>Edit stage</h1>
+                    <Button onclick={() => deleteStage(selectedStageId)}
+                        text="Delete Stage"
+                        classname="default-button"
+                    />
                 </HiddenMenu>
             </div>
         </div>

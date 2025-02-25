@@ -57,9 +57,57 @@ function Login() {
         }
     }
 
+    // TESTING ONLY
+
+    const loginBypass = async () => {
+        try {
+            const email = "email@email.com";
+            const password = "Password#123";
+            const loginMessage = await userLogin(email,password);
+            
+            if(!(loginMessage && loginMessage == "Success")){
+                console.log('Error:', loginMessage);
+                return;
+            }
+
+            const res = await fetch(`${URL}/api/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
+            });
+
+            if(!res.ok){
+                const errorData = await res.text();
+                setError(errorData);
+                console.log(errorData);
+                return;
+            }
+
+            const { token, uid } = await res.json();
+            if (rememberMe) {
+                localStorage.setItem("token", token);
+                localStorage.setItem("user", uid);
+            } else {
+                sessionStorage.setItem("token", token);
+                sessionStorage.setItem("user", uid);
+            }
+            navigate("/Dashboard");
+        } catch (e) {
+            console.log(e);
+            navigate("/");
+            return;
+        }
+    }
+
     return (
         <div className="login-page">
             <div className="login-box">
+                <Button text="Login-bypass" 
+                    classname="default-button"
+                    backgroundcolor="black"
+                    textcolor="white"
+                    onclick={() => loginBypass()}
+                />
                 <h1>LOGIN</h1>
                 <form className="form" onSubmit={handleLogin}>
                     <Input

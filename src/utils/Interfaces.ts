@@ -59,6 +59,7 @@ export interface StageProps {
     taskList: TaskProps[];
     showTaskMenu: (stageID: string) => void;
     showTaskEdit: (taskID: string) => void;
+    showStageEdit: (stageID: string) => void;
     filterText?: string;
 }
 

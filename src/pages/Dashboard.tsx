@@ -78,8 +78,8 @@ function Dashboard() {
                 return;
             }
 
-            const res = await fetch(`${URL}/api/create`, {
-                method: "POST",
+            const res = await fetch(`${URL}/api/project`, {
+                method: "DELETE",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ token, projectData }),
             });

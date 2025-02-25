@@ -91,7 +91,7 @@ const createTask = async (email: string, taskData: taskData, projectID: string, 
 
 // ROUTES
 
-app.post("/api/create", async (req: Request, res: Response) => {
+app.post("/api/project", async (req: Request, res: Response) => {
     try {
         const data = req.body;
         const token = data.token;
@@ -125,144 +125,7 @@ app.post("/api/create", async (req: Request, res: Response) => {
     }
 });
 
-app.post("/api/new-stage", async (req: Request, res: Response) => {
-    try {
-        const data = req.body;
-        const token = data.token;
-        const verifiedToken = verifyToken(token);
-        if(!verifiedToken){
-            res.status(401).json({ message: "Token verification failed." });
-            return;
-        }
-
-        const uid = verifiedToken.userId;
-        const user = await admin.auth().getUser(uid);
-        const email = user.email;
-        if (!email){
-            res.status(401).json({ message: "Error matching user id to email." });
-            return;
-        }
-
-        const stage = data.newStage;
-        const projectID = data.projectID;
-
-        if (!stage) {
-            res.status(401).json({ message: "Missing stage data." });
-            return;
-        }
-        if (!projectID) {
-            res.status(401).json({ message: "Missing project ID." });
-            return;
-        }
-
-        const docid = createStage(email, stage, projectID);
-        console.log(`Stage ${docid} added succesfully.`)
-
-        res.status(200).json({ message: "Stage added succesfully.", docid });
-    } catch (error) {
-        console.log("Error when creating stage: ", error);
-        res.status(500).json({ error: "An error occurred during stage creation." });
-    }
-});
-
-app.post("/api/new-task", async (req: Request, res: Response) => {
-    try {
-        const data = req.body;
-        const token = data.token;
-        const verifiedToken = verifyToken(token);
-        if(!verifiedToken){
-            res.status(401).json({ message: "Token verification failed." });
-            return;
-        }
-
-        const uid = verifiedToken.userId;
-        const user = await admin.auth().getUser(uid);
-        const email = user.email;
-        if (!email){
-            res.status(401).json({ message: "Error matching user id to email." });
-            return;
-        }
-
-        const task = data.newTask;
-        const stageID = data.stageID;
-        const projectID = data.projectID;
-        if (!task) {
-            res.status(401).json({ message: "Missing task data." });
-            return;
-        }
-        if (!stageID) {
-            res.status(401).json({ message: "Missing stage ID." });
-            return;
-        }
-        if (!projectID) {
-            res.status(401).json({ message: "Missing project ID." });
-            return;
-        }
-
-        const docid = createTask(email, task, projectID, stageID);
-        console.log(`Task ${docid} added succesfully.`);
-        res.status(200).json({ message: "Stage added succesfully.", docid });
-    } catch (error) {
-        console.log("Error when creating task: ", error);
-        res.status(500).json({ error: "An error occurred during task creation." });
-    }
-});
-
-app.post("/api/login", async (req: Request, res: Response) => {
-    try {
-        const { email, password } = req.body;
-        console.log(password);  
-        const userRecord = await admin.auth().getUserByEmail(email);
-        const uid = userRecord.uid;
-
-        //session valid for 1 hour
-        const token = generateToken({ userId: uid, email: email }, "1h");
-        res.status(200).json({ uid, token });
-    } catch (error) {
-        console.log("Error when logging in: ", error);
-        res.status(500).json({ error: "An error occurred during login." });
-    }
-});
-
-
-app.get("/api/dashboard", async (req: Request, res: Response) => {
-    try {
-        const token = String(req.query.token);
-        
-        const verifiedToken = verifyToken(token);
-        if(!verifiedToken){
-            res.status(401).json({ message: "Token verification failed." });
-            return;
-        }
-
-        const uid = verifiedToken.userId;
-        const user = await admin.auth().getUser(uid);
-        const email = user.email;
-        if (!email){
-            res.status(401).json({ message: "Error matching user id to email." });
-            return;
-        }
-
-        const projectsRef = db.collection(`users/${email}/projects`);
-        const projectsSnapshot = await projectsRef.get();
-        const projects = projectsSnapshot.docs.map(doc => {
-            const data = doc.data();
-            return {
-                id: doc.id,
-                timeCreated: data.timeCreated || null,
-                description: data.description || null,
-                name: data.name || null,
-                imageurl: data.imageurl || null,
-            };
-        });
-        
-        res.status(200).json({ projects });
-    } catch (error) {
-        res.status(500).json({ error: "Failed to load dashboard data." });
-    }
-});
-
-app.post("/api/project", async (req: Request, res: Response) => {
+app.post("/api/get-project", async (req: Request, res: Response) => {
     try {
         const usersCollection = admin.firestore().collection("users");
         const { projectID, token } = req.body;
@@ -337,6 +200,239 @@ app.post("/api/project", async (req: Request, res: Response) => {
     }
 });
 
+app.delete("/api/project", async (req: Request, res: Response)=> {
+    try {
+        const { projectID, token } = req.body;
+        const verifiedToken = verifyToken(token);
+        if (!verifiedToken) {
+            res.status(401).json({ message: "Token verification failed." });
+            return;
+        }
+        const uid = verifiedToken.userId;
+        const user = await admin.auth().getUser(uid);
+        const email = user.email;
+        if (!email) {
+            res.status(403).json({ message: "Failed to get user email." });
+            return;
+        }
+
+        const projectRef = db.collection(`users/${email}/projects`).doc(projectID);
+        const projectDoc = await projectRef.get();
+        if (!projectDoc.exists) {
+            res.status(404).json({ error: "Project not found." });
+            return;
+        }
+
+        await projectRef.delete();
+        console.log(`User: ${email}, deleted project: ${projectID}`);
+        res.status(200).json({ message: "Project deleted successfully." });
+    } catch (error) {
+        console.log("An error occurred during project deletion: ", error);
+        res.status(500).json({ error: "An error occurred during project deletion." });
+    }
+});
+
+app.post("/api/stage", async (req: Request, res: Response) => {
+    try {
+        const data = req.body;
+        const token = data.token;
+        const verifiedToken = verifyToken(token);
+        if(!verifiedToken){
+            res.status(401).json({ message: "Token verification failed." });
+            return;
+        }
+
+        const uid = verifiedToken.userId;
+        const user = await admin.auth().getUser(uid);
+        const email = user.email;
+        if (!email){
+            res.status(401).json({ message: "Error matching user id to email." });
+            return;
+        }
+
+        const stage = data.newStage;
+        const projectID = data.projectID;
+
+        if (!stage) {
+            res.status(401).json({ message: "Missing stage data." });
+            return;
+        }
+        if (!projectID) {
+            res.status(401).json({ message: "Missing project ID." });
+            return;
+        }
+
+        const docid = createStage(email, stage, projectID);
+        console.log(`Stage ${docid} added succesfully.`)
+
+        res.status(200).json({ message: "Stage added succesfully.", docid });
+    } catch (error) {
+        console.log("Error when creating stage: ", error);
+        res.status(500).json({ error: "An error occurred during stage creation." });
+    }
+});
+
+app.delete("/api/stage", async (req: Request, res: Response)=> {
+    try {
+        const { projectID, stageID, token } = req.body;
+        const verifiedToken = verifyToken(token);
+        if (!verifiedToken) {
+            res.status(401).json({ message: "Token verification failed." });
+            return;
+        }
+        const uid = verifiedToken.userId;
+        const user = await admin.auth().getUser(uid);
+        const email = user.email;
+        if (!email) {
+            res.status(403).json({ message: "Failed to get user email." });
+            return;
+        }
+
+        const stageRef = db.collection(`users/${email}/projects/${projectID}/stages`).doc(stageID);
+        const stageDoc = await stageRef.get();
+        if (!stageDoc.exists) {
+            res.status(404).json({ error: "Stage not found." });
+            return;
+        }
+        
+        await stageRef.delete();
+        console.log(`User: ${email}, deleted stage: ${stageID}`);
+        res.status(200).json({ message: "Stage deleted successfully." });
+    } catch (error) {
+        console.log("An error occurred during stage deletion: ", error);
+        res.status(500).json({ error: "An error occurred during stage deletion." });
+    }
+});
+
+app.post("/api/task", async (req: Request, res: Response) => {
+    try {
+        const data = req.body;
+        const token = data.token;
+        const verifiedToken = verifyToken(token);
+        if(!verifiedToken){
+            res.status(401).json({ message: "Token verification failed." });
+            return;
+        }
+
+        const uid = verifiedToken.userId;
+        const user = await admin.auth().getUser(uid);
+        const email = user.email;
+        if (!email){
+            res.status(401).json({ message: "Error matching user id to email." });
+            return;
+        }
+
+        const task = data.newTask;
+        const stageID = data.stageID;
+        const projectID = data.projectID;
+        if (!task) {
+            res.status(401).json({ message: "Missing task data." });
+            return;
+        }
+        if (!stageID) {
+            res.status(401).json({ message: "Missing stage ID." });
+            return;
+        }
+        if (!projectID) {
+            res.status(401).json({ message: "Missing project ID." });
+            return;
+        }
+
+        const docid = createTask(email, task, projectID, stageID);
+        console.log(`Task ${docid} added succesfully.`);
+        res.status(200).json({ message: "Stage added succesfully.", docid });
+    } catch (error) {
+        console.log("Error when creating task: ", error);
+        res.status(500).json({ error: "An error occurred during task creation." });
+    }
+});
+
+app.delete("/api/task", async (req: Request, res: Response)=> {
+    try {
+        const { projectID, stageID, taskID, token } = req.body;
+        const verifiedToken = verifyToken(token);
+        if (!verifiedToken) {
+            res.status(401).json({ message: "Token verification failed." });
+            return;
+        }
+        const uid = verifiedToken.userId;
+        const user = await admin.auth().getUser(uid);
+        const email = user.email;
+        if (!email) {
+            res.status(403).json({ message: "Failed to get user email." });
+            return;
+        }
+
+        const taskRef = db.collection(`users/${email}/projects/${projectID}/stages/${stageID}/tasks`).doc(taskID);
+        const taskDoc = await taskRef.get();
+        if (!taskDoc.exists) {
+            res.status(404).json({ error: "Task not found." });
+            return;
+        }
+        
+        await taskRef.delete();
+        console.log(`User: ${email}, deleted task: ${taskID}`);
+        res.status(200).json({ message: "Task deleted successfully." });
+    } catch (error) {
+        console.log("An error occurred during task deletion: ", error);
+        res.status(500).json({ error: "An error occurred during task deletion." });
+    }
+});
+
+app.post("/api/login", async (req: Request, res: Response) => {
+    try {
+        const { email, password } = req.body;
+        console.log(password);  
+        const userRecord = await admin.auth().getUserByEmail(email);
+        const uid = userRecord.uid;
+
+        //session valid for 1 hour
+        const token = generateToken({ userId: uid, email: email }, "1h");
+        res.status(200).json({ uid, token });
+    } catch (error) {
+        console.log("Error when logging in: ", error);
+        res.status(500).json({ error: "An error occurred during login." });
+    }
+});
+
+
+app.get("/api/dashboard", async (req: Request, res: Response) => {
+    try {
+        const token = String(req.query.token);
+        
+        const verifiedToken = verifyToken(token);
+        if(!verifiedToken){
+            res.status(401).json({ message: "Token verification failed." });
+            return;
+        }
+
+        const uid = verifiedToken.userId;
+        const user = await admin.auth().getUser(uid);
+        const email = user.email;
+        if (!email){
+            res.status(401).json({ message: "Error matching user id to email." });
+            return;
+        }
+
+        const projectsRef = db.collection(`users/${email}/projects`);
+        const projectsSnapshot = await projectsRef.get();
+        const projects = projectsSnapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                timeCreated: data.timeCreated || null,
+                description: data.description || null,
+                name: data.name || null,
+                imageurl: data.imageurl || null,
+            };
+        });
+        
+        res.status(200).json({ projects });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to load dashboard data." });
+    }
+});
+
 
 app.post("/api/protected", async (req: Request, res: Response) => {
     try {
@@ -365,8 +461,6 @@ app.post("/api/protected", async (req: Request, res: Response) => {
 
 app.get('*', (_req, res) => {
     try {
-        console.log("Serving static files from:", static_path);
-        console.log("Expecting index.html at:", path.join(static_path, 'index.html'));
         res.sendFile(path.join(__dirname, static_path, 'index.html'));
     } catch (error) {
         res.status(404).json({ message: "Unexpected error: ", error });

@@ -4,14 +4,14 @@ import { FaPlus } from "react-icons/fa6";
 import '../styles/components/Stage.css';
 import { StageProps } from "../utils/Interfaces";
 
-const Stage: React.FC<StageProps> = ({stageName, taskList, showTaskMenu, stageID, showTaskEdit, filterText}) => {
+const Stage: React.FC<StageProps> = ({stageName, taskList, showTaskMenu, stageID, showTaskEdit, filterText, showStageEdit}) => {
     const filteredTasks = taskList.filter(task =>
         task.name.toLowerCase().includes((filterText || "").toLowerCase())
     );
 
     return (
         <div className="stage" id={stageName}>
-            <div className="title">{stageName}</div>
+            <span className="title" onClick={() => showStageEdit(stageID)}>{stageName}</span>
             <div className="tasks">
             {filteredTasks.map((task) => (
                 <Task

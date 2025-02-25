@@ -11,12 +11,14 @@
 }
 
 .stage .title{
+    transition: 1s;
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: large;
     font-weight: bold;
     text-transform: uppercase;
+    cursor: pointer;
 }
 
 .stage .tasks{
@@ -44,4 +46,10 @@
     opacity: 0;
     transition: 0.5s;
     opacity: 1;
+}
+
+.stage .title:hover{
+    transition: 1s;
+    background-color: var(--highlight);
+    color: var(--backgroundbase);
 }
