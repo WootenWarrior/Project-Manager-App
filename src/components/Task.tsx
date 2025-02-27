@@ -12,6 +12,9 @@ const Task: React.FC<TaskProps> = ({stageID, taskID, name, completed, onclick,
     const [completedText, setCompletedText] = useState<string>("Incomplete");
     const { attributes, listeners, setNodeRef, transform} = useDraggable({id: taskID,});
 
+    //Bugfix temp
+    const [_temp, _temp1, _temp2] = [isCompleted, completedText, setCompletedText];
+
     const style = {
         left: `${x}px`,
         top: `${y}px`,
