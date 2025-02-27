@@ -114,6 +114,7 @@ app.post("/api/project", async (req: Request, res: Response) => {
             description: data.projectData?.description || "",
             imageURL: data.projectData?.imageURL || "",
             createdAt: new Date(Date.now()),
+            theme: data.projectData?.theme || "default"
         };
         
         const projectId = await createProject(email, projectData);
@@ -344,6 +345,41 @@ app.post("/api/task", async (req: Request, res: Response) => {
     } catch (error) {
         console.log("Error when creating task: ", error);
         res.status(500).json({ error: "An error occurred during task creation." });
+    }
+});
+
+app.put("/api/task", async (req: Request, res: Response) =>{
+    try {
+        console.log("here");
+        const { token, projectID, sourceID, destID, task } = req.body;
+        const verifiedToken = verifyToken(token);
+        if(!verifiedToken){
+            res.status(401).json({ message: "Token verification failed." });
+            return;
+        }
+
+        const uid = verifiedToken.userId;
+        const user = await admin.auth().getUser(uid);
+        const email = user.email;
+        if (!email){
+            res.status(401).json({ message: "Error matching user id to email." });
+            return;
+        }
+
+        const taskRef = db.collection(`users/${email}/projects/${projectID}/stages/${sourceID}/tasks`).doc(task.taskID);
+        const taskDoc = await taskRef.get();
+        if (!taskDoc.exists) {
+            res.status(404).json({ error: "Task not found." });
+            return;
+        }
+        
+        await taskRef.delete();
+
+        createTask(email, task, projectID, destID);
+        res.status(200).json({ message: "Successfully updated task." });
+    }
+    catch (error) {
+        res.status(500).json({ message: "Error updating task.", error });
     }
 });
 

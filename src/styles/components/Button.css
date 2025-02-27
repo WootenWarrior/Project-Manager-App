@@ -37,3 +37,25 @@
     background-color: var(--highlight);
     color: var(--backgroundbase);
 }
+
+.toggle-button {
+    --toggle-button-text-color: rgb(160, 0, 0);
+    --toggle-button-background: transparent;
+    --toggle-button-highlight: green;
+
+    font-size: medium;
+    padding: 1rem;
+    border-radius: 1rem;
+    cursor: pointer;
+    border: 1px solid var(--toggle-button-background);
+    background-color: var(--toggle-button-background);
+    color: var(--toggle-button-text-color);
+    transition: 0.3s ease-in-out;
+    width: 100%;
+    text-align: center;
+    display: block;
+}
+
+.toggle-button:hover {
+    color: var(--toggle-button-highlight);
+}

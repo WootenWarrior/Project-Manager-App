@@ -25,6 +25,7 @@ export interface projectData {
     description: string,
     imageURL: string,
     createdAt: Date,
+    theme: string
 }
 
 export interface stageData {

@@ -10,14 +10,14 @@ const HiddenMenu: React.FC<HiddenMenuProps> = ({classname, visible, close, creat
                     {children}
                 </form>
                 <div className="buttons">
-                    <Button classname="default-button"
+                    {close? <Button classname="default-button"
                         text={closeButtonText ? closeButtonText : "close"}
                         onclick={() => close()}
-                    />
-                    <Button classname="default-button"
+                    /> : <></>}
+                    {create? <Button classname="default-button"
                         text={createButtonText ? createButtonText : "create"}
                         onclick={create}
-                    />
+                    />: <></>}
                 </div>
             </div>
         </div>

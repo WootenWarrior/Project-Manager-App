@@ -3,16 +3,23 @@ import Button from "./Button";
 import { useDraggable } from "@dnd-kit/core";
 import '../styles/components/Task.css';
 import { TaskProps } from "../utils/Interfaces";
+import { FaGripLines } from "react-icons/fa";
+import { FaX } from "react-icons/fa6";
 
-const Task: React.FC<TaskProps> = ({taskID, name, completed, onclick, startDate, startTime, endDate, endTime}) => {
+const Task: React.FC<TaskProps> = ({stageID, taskID, name, completed, onclick, 
+    startDate, startTime, endDate, endTime, x, y}) => {
     const [isCompleted, setCompleted] = useState<boolean>(completed);
+    const [completedText, setCompletedText] = useState<string>("Incomplete");
     const { attributes, listeners, setNodeRef, transform} = useDraggable({id: taskID,});
 
     const style = {
+        left: `${x}px`,
+        top: `${y}px`,
         transform: transform
           ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
           : undefined,
         transition: transform ? "transform 20ms ease" : undefined,
+        zIndex: transform ? 1000 : "auto",
     };
 
     const formattedDeadline = (() => {
@@ -58,11 +65,11 @@ const Task: React.FC<TaskProps> = ({taskID, name, completed, onclick, startDate,
             console.log("No onclick method set.");
             return;
         }
-        onclick(String(taskID));
+        onclick(String(stageID), String(taskID));
     }
 
-    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setCompleted(e.target.checked);
+    const handleToggle = () => {
+        setCompleted((completed) => !completed);
     };
 
     return (
@@ -73,14 +80,15 @@ const Task: React.FC<TaskProps> = ({taskID, name, completed, onclick, startDate,
                     text={name}>
                 </Button>
                 <div className="drag-handle" {...listeners} {...attributes}>
-                    <span><b>::</b></span>
+                    <FaGripLines/>
                 </div>
             </div>
             <div className="task-body">
-                <input type="checkbox"
-                    checked={isCompleted}
-                    onChange={handleCheckboxChange}>
-                </input>
+                <Button classname="toggle-button"
+                    text="Unfinished"
+                    onclick={handleToggle}
+                    beforeicon={<FaX/>}>
+                </Button>
                 <span>Start: {formattedStartDate}</span>
                 <span>Deadline: {formattedDeadline}</span>
                 <span>Remaining time: {calculateRemainingTime()}</span>

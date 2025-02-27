@@ -5,7 +5,8 @@ import { URL } from "../utils/BackendURL";
 import { Stage, Button, Input, HiddenMenu, TimeInput, DateInput } from "../components/index";
 import { TaskProps, StageProps } from "../utils/Interfaces";
 import { FaPlus } from "react-icons/fa6";
-import { DndContext } from '@dnd-kit/core';
+import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import ThemeChanger from "../utils/ThemeChanger";
 
 
 function Project() {
@@ -52,13 +53,16 @@ function Project() {
         setStageMenuActive(false);
     }
 
-    const showTaskEdit = (taskID: string) => {
+    const showTaskEdit = (stageID: string, taskID: string) => {
         setSelectedTaskId(taskID);
+        setSelectedStageId(stageID);
         loadTaskData(taskID);
         setTaskEditActive(true);
     }
     const hideTaskEdit = () => {
         setTaskEditActive(false);
+        setSelectedTaskId(null);
+        setSelectedStageId(null);
     }
 
     const showStageEdit = (stageID: string) => {
@@ -123,7 +127,9 @@ function Project() {
             startDate: taskStart.date,
             startTime: taskStart.time,
             endDate: taskEnd.date,
-            endTime: taskEnd.time
+            endTime: taskEnd.time,
+            x: 0,
+            y: 0
         };
 
         try {
@@ -181,8 +187,7 @@ function Project() {
             if (projectData.stages) {
                 const stages: StageProps[] = Object.entries(
                     projectData.stages as Record<string, StageProps>
-                ).map(
-                    ([stageNum, stageData]) => ({
+                ).map(([stageNum, stageData]) => ({
                     key: stageNum,
                     stageName: stageData.stageName,
                     stageID: stageData.stageID,
@@ -311,6 +316,63 @@ function Project() {
         loadProjectData();
     }, []);
 
+
+    const handleDragEnd = async (event: DragEndEvent) => {
+        const { active, over, delta } = event;
+        if (!over) return;
+    
+        const taskId = active.id as string;
+        const newStageID = over.id as string;
+        let draggedTask: TaskProps | null = null;
+        let oldStageID: string | null = null;
+    
+        const updatedStages = stages.map((stage) => {
+            let newTaskList = stage.taskList.filter((task) => {
+                if (task.taskID === taskId) {
+                    draggedTask = { ...task, stageID: stage.stageID, x: task.x + delta.x, y: task.y + delta.y };
+                    oldStageID = stage.stageID;
+                    return false;
+                }
+                return true;
+            });
+    
+            if (stage.stageID === newStageID && draggedTask) {
+                newTaskList.push(draggedTask);
+            }
+    
+            return { ...stage, taskList: newTaskList };
+        });
+        setStages(updatedStages);
+
+        if (draggedTask) {
+            try {
+                const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+                const res = await fetch(`${URL}/api/task`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ token, 
+                        projectID, 
+                        sourceID: oldStageID, 
+                        destID: newStageID, 
+                        task: draggedTask 
+                    }),
+                });
+
+                if (!res.ok) {
+                    const errorData = await res.text();
+                    console.log(errorData);
+                    return;
+                }
+        
+                const data = await res.json();
+                console.log(data);
+                loadProjectData();
+            } catch (error) {
+                console.log(error);
+            }
+        }
+    };
+
     return (
         <div className="project">
             <div className="panels">
@@ -323,9 +385,10 @@ function Project() {
                         onchange={handleFilterChange}
                         visible={true}
                     />
+                    <ThemeChanger/>
                 </div>
                 <div className="project-creation-window">
-                    <DndContext>
+                    <DndContext onDragEnd={handleDragEnd}>
                         <div className="stages">
                             {stages.map((stage) => (
                                 <Stage key={stage.stageID}
@@ -398,8 +461,8 @@ function Project() {
                     closeButtonText="x"
                     createButtonText="Update">
                     <h1>Edit task</h1>
-                    <Button onclick={() => deleteTask("",selectedTaskId)}  /// CHANGE HERE
-                        text="Delete Stage"
+                    <Button onclick={() => deleteTask(selectedStageId,selectedTaskId)}  /// CHANGE HERE
+                        text="Delete Task"
                         classname="default-button"
                     />
                 </HiddenMenu>

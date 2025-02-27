@@ -6,13 +6,14 @@ export interface ButtonProps {
     classname?: string;
     textcolor?: string;
     backgroundcolor?: string;
+    highlightColor?: string;
 }
 
 export interface HiddenMenuProps {
     classname?: string;
     visible: boolean;
-    close: () => void;
-    create: () => void;
+    close?: () => void;
+    create?: () => void;
     createButtonText?: string;
     closeButtonText?: string;
     children?: React.ReactNode;
@@ -50,7 +51,9 @@ export interface TaskProps {
     endDate: string;
     startTime: string;
     endTime: string;
-    onclick?: (id:string) => void;
+    x: number;
+    y: number;
+    onclick?: (stageID: string, taskID:string) => void;
 }
 
 export interface StageProps {
@@ -58,7 +61,7 @@ export interface StageProps {
     stageName: string;
     taskList: TaskProps[];
     showTaskMenu: (stageID: string) => void;
-    showTaskEdit: (taskID: string) => void;
+    showTaskEdit: (stageID: string, taskID: string) => void;
     showStageEdit: (stageID: string) => void;
     filterText?: string;
 }

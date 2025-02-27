@@ -17,10 +17,12 @@ function Dashboard() {
         title: string;
         description: string;
         image: File | null;
+        theme: string;
     }>({
         title: '',
         description: '',
         image: null,
+        theme: "default"
     });
 
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) : void => {
@@ -129,6 +131,7 @@ function Dashboard() {
                         description: project.description|| "",
                         imageUrl: project.imageURL|| "",
                         time: new Date(project.createdAt).toLocaleString() || "",
+                        theme: project.theme || "default"
                     }));
                     setOptions(mappedOptions);
                 }
