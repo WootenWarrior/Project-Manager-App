@@ -1,5 +1,5 @@
 import { Button, HiddenMenu } from "../components";
-import { useState, useEffect } from "react";
+import { useState, useEffect, act } from "react";
 import '../styles/components/ThemeChanger.css';
 
 interface ColorTheme {
@@ -24,6 +24,8 @@ const ThemeChanger = (/*theme: ColorTheme*/) => {
         { background: "#282c34", highlight: "#61dafb", hiddenMenuBackground: "#4f0147", outlineColor: "#940085" },
         { background: "#2d2a32", highlight: "#c678dd", hiddenMenuBackground: "#4f0147", outlineColor: "#940085" }
     ];
+
+    console.log(activeTheme);
 
     useEffect(() => {
         const savedTheme = localStorage.getItem("activeTheme");
