@@ -1,5 +1,5 @@
 import { Button, HiddenMenu } from "../components";
-import { useState, useEffect, act } from "react";
+import { useState, useEffect } from "react";
 import '../styles/components/ThemeChanger.css';
 
 interface ColorTheme {
