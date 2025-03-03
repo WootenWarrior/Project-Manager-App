@@ -353,7 +353,7 @@ app.put("/api/task", async (req: Request, res: Response) =>{
         console.log("here");
         const { token, projectID, sourceID, destID, task } = req.body;
         const verifiedToken = verifyToken(token);
-        if(!verifiedToken){
+        if(!verifiedToken) {
             res.status(401).json({ message: "Token verification failed." });
             return;
         }
@@ -361,11 +361,18 @@ app.put("/api/task", async (req: Request, res: Response) =>{
         const uid = verifiedToken.userId;
         const user = await admin.auth().getUser(uid);
         const email = user.email;
-        if (!email){
+        if (!email) {
             res.status(401).json({ message: "Error matching user id to email." });
             return;
         }
 
+        if (!task) {
+            res.status(401).json({ message: "No task set." });
+            return;
+        }
+        if (task.id) {
+            delete task.id;
+        }
         const taskRef = db.collection(`users/${email}/projects/${projectID}/stages/${sourceID}/tasks`).doc(task.taskID);
         const taskDoc = await taskRef.get();
         if (!taskDoc.exists) {

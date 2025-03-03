@@ -177,7 +177,11 @@ function Dashboard() {
                     <h1>Project</h1>
                 </div>
             </div>
-            <HiddenMenu visible={menuActive} close={hideMenu} create={createProject}>
+            <HiddenMenu classname="dashboard-hidden-menu"
+                visible={menuActive} 
+                close={hideMenu} 
+                create={createProject}
+            >
                 <h1>Create new project</h1>
                 <Input
                     textcolor="black"

@@ -1,6 +1,37 @@
 /* ROOT Variables */
 :root {
     /* Colours */
+    --background: #01161e;
+    --foreground-menu-color: #124559;
+    --hidden-menu-background: #598392;
+    --task-color: #AEC3B0;
+    --highlight-color: #EFF6E0;
+    --outline-color: #124559;
+
+    --background50: #01161e50;
+    --foreground-menu-color50: #12455950;
+    --hidden-menu-background50: #59839250;
+    --task-color50: #AEC3B050;
+    --highlight-color50: #EFF6E050;
+    --outline-color50: #12455950;
+
+    /* color theme 1
+    --background: #11001c;
+    --foreground-menu-color: #35012c;
+    --hidden-menu-background: #4f0147;
+    --task-color: #3A015C;
+    --highlight-color: #5a028d;
+    --outline-color: #940085;
+    */
+
+
+    --default-background: #01161e;
+    --default-foreground-menu-color: #124559;
+    --default-hidden-menu-background: #598392;
+    --default-task-color: #AEC3B0;
+    --default-highlight-color: #EFF6E0;
+    --default-outline-color: black;
+
     --darkcolor: black;
     --lightcolor: white;
     --backgroundbase: #647c9039;

@@ -34,16 +34,16 @@ function Landing() {
                     />
                 </div>
             </div>
-            <div className="landing-visuals">
-                <div className="text">
-                    <p>THE POWER OF <br/> STORYBOARDING, <br/>
-                    TAILORED FOR YOU.</p>
+            <div className="about-section">
+                <div className="panel">
+                    <div className="text">
+                        <p>THE POWER OF <br/> STORYBOARDING, <br/>
+                        TAILORED FOR YOU.</p>
+                    </div>
+                    <div className="gif">
                 </div>
-                <div className="gif">
 
                 </div>
-            </div>
-            <div className="about-section">
                 <div className="panel">
                     <div className="gif">
                         
@@ -53,6 +53,7 @@ function Landing() {
                         AND SET TODOS.</p>
                     </div>
                 </div>
+
                 <div className="panel">
                     <div className="text">
                         <p>KEEP TRACK OF TASKS <br/>
@@ -62,6 +63,7 @@ function Landing() {
 
                     </div>
                 </div>
+
                 <div className="panel">
                     <div className="gif">
 
@@ -72,6 +74,7 @@ function Landing() {
                     </div>
                 </div>
             </div>
+            
             <div className="footer">
                 
             </div>

@@ -327,7 +327,7 @@ function Project() {
         let oldStageID: string | null = null;
     
         const updatedStages = stages.map((stage) => {
-            let newTaskList = stage.taskList.filter((task) => {
+            let newTaskList = stage.taskList.filter((task: TaskProps) => {
                 if (task.taskID === taskId) {
                     draggedTask = { ...task, stageID: stage.stageID, x: task.x + delta.x, y: task.y + delta.y };
                     oldStageID = stage.stageID;
