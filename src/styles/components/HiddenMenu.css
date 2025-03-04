@@ -33,7 +33,7 @@
     flex-direction: column;
     background-color: var(--hidden-menu-background);
     border-radius: 2rem;
-    border: 1rem solid var(--outline-color50);
+    border: 2px solid var(--outline-color50);
     padding: 1rem;
     margin-bottom: 2rem;
 }

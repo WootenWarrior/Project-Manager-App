@@ -93,41 +93,6 @@ const createTask = async (email: string, taskData: taskData, projectID: string, 
 
 app.post("/api/project", async (req: Request, res: Response) => {
     try {
-        const data = req.body;
-        const token = data.token;
-        const verifiedToken = verifyToken(token);
-        if(!verifiedToken){
-            res.status(401).json({ message: "Token verification failed." });
-            return;
-        }
-
-        const uid = verifiedToken.userId;
-        const user = await admin.auth().getUser(uid);
-        const email = user.email;
-        if (!email){
-            res.status(401).json({ message: "Error matching user id to email." });
-            return;
-        }
-
-        const projectData: projectData = {
-            title: data.projectData?.title || "",
-            description: data.projectData?.description || "",
-            imageURL: data.projectData?.imageURL || "",
-            createdAt: new Date(Date.now()),
-            theme: data.projectData?.theme || "default"
-        };
-        
-        const projectId = await createProject(email, projectData);
-
-        res.status(200).json({ message: "Project created.", projectId: projectId });
-    } catch (error) {
-        console.log("Error when creating project: ", error);
-        res.status(500).json({ error: "An error occurred during project creation." });
-    }
-});
-
-app.post("/api/get-project", async (req: Request, res: Response) => {
-    try {
         const usersCollection = admin.firestore().collection("users");
         const { projectID, token } = req.body;
         if (!projectID) {
@@ -198,6 +163,41 @@ app.post("/api/get-project", async (req: Request, res: Response) => {
         res.status(200).json({ message: "Project retrieved successfully.", projectData });
     } catch (error) {
         res.status(500).json({ error: "Failed to load project data." });
+    }
+});
+
+app.put("/api/project", async (req: Request, res: Response) => {
+    try {
+        const data = req.body;
+        const token = data.token;
+        const verifiedToken = verifyToken(token);
+        if(!verifiedToken){
+            res.status(401).json({ message: "Token verification failed." });
+            return;
+        }
+
+        const uid = verifiedToken.userId;
+        const user = await admin.auth().getUser(uid);
+        const email = user.email;
+        if (!email){
+            res.status(401).json({ message: "Error matching user id to email." });
+            return;
+        }
+
+        const projectData: projectData = {
+            title: data.projectData?.title || "",
+            description: data.projectData?.description || "",
+            imageURL: data.projectData?.imageURL || "",
+            createdAt: new Date(Date.now()),
+            theme: data.projectData?.theme || "default"
+        };
+        
+        const projectId = await createProject(email, projectData);
+
+        res.status(200).json({ message: "Project created.", projectId: projectId });
+    } catch (error) {
+        console.log("Error when creating project: ", error);
+        res.status(500).json({ error: "An error occurred during project creation." });
     }
 });
 

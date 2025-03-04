@@ -3,17 +3,17 @@
     /* Colours */
     --background: #01161e;
     --foreground-menu-color: #124559;
-    --hidden-menu-background: #598392;
+    --hidden-menu-background: white;
     --task-color: #AEC3B0;
     --highlight-color: #EFF6E0;
     --outline-color: #124559;
 
     --background50: #01161e50;
-    --foreground-menu-color50: #12455950;
-    --hidden-menu-background50: #59839250;
+    --foreground-menu-color50: white;
+    --hidden-menu-background50: #647c9039;
     --task-color50: #AEC3B050;
     --highlight-color50: #EFF6E050;
-    --outline-color50: #12455950;
+    --outline-color50: black;
 
     /* color theme 1
     --background: #11001c;

@@ -166,7 +166,7 @@ function Project() {
     const loadProjectData = async () => {
         try {
             const token = sessionStorage.getItem("token") || localStorage.getItem("token");
-            const res = await fetch(`${URL}/api/get-project`, {
+            const res = await fetch(`${URL}/api/project`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ projectID, token }),
