@@ -2,7 +2,7 @@ import '../styles/components/Textbox.css'
 import { TextboxProps } from '../utils/Interfaces'
 
 const Textbox: React.FC<TextboxProps> = 
-({classname, backgroundcolour, textcolor, width, height, placeholder,onchange}) => {
+({classname, backgroundcolour, textcolor, width, height, placeholder, onchange}) => {
     return (
         <textarea className={classname} 
             placeholder={placeholder}

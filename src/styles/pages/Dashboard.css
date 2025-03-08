@@ -62,8 +62,28 @@
     align-items: center;
     flex-direction: column;
     border-radius: 1rem;
-    overflow: hidden;
+    overflow-y: scroll;
+    overflow-x: hidden;
     box-shadow: var(--inside-shadow);
+}
+
+.title{
+    max-width: 100%;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.description{
+    max-width: 100%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 6;
+    line-clamp: 6;
 }
 
 .dashboard-page .project-info{
@@ -80,6 +100,7 @@
     .dashboard-page .project-list .projects{
         transition: 1s;
         grid-template-columns: repeat(2, 1fr);
+        gap: 4rem;
     }
 }
 
@@ -87,6 +108,5 @@
     .dashboard-page .project-list .projects{
         transition: 1s;
         grid-template-columns: repeat(1, 1fr);
-        gap: 4rem;
     }
 }

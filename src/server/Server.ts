@@ -473,7 +473,7 @@ app.get("/api/dashboard", async (req: Request, res: Response) => {
             const data = doc.data();
             return {
                 id: doc.id,
-                timeCreated: data.timeCreated,
+                createdAt: data.createdAt,
                 description: data.description,
                 name: data.title,
                 imageurl: data.imageURL,

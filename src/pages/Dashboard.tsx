@@ -152,6 +152,7 @@ function Dashboard() {
 
             const data = await res.json();
             const projects = data.projects;
+            console.dir(projects);
 
             if (projects && Array.isArray(projects)) {
                 const mappedOptions = data.projects.map((project: any) => ({
@@ -162,6 +163,7 @@ function Dashboard() {
                     theme: project.theme || "default"
                 }));
                 setOptions(mappedOptions);
+                console.dir(mappedOptions);
             }
             else {
                 console.log("Problem with fetched projects.")
@@ -196,12 +198,15 @@ function Dashboard() {
                             onclick={() => setDeleteMenuActive(true)}
                         />
                     </div>
-                    {error && <p style={{ color: "red" }}>{error}</p>}
+                    {error && <p className="error" style={{ color: "red" }}>{error}</p>}
                     <div className="projects">
-                        {options.map((option) => (
+                        {options
+                            .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+                            .map((option) => (
                             <Option key={option.id}
                                 title={option.title}
                                 id={option.id}
+                                time={option.time}
                                 width="200px"
                                 height="200px"
                                 description={option.description}
@@ -248,6 +253,7 @@ function Dashboard() {
                     width="100%"
                     onchange={handleProjectNameChange}
                     visible={true}
+                    placeholder="Enter project name..."
                 />
             </HiddenMenu>
         </span>

@@ -43,6 +43,7 @@ export interface OptionProps {
     width?: string;
     height?: string;
     title?: string;
+    time: string;
     description?: string;
     onclick?: () => void;
     backgroundColor?: string;

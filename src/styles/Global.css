@@ -3,8 +3,10 @@
     /* Pages */
     --page-default-background: var(--color1);
 
-    --login-default-background: linear-gradient(to top, var(--color1), var(--color2));
-    --login-box-default-background: linear-gradient(to top, var(--color2), var(--color3));
+    --login-default-background: linear-gradient(to bottom, var(--color1), var(--color2));
+    --login-box-default-background: linear-gradient(to bottom, var(--color2), var(--color3));
+    --signup-default-background: linear-gradient(to top, var(--color1), var(--color2));
+    --signup-box-default-background: linear-gradient(to top, var(--color2), var(--color3));
 
     --project-bg-colour: var(--color1);
 
@@ -24,6 +26,7 @@
     font-family: 'Inter', Arial, Helvetica, sans-serif;
 
     /* misc */
+    --default-global-outline: white;
     --under-shadow: 5px 4px 8px var(--color1);
     --inside-shadow: inset 4px 4px 8px var(--color2),
                   inset -4px -4px 8px var(--color2);
@@ -34,6 +37,13 @@
     --color4: #6eb6ff;
     --color5: #a1d0ff;
     --color6: #ffffff;
+
+    --translucent-color1: #477bd075;
+    --translucent-color2: #7098da75;
+    --translucent-color3: #98b5e475;
+    --translucent-color4: #6eb6ff75;
+    --translucent-color5: #a1d0ff75;
+    --translucent-color6: #ffffff75;
 }
 
 /* Global scrollbar styles */
@@ -48,12 +58,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
+    width: 2rem;
     max-height: 3rem;
-    background: var(--color6);
+    background: linear-gradient(180deg, #5790DC, #8DB4E7);
     border-radius: 6px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    transition: 0.5s;
-    background: var(--color5);
+    cursor: grabbing;
+    outline: 1px solid var(--color6);
 }

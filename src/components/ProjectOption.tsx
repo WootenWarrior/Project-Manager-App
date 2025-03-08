@@ -8,10 +8,6 @@ const projectOption: React.FC<OptionProps> = ({width, height, title, description
         style={{background: backgroundColor ? backgroundColor : "var(--color2)", 
         width:width, 
         height:height,
-        justifyContent:"center",
-        alignItems:"center",
-        display:"flex",
-        flexDirection:"column",
         overflowY:"scroll",
         cursor:"pointer",
         outline: "1px solid var(--default-button-outline)"}}>
@@ -19,7 +15,7 @@ const projectOption: React.FC<OptionProps> = ({width, height, title, description
                 color: textColor, 
                 fontWeight: "bold", 
                 textTransform: "uppercase"}}>{title}</div>
-            <p style={{color: textColor}}>{description}</p>
+            <p className="description" style={{color: textColor}}>{description}</p>
         </button>
     );
 }

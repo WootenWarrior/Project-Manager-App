@@ -1,6 +1,6 @@
 /* default styling for functionality */
 .visible-menu {
-    transition: 1s;
+    opacity: 0;
     position: absolute;
     top: 0%;
     left: 0%;
@@ -11,7 +11,7 @@
 }
 
 .visible-menu.active {
-    transition: 1s;
+    opacity: 1;
     position: absolute;
     top: 0%;
     left: 0%;
@@ -23,7 +23,9 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    background-color: var(--hidden-menu-background50);
+    background-color: var(--translucent-color1); /* Light translucent effect */
+    backdrop-filter: blur(10px); /* Adjust the blur intensity */
+    -webkit-backdrop-filter: blur(10px); /* For Safari support */
 }
 
 .visible-menu.active .inputs {
@@ -31,11 +33,29 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    background-color: var(--hidden-menu-background);
+    background-color: var();
     border-radius: 2rem;
     border: 2px solid var(--outline-color50);
     padding: 1rem;
     margin-bottom: 2rem;
+}
+
+.visible-menu.active h1 {
+    color: var(--default-text-color);
+}
+
+.visible-menu.active .default-textbox {
+    border: var(--default-global-outline);
+    outline: 1px solid var(--color6);
+    color: var(--color6);
+}
+
+.visible-menu.active .buttons {
+    width: 30%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 2rem;
 }
 
 

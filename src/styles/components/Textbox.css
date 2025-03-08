@@ -3,3 +3,8 @@
     resize: none;
     font-size: large;
 }
+
+.default-textbox::placeholder {
+    color: var(--color6);
+    opacity: 1;
+}
