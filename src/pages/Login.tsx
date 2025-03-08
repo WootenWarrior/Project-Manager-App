@@ -104,8 +104,6 @@ function Login() {
             <div className="login-box">
                 <Button text="Login-bypass" 
                     classname="default-button"
-                    backgroundcolor="black"
-                    textcolor="white"
                     onclick={() => loginBypass()}
                 />
                 <h1>LOGIN</h1>
@@ -127,6 +125,10 @@ function Login() {
                         placeholder="Enter Password"
                         onchange={(e) => setPassword(e.target.value)}
                     />
+                    <Button text="Login" 
+                        aftericon={<BiLogIn/>} 
+                        classname="default-button"
+                    />
                     <div className="under-inputs">
                         <label>
                             <input 
@@ -138,21 +140,13 @@ function Login() {
                             />
                             Remember me
                         </label>
-                        <a href="">Forgot Password?</a>
                     </div>
-                    <Button text="Login" 
-                        aftericon={<BiLogIn/>} 
-                        classname="default-button"
-                        backgroundcolor="black"
-                        textcolor="white"
-                    />
                     {error && <p className="error" style={{ color: "red"}}>{error}</p>}
                 </form>
                 <p>Don't have an account?</p>
                 <Button text="Sign Up" 
                     classname="default-button"
                     onclick={goToSignup}
-                    backgroundcolor="transparent"
                 />
             </div>
         </div>

@@ -1,80 +1,59 @@
 /* ROOT Variables */
 :root {
-    /* Colours */
-    --background: #01161e;
-    --foreground-menu-color: #124559;
-    --hidden-menu-background: white;
-    --task-color: #AEC3B0;
-    --highlight-color: #EFF6E0;
-    --outline-color: #124559;
+    /* Pages */
+    --page-default-background: var(--color1);
 
-    --background50: #01161e50;
-    --foreground-menu-color50: white;
-    --hidden-menu-background50: #647c9039;
-    --task-color50: #AEC3B050;
-    --highlight-color50: #EFF6E050;
-    --outline-color50: black;
+    --login-default-background: linear-gradient(to top, var(--color1), var(--color2));
+    --login-box-default-background: linear-gradient(to top, var(--color2), var(--color3));
 
-    /* color theme 1
-    --background: #11001c;
-    --foreground-menu-color: #35012c;
-    --hidden-menu-background: #4f0147;
-    --task-color: #3A015C;
-    --highlight-color: #5a028d;
-    --outline-color: #940085;
-    */
-
-
-    --default-background: #01161e;
-    --default-foreground-menu-color: #124559;
-    --default-hidden-menu-background: #598392;
-    --default-task-color: #AEC3B0;
-    --default-highlight-color: #EFF6E0;
-    --default-outline-color: black;
-
-    --darkcolor: black;
-    --lightcolor: white;
-    --backgroundbase: #647c9039;
-    --backgroundbase50: #dcdcdc75;
-    --highlight: #ff6347;
-    --dark-grey: #85858575;
-    --light-background-color: #647c9039;
-    
-    --project-bg-colour: #647c9039;
-
-
-
-    --background-image: #647c9039;
+    --project-bg-colour: var(--color1);
 
     /* Navbars */
-    --navbarheight: 10rem;
+    --navbar-default-color: linear-gradient(to top, var(--color1), var(--color2));
+    --navbarheight: 15rem;
+    --footer-default-color: linear-gradient(to bottom, var(--color1), var(--color2));
+
+    /* Buttons */
+    --default-button-background: white;
+    --default-button-outline: white;
+    --default-button-highlight: white;
 
     /* Fonts */
     font-size: x-small;
+    --default-text-color: white;
+    font-family: 'Inter', Arial, Helvetica, sans-serif;
+
+    /* misc */
+    --under-shadow: 5px 4px 8px var(--color1);
+    --inside-shadow: inset 4px 4px 8px var(--color2),
+                  inset -4px -4px 8px var(--color2);
+    
+    --color1: #477bd0;
+    --color2: #7098da;
+    --color3: #98b5e4;
+    --color4: #6eb6ff;
+    --color5: #a1d0ff;
+    --color6: #ffffff;
 }
 
 /* Global scrollbar styles */
 ::-webkit-scrollbar {
-    width: 12px;
-    height: 12px;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 2rem;
 }
 
 ::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 6px;
+    opacity: 0;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #888;
+    max-height: 3rem;
+    background: var(--color6);
     border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
-
-* {
-    /* Firefox scrollbar style */
-    scrollbar-width: thin;
-    scrollbar-color: #888 #f1f1f1;
+    transition: 0.5s;
+    background: var(--color5);
 }

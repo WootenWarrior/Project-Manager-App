@@ -182,8 +182,6 @@ function Project() {
 
             const projectData = data.projectData
 
-            console.log(projectData.stages);
-
             if (projectData.stages) {
                 const stages: StageProps[] = Object.entries(
                     projectData.stages as Record<string, StageProps>

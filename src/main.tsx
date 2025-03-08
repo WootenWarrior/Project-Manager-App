@@ -44,9 +44,12 @@ const router = createBrowserRouter([
         errorElement: <Error />
       },
     ]
-  }
-],
-)
+  },
+  {
+    path: "*",
+    element: <Error header= 'Error 404' message='Page Not Found' />
+  },
+],)
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

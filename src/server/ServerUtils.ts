@@ -23,7 +23,6 @@ export const getStaticFilePath = (): string => {
 export interface projectData {
     title: string,
     description: string,
-    imageURL: string,
     createdAt: Date,
     theme: string
 }

@@ -41,7 +41,6 @@ const filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(filename);
 const static_path = getStaticFilePath();
 app.use(express.static(path.join(__dirname, static_path)));
-console.log(path.join(__dirname, static_path));
 
 
 // FUNCTIONS
@@ -49,8 +48,9 @@ console.log(path.join(__dirname, static_path));
 const createProject = async (email: string, projectData: projectData) => {
     try {
         const project = db.collection(`users/${email}/projects`);
-        const projects = await project.get();
-        if (projects.size > MAX_PROJECTS) {
+        const projectsSnapshot = await project.get();
+        const projects = projectsSnapshot.docs;
+        if (projects.length > MAX_PROJECTS) {
             throw new Error(`Maximum project limit ${MAX_PROJECTS} reached.`);
         }
 
@@ -59,7 +59,11 @@ const createProject = async (email: string, projectData: projectData) => {
         console.log(`User: ${email}, created project: ${doc.id}`);
         return doc.id;
     } catch (error) {
-        throw new Error("Failed to create project.");
+        let errormessage = "Failed to create project.";
+        if (error instanceof Error) {
+            errormessage = error.message;
+        }
+        throw new Error(errormessage);
     }
 }
 
@@ -71,20 +75,27 @@ const createStage = async (email: string, stageData: stageData, projectID: strin
         console.log(`User: ${email}, created stage: ${stageData.stageID}`);
         return stageData.stageID;
     } catch (error) {
-        throw new Error("Failed to create stage.");
+        let errormessage = "Failed to create stage.";
+        if (error instanceof Error) {
+            errormessage = error.message;
+        }
+        throw new Error(errormessage);
     }
 }
 
 const createTask = async (email: string, taskData: taskData, projectID: string, stageID: string) => {
     try {
-        console.log(`Stage ID: ${stageID}, Project ID ${projectID}`)
         const tasks = db.collection(`users/${email}/projects/${projectID}/stages/${stageID}/tasks`);
         await tasks.doc(taskData.taskID).set(taskData);
 
         console.log(`User: ${email}, created task: ${taskData.taskID}`);
         return taskData.taskID;
     } catch (error) {
-        throw new Error("Failed to create task.");
+        let errormessage = "Failed to create task.";
+        if (error instanceof Error) {
+            errormessage = error.message;
+        }
+        throw new Error(errormessage);
     }
 }
 
@@ -184,10 +195,10 @@ app.put("/api/project", async (req: Request, res: Response) => {
             return;
         }
 
+
         const projectData: projectData = {
-            title: data.projectData?.title || "",
-            description: data.projectData?.description || "",
-            imageURL: data.projectData?.imageURL || "",
+            title: data.projectData?.title,
+            description: data.projectData?.description,
             createdAt: new Date(Date.now()),
             theme: data.projectData?.theme || "default"
         };
@@ -203,7 +214,7 @@ app.put("/api/project", async (req: Request, res: Response) => {
 
 app.delete("/api/project", async (req: Request, res: Response)=> {
     try {
-        const { projectID, token } = req.body;
+        const { token, projectID } = req.body;
         const verifiedToken = verifyToken(token);
         if (!verifiedToken) {
             res.status(401).json({ message: "Token verification failed." });
@@ -350,7 +361,6 @@ app.post("/api/task", async (req: Request, res: Response) => {
 
 app.put("/api/task", async (req: Request, res: Response) =>{
     try {
-        console.log("here");
         const { token, projectID, sourceID, destID, task } = req.body;
         const verifiedToken = verifyToken(token);
         if(!verifiedToken) {
@@ -424,8 +434,8 @@ app.delete("/api/task", async (req: Request, res: Response)=> {
 
 app.post("/api/login", async (req: Request, res: Response) => {
     try {
-        const { email, password } = req.body;
-        console.log(password);  
+        const { email, password } = req.body; 
+        console.log(password);
         const userRecord = await admin.auth().getUserByEmail(email);
         const uid = userRecord.uid;
 
@@ -463,10 +473,10 @@ app.get("/api/dashboard", async (req: Request, res: Response) => {
             const data = doc.data();
             return {
                 id: doc.id,
-                timeCreated: data.timeCreated || null,
-                description: data.description || null,
-                name: data.name || null,
-                imageurl: data.imageurl || null,
+                timeCreated: data.timeCreated,
+                description: data.description,
+                name: data.title,
+                imageurl: data.imageURL,
             };
         });
         

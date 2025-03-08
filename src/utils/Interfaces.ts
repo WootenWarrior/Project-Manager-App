@@ -1,3 +1,9 @@
+export interface ProjectProps {
+    title: string;
+    description: string;
+    theme: string;
+}
+
 export interface ButtonProps {
     text?: string;
     aftericon?: React.ReactNode;
@@ -37,9 +43,9 @@ export interface OptionProps {
     width?: string;
     height?: string;
     title?: string;
-    url?: string;
     description?: string;
     onclick?: () => void;
+    backgroundColor?: string;
 }
 
 export interface TaskProps {
@@ -85,4 +91,9 @@ export interface DateInputProps {
     onDateChange: (date: string) => void;
     text?: string;
     displayDate?: string;
+}
+
+export interface ErrorPageProps {
+    header?: string;
+    message?: string;
 }

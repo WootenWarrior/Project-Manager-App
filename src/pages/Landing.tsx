@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom"
 import { Button } from "../components";
-import "../styles/pages/Landing.css"
+import "../styles/pages/Landing.css";
+import logo from "../assets/Logo-white.png";
 
 
 function Landing() {
     const navigate = useNavigate();
+
 
     const goToLogin = () => {
         navigate("/Login");
@@ -16,21 +18,17 @@ function Landing() {
     return (
         <div className="landing-page">
             <div className="navbar">
-                <div className="logo">Stageflow</div>
+                <img className="logo" src={logo} alt="logo"/>
                 <div className="menu">
                     <Button 
                         text="LOGIN"
                         onclick={goToLogin} 
                         classname="default-button"
-                        textcolor="black"
-                        backgroundcolor="transparent"
                     />
                     <Button
                         text="SIGN-UP"
                         onclick={goToSignup}
                         classname="default-button"
-                        textcolor="white"
-                        backgroundcolor="black"
                     />
                 </div>
             </div>
@@ -40,12 +38,12 @@ function Landing() {
                         <p>THE POWER OF <br/> STORYBOARDING, <br/>
                         TAILORED FOR YOU.</p>
                     </div>
-                    <div className="gif">
+                    <div className="item">
                 </div>
 
                 </div>
                 <div className="panel">
-                    <div className="gif">
+                    <div className="item">
                         
                     </div>
                     <div className="text">
@@ -59,13 +57,13 @@ function Landing() {
                         <p>KEEP TRACK OF TASKS <br/>
                         AND SET NOTIFICATIONS.</p>
                     </div>
-                    <div className="gif">
+                    <div className="item">
 
                     </div>
                 </div>
 
                 <div className="panel">
-                    <div className="gif">
+                    <div className="item">
 
                     </div>
                     <div className="text">

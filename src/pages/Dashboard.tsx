@@ -5,7 +5,7 @@ import { FaPlus } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { handleLogout } from "../utils/Logout";
 import { URL } from "../utils/BackendURL";
-import { OptionProps } from "../utils/Interfaces";
+import { OptionProps, ProjectProps } from "../utils/Interfaces";
 import HiddenMenu from "../components/HiddenMenu";
 
 function Dashboard() {
@@ -13,15 +13,11 @@ function Dashboard() {
     const [options, setOptions] = useState<OptionProps[]>([]);
     const [error, setError] = useState("");
     const [menuActive, setMenuActive] = useState(false);
-    const [projectData, setProjectData] = useState<{
-        title: string;
-        description: string;
-        image: File | null;
-        theme: string;
-    }>({
+    const [deleteMenuActive, setDeleteMenuActive] = useState(false);
+    const [projectName, setProjectName] = useState("");
+    const [projectData, setProjectData] = useState<ProjectProps>({
         title: '',
         description: '',
-        image: null,
         theme: "default"
     });
 
@@ -41,44 +37,32 @@ function Dashboard() {
         }));
     };
 
-    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            if (!file.type.startsWith("image/")) {
-                setError("Invalid image file.");
-                return;
-            }
-            setProjectData((prevData) => ({
-                ...prevData,
-                image: file,
-            }));
-        }
+    const handleProjectNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        setProjectName(value);
     }
 
     const handleProjectSelect = (projectId: string): void => {
         navigate(`/Project/${projectId}`);
     }
 
-    const showMenu = () => {
-        setMenuActive(true);
-    }
-    const hideMenu = () => {
+    const updateErrorMessage = (message: string): void => {
+        setError(message);
+        setTimeout(() => {
+            setError("");
+        }, 3000);
         setMenuActive(false);
+        setDeleteMenuActive(false);
     }
     
     const createProject = async () => {
+        if (projectData.title === "") {
+            updateErrorMessage("Project title required.");
+            setMenuActive(false);
+            return;
+        }
         try {
             const token = sessionStorage.getItem("token") || localStorage.getItem("token");
-
-            if (!token) {
-                setError("Missing session uid or token.")
-                return;
-            }
-
-            if (projectData.title === "") {
-                setError("Project title required.");
-                return;
-            }
 
             const res = await fetch(`${URL}/api/project`, {
                 method: "PUT",
@@ -88,13 +72,12 @@ function Dashboard() {
 
             if(!res.ok){
                 const errorData = await res.text();
-                setError(errorData);
+                updateErrorMessage(errorData);
                 console.log(errorData);
                 return;
             }
 
             const data = await res.json();
-            console.log(data);
 
             navigate(`/Project/${data.projectId}`);
         } catch (error) {
@@ -102,69 +85,123 @@ function Dashboard() {
         }
     };
 
-    useEffect(() => {
-        const setupDashboard = async () => {
-            try {
-                const token = sessionStorage.getItem("token") || localStorage.getItem("token");
-                if (!token) {
-                    console.log("Error: No token in session.")
-                    handleLogout(navigate);
-                    return;
-                }
+    const deleteProject = async () => {
+        if (!projectName) {
+            updateErrorMessage("No project name set.");
+            setDeleteMenuActive(false);
+            return;
+        }
 
-                const res = await fetch(`${URL}/api/dashboard?token=${token}`);
-
-                if(!res.ok){
-                    const errorData = await res.text();
-                    console.log('Unexpected error when fetching user dashboard data: ', errorData);
-                    handleLogout(navigate);
-                    return;
+        console.log(options);
+        const project = options.find((option) => {
+            if (option.title) {
+                const isFound = option.title.toLowerCase() === projectName.toLowerCase();
+                if (isFound) {
+                    return option;
                 }
+            }
+        });
+        if (!project) {
+            updateErrorMessage("Project not found.");
+            return;
+        }
+        const projectID = project.id;
 
-                const data = await res.json();
-                const projects = data.projects;
+        try {
+            const token = sessionStorage.getItem("token") || localStorage.getItem("token");
 
-                if (projects && Array.isArray(projects)) {
-                    const mappedOptions = data.projects.map((project: any) => ({
-                        id: project.id || "",
-                        title: project.name || "",
-                        description: project.description|| "",
-                        imageUrl: project.imageURL|| "",
-                        time: new Date(project.createdAt).toLocaleString() || "",
-                        theme: project.theme || "default"
-                    }));
-                    setOptions(mappedOptions);
-                }
-                else {
-                    console.log("Problem with fetched projects.")
-                }
-            } catch (error) {
-                console.log('Unexpected error: ', error);
+            const res = await fetch(`${URL}/api/project`, {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token, projectID })
+            });
+
+            if(!res.ok){
+                const errorData = await res.text();
+                updateErrorMessage(errorData);
+                console.log(errorData);
+                return;
+            }
+
+            loadDashboard();
+            updateErrorMessage(`Project ${projectName} has been deleted.`);
+            setDeleteMenuActive(false);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+
+    const loadDashboard = async () => {
+        try {
+            const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+            if (!token) {
+                console.log("Error: No token in session.")
                 handleLogout(navigate);
                 return;
             }
+
+            const res = await fetch(`${URL}/api/dashboard?token=${token}`);
+
+            if(!res.ok){
+                const errorData = await res.text();
+                console.log('Unexpected error when fetching user dashboard data: ', errorData);
+                handleLogout(navigate);
+                return;
+            }
+
+            const data = await res.json();
+            const projects = data.projects;
+
+            if (projects && Array.isArray(projects)) {
+                const mappedOptions = data.projects.map((project: any) => ({
+                    id: project.id,
+                    title: project.name,
+                    description: project.description,
+                    time: new Date(project.createdAt).toLocaleString(),
+                    theme: project.theme || "default"
+                }));
+                setOptions(mappedOptions);
+            }
+            else {
+                console.log("Problem with fetched projects.")
+            }
+        } catch (error) {
+            console.log('Unexpected error: ', error);
+            handleLogout(navigate);
+            return;
         }
-        setupDashboard();
+    }
+
+    useEffect(() => {
+        loadDashboard();
     }, []);
 
     return(
         <span className="dashboard">
             <div className="dashboard-page">
                 <div className="project-list">
-                    <h1>Dashboard</h1>
-                    <Button
-                        beforeicon={<FaPlus/>}
-                        text="Create project"
-                        classname="default-button"
-                        onclick={showMenu}
-                    />
+                    <h1>DASHBOARD</h1>
+                    <div className="buttons">
+                        <Button
+                            beforeicon={<FaPlus/>}
+                            text="Create project"
+                            classname="default-button"
+                            onclick={() => setMenuActive(true)}
+                        />
+                        <Button
+                            beforeicon={<FaPlus/>}
+                            text="Delete project"
+                            classname="default-button"
+                            onclick={() => setDeleteMenuActive(true)}
+                        />
+                    </div>
                     {error && <p style={{ color: "red" }}>{error}</p>}
                     <div className="projects">
                         {options.map((option) => (
                             <Option key={option.id}
                                 title={option.title}
                                 id={option.id}
-                                url={option.url}
                                 width="200px"
                                 height="200px"
                                 description={option.description}
@@ -179,7 +216,7 @@ function Dashboard() {
             </div>
             <HiddenMenu classname="dashboard-hidden-menu"
                 visible={menuActive} 
-                close={hideMenu} 
+                close={() => setMenuActive(false)} 
                 create={createProject}
             >
                 <h1>Create new project</h1>
@@ -198,15 +235,20 @@ function Dashboard() {
                     height="40%"
                     onchange={handleDescriptionChange}
                 />
-                <div className="image-upload">
-                    <label htmlFor="project-image">Upload Project Image:</label>
-                    <input
-                        type="file"
-                        id="project-image"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                    />
-                </div>
+            </HiddenMenu>
+            <HiddenMenu classname="dashboard-hidden-menu"
+                visible={deleteMenuActive} 
+                close={() => setDeleteMenuActive(false)} 
+                create={deleteProject}
+                createButtonText="Delete"
+            >
+                <h1>Delete project</h1>
+                <Input
+                    textcolor="black"
+                    width="100%"
+                    onchange={handleProjectNameChange}
+                    visible={true}
+                />
             </HiddenMenu>
         </span>
     )

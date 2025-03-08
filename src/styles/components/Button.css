@@ -3,19 +3,20 @@
     --default-button-background: transparent;
 
     font-size: medium;
-    border: 1px solid black;
+    border: 1px solid var(--default-button-outline);
     border-radius: 1rem;
     padding: 1rem 2rem 1rem 2rem;
     cursor: pointer;
     background-color: var(--default-button-background);
-    color: var(--default-button-text-color);
+    color: var(--default-button-highlight);
     transition: 1s;
+    box-shadow: 0px 4px 8px rgba(0.3, 0.3, 0.3, 0.3);
 }
 
 .default-button:hover {
-    background-color: var(--highlight);
-    color: var(--backgroundbase);
-    border-color: var(--highlight);
+    background-color: var(--color5);
+    color: var(--default-button-highlight);
+    border-color: var(--default-button-highlight);
 }
 
 .select-button {
@@ -59,3 +60,4 @@
 .toggle-button:hover {
     color: var(--toggle-button-highlight);
 }
+
