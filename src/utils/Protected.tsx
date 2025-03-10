@@ -26,7 +26,9 @@ export const ProtectedRoute = () => {
             }
         
             const data = await res.json();
-            setIsMobile(data.verified && (data.uid == uid));
+            console.log(uid);
+            console.log(data);
+            setIsMobile(!data.verified && (data.uid == uid));
         }
 
         const verifyUser = async () => {
