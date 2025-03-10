@@ -2,7 +2,7 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import { generateToken, verifyToken } from "./JwtSession";
 import { readFileSync } from 'fs';
-import admin, { initializeApp } from 'firebase-admin';
+import admin from 'firebase-admin';
 import { getServerOrigin, getServiceAccountOrigin, getStaticFilePath } from "./ServerUtils";
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -63,6 +63,7 @@ const uploadFile = async (filePath: string, destination: string) => {
         console.error("Error uploading file:", error);
     }
 };
+console.log(uploadFile);  // temp
 
 const createProject = async (email: string, projectData: projectData) => {
     try {

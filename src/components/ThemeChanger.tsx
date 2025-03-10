@@ -25,6 +25,8 @@ const ThemeChanger = (/*theme: ColorTheme*/) => {
         { background: "#2d2a32", highlight: "#c678dd", hiddenMenuBackground: "#4f0147", outlineColor: "#940085" }
     ];
 
+    console.log(activeTheme); // temp
+
     useEffect(() => {
         const savedTheme = localStorage.getItem("activeTheme");
         if (savedTheme) {
