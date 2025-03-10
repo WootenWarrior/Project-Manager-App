@@ -2,14 +2,14 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import { generateToken, verifyToken } from "./JwtSession";
 import { readFileSync } from 'fs';
-import admin from 'firebase-admin';
+import admin, { initializeApp } from 'firebase-admin';
 import { getServerOrigin, getServiceAccountOrigin, getStaticFilePath } from "./ServerUtils";
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { projectData, stageData, taskData } from "./ServerUtils";
 
 
-// SETUP    
+// SETUP
 
 const serverOrigin = getServerOrigin();
 const serviceAccountPath = getServiceAccountOrigin();
@@ -21,7 +21,10 @@ try {
     console.error('Failed to load service account: ', error);
     process.exit(1);
 }
-admin.initializeApp({credential: admin.credential.cert(serviceAccount)},);
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    storageBucket: process.env.VITE_APP_STORAGE_BUCKET
+});
 
 const MAX_PROJECTS = 10;
 const db = admin.firestore();
@@ -42,8 +45,24 @@ const __dirname = path.dirname(filename);
 const static_path = getStaticFilePath();
 app.use(express.static(path.join(__dirname, static_path)));
 
+const bucket = admin.storage().bucket();
 
 // FUNCTIONS
+
+const uploadFile = async (filePath: string, destination: string) => {
+    try {
+        await bucket.upload(filePath, {
+            destination: destination,
+            public: true,
+            metadata: {
+                contentType: "image/png",
+            },
+        });
+        console.log(`File ${filePath} uploaded to ${destination}`);
+    } catch (error) {
+        console.error("Error uploading file:", error);
+    }
+};
 
 const createProject = async (email: string, projectData: projectData) => {
     try {
@@ -102,12 +121,16 @@ const createTask = async (email: string, taskData: taskData, projectID: string, 
 
 // ROUTES
 
-app.post("/api/project", async (req: Request, res: Response) => {
+app.get("/api/project", async (req: Request, res: Response) => {
     try {
         const usersCollection = admin.firestore().collection("users");
-        const { projectID, token } = req.body;
-        if (!projectID) {
-            res.status(404).json({ error: "Project id not set." });
+        const { projectID, token } = req.query;
+        if (!projectID || typeof projectID !== "string") {
+            res.status(400).json({ error: "Project ID not provided or invalid." });
+            return;
+        }
+        if (!token || typeof token !== "string") {
+            res.status(400).json({ error: "Token not provided or invalid." });
             return;
         }
         const verifiedToken = verifyToken(token);
@@ -177,7 +200,7 @@ app.post("/api/project", async (req: Request, res: Response) => {
     }
 });
 
-app.put("/api/project", async (req: Request, res: Response) => {
+app.post("/api/project", async (req: Request, res: Response) => {
     try {
         const data = req.body;
         const token = data.token;
@@ -487,9 +510,9 @@ app.get("/api/dashboard", async (req: Request, res: Response) => {
 });
 
 
-app.post("/api/protected", async (req: Request, res: Response) => {
+app.get("/api/protected", async (req: Request, res: Response) => {
     try {
-        const { token } = req.body;
+        const token = String(req.query.token);
 
         const verifiedToken = verifyToken(token);
         if(!verifiedToken){
@@ -509,6 +532,39 @@ app.post("/api/protected", async (req: Request, res: Response) => {
     }
 });
 
+app.get("/api/mobile-restrict", async (req: Request, res: Response) => {
+    try {
+        const token = String(req.query.token);
+        const userAgent = String(req.query.userAgent);
+
+        const verifiedToken = verifyToken(token);
+        if(!verifiedToken){
+            res.status(401).json({ message: "Token verification failed." });
+            return;
+        }
+        const uid = verifiedToken.userId;
+        const user = await admin.auth().getUser(uid);
+        if(!user){
+            res.status(401).json({ message: "Invalid session user ID." });
+            return;
+        }
+
+        if(!userAgent){
+            res.status(401).json({ message: "Invalid user agent." });
+            return;
+        }
+
+        const isMobile = /mobile|android|iphone|ipad/i.test(userAgent);
+        if (isMobile) {
+            res.status(403).json({ verified: false, uid });
+            return;
+        }
+        res.status(200).json({ verified: true, uid });
+    }
+    catch (error) {
+        res.status(500).json({ message: "Unexpected error: ", error });
+    }
+})
 
 // Catch-all route
 

@@ -13,12 +13,13 @@
     background: #f8f8f8;
     text-align: center;
     padding: 0 1rem;
+    background: var(--login-default-background);
 }
 
 .error-page .heading {
     font-size: 3rem;
     margin-bottom: 1rem;
-    color: #333;
+    color: var(--color6);
 }
 
 .error-page .message {

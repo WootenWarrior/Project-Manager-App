@@ -6,7 +6,7 @@ import { Stage, Button, Input, HiddenMenu, TimeInput, DateInput } from "../compo
 import { TaskProps, StageProps } from "../utils/Interfaces";
 import { FaPlus } from "react-icons/fa6";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
-import ThemeChanger from "../utils/ThemeChanger";
+import ThemeChanger from "../components/ThemeChanger";
 
 
 function Project() {
@@ -166,11 +166,7 @@ function Project() {
     const loadProjectData = async () => {
         try {
             const token = sessionStorage.getItem("token") || localStorage.getItem("token");
-            const res = await fetch(`${URL}/api/project`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ projectID, token }),
-            });
+            const res = await fetch(`${URL}/api/project?projectID=${projectID}&token=${token}`);
 
             if(!res.ok){
                 const errorData = await res.text();

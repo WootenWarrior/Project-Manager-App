@@ -65,7 +65,7 @@ function Dashboard() {
             const token = sessionStorage.getItem("token") || localStorage.getItem("token");
 
             const res = await fetch(`${URL}/api/project`, {
-                method: "PUT",
+                method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ token, projectData }),
             });
