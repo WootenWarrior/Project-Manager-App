@@ -9,8 +9,12 @@ interface ColorTheme {
     outlineColor: string;
 }
 
-const ThemeChanger = (/*theme: ColorTheme*/) => {
-    const [menuActive, setMenuActive] = useState(false);
+interface ThemeChangerProps {
+    visible: boolean;
+    closeMenu: () => void;
+}
+
+const ThemeChanger: React.FC<ThemeChangerProps> = ({visible, closeMenu,/*theme: ColorTheme*/}) => {
     const [activeTheme, setActiveTheme] = useState<ColorTheme | null>(null);
     const [userTheme, setUserTheme] = useState<ColorTheme>({
         background: "#ffffff",
@@ -25,6 +29,7 @@ const ThemeChanger = (/*theme: ColorTheme*/) => {
         { background: "#2d2a32", highlight: "#c678dd", hiddenMenuBackground: "#4f0147", outlineColor: "#940085" }
     ];
 
+    console.log(visible);
     console.log(activeTheme); // temp
 
     useEffect(() => {
@@ -52,13 +57,9 @@ const ThemeChanger = (/*theme: ColorTheme*/) => {
 
     return(
         <div className="theme-changer">
-            <Button classname="default-button"
-                onclick={() => setMenuActive(!menuActive)}
-                text="Change theme"
-            />
             <HiddenMenu classname="theme-menu"
-                visible={menuActive}
-                close={() => setMenuActive(false)}>
+                visible={visible}
+                close={() => closeMenu()}>
                 <div className="options">
                     {themes.map((theme, index) => (
                         <div className="theme" key={index}>

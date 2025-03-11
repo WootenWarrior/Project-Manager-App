@@ -1,7 +1,7 @@
 .input-container {
     display: flex;
     align-items: center;
-    margin-bottom: 1rem;
+    justify-content: center;
 }
 
 .icon {

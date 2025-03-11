@@ -8,8 +8,6 @@
     --signup-default-background: linear-gradient(to top, var(--color1), var(--color2));
     --signup-box-default-background: linear-gradient(to top, var(--color2), var(--color3));
 
-    --project-bg-colour: var(--color1);
-
     /* Navbars */
     --navbar-default-color: linear-gradient(to top, var(--color1), var(--color2));
     --navbarheight: 15rem;
@@ -44,6 +42,19 @@
     --translucent-color4: #6eb6ff75;
     --translucent-color5: #a1d0ff75;
     --translucent-color6: #ffffff75;
+
+
+    /* Project colors */
+    --themecolor1: #477bd0;
+    --themecolor2: #7098da;
+    --themecolor3: #98b5e4;
+    --themecolor4: #6eb6ff;
+    --themecolor5: #a1d0ff;
+    --themecolor6: #ffffff;
+
+    --translucent-theme-color: #98b5e475;
+
+    --project-bg: linear-gradient(to bottom, var(--themecolor1), var(--themecolor2));
 }
 
 /* Global scrollbar styles */

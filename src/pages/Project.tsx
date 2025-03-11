@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import "../styles/pages/ProjectEditor.css";
+import "../styles/pages/Project.css";
 import { useEffect, useState } from "react";
 import { URL } from "../utils/BackendURL";
 import { Stage, Button, Input, HiddenMenu, TimeInput, DateInput } from "../components/index";
@@ -12,6 +12,7 @@ import ThemeChanger from "../components/ThemeChanger";
 function Project() {
     const { projectID } = useParams();
     const [stages, setStages] = useState<StageProps[]>([]);
+    const [themeMenuActive, setThemeMenuActive] = useState(false);
     const [taskMenuActive, setTaskMenuActive] = useState(false);
     const [stageMenuActive, setStageMenuActive] = useState(false);
     const [taskEditActive, setTaskEditActive] = useState(false);
@@ -44,13 +45,6 @@ function Project() {
     const hideTaskMenu = () => {
         setTaskMenuActive(false);
         setSelectedStageId(null);
-    }
-
-    const showStageMenu = () => {
-        setStageMenuActive(true);
-    }
-    const hideStageMenu = () => {
-        setStageMenuActive(false);
     }
 
     const showTaskEdit = (stageID: string, taskID: string) => {
@@ -372,6 +366,11 @@ function Project() {
             <div className="panels">
                 <div className="toolbar">
                     <h2>Toolbar</h2>
+                    <Button onclick={() => setStageMenuActive(!stageMenuActive)} 
+                        classname="default-button" 
+                        text="Add Stage"
+                        beforeicon={<FaPlus/>}
+                    />
                     <Input
                         textcolor="black"
                         width="100%"
@@ -379,7 +378,10 @@ function Project() {
                         onchange={handleFilterChange}
                         visible={true}
                     />
-                    <ThemeChanger/>
+                    <Button classname="default-button"
+                        onclick={() => setThemeMenuActive(!themeMenuActive)}
+                        text="Change theme"
+                    />
                 </div>
                 <div className="project-creation-window">
                     <DndContext onDragEnd={handleDragEnd}>
@@ -396,83 +398,81 @@ function Project() {
                                 />
                             ))}
                         </div>
-                        <Button onclick={() => showStageMenu()} 
-                            classname="default-button" 
-                            text="Add Stage"
-                            beforeicon={<FaPlus/>}
-                        />
                     </DndContext>
                 </div>
-                <HiddenMenu classname="hidden-stage-create"
-                    visible={stageMenuActive} 
-                    close={hideStageMenu} 
-                    create={() => addStage()}>
-                    <h1>Create new stage</h1>
-                    <Input
-                        textcolor="black"
-                        width="100%"
-                        onchange={handleStageNameChange}
-                        visible={true}
-                        placeholder="Enter stage name..."
-                    />
-                </HiddenMenu>
-                <HiddenMenu classname="hidden-task-create"
-                    visible={taskMenuActive} 
-                    close={hideTaskMenu} 
-                    create={() => addTaskToStage(selectedStageId)}>
-                    <h1>Create new task</h1>
-                    <Input
-                        textcolor="black"
-                        width="100%"
-                        onchange={handleTaskNameChange}
-                        visible={true}
-                        placeholder="Enter task title..."
-                    />
-                    <div className="task-timing-inputs">
-                        <div className="block">
-                            <DateInput text="Set start date: "
-                                onDateChange={handleStartDateChange}
-                            />
-                            <TimeInput text="Set start time: "
-                                onTimeChange={handleStartTimeChange}
-                            />
-                        </div>
-                        <div className="block">
-                            <DateInput text="Set end date: "
-                                displayDate={taskEnd.date}
-                                onDateChange={handleEndDateChange}
-                            />
-                            <TimeInput text="Set end time: "
-                                onTimeChange={handleEndTimeChange}
-                            />
-                        </div>
-                    </div>
-                </HiddenMenu>
-                <HiddenMenu classname="hidden-task-edit"
-                    visible={taskEditActive}
-                    close={hideTaskEdit}
-                    create={() => updateTask(selectedTaskId)}
-                    closeButtonText="x"
-                    createButtonText="Update">
-                    <h1>Edit task</h1>
-                    <Button onclick={() => deleteTask(selectedStageId,selectedTaskId)}  /// CHANGE HERE
-                        text="Delete Task"
-                        classname="default-button"
-                    />
-                </HiddenMenu>
-                <HiddenMenu classname="hidden-stage-edit"
-                    visible={stageEditActive}
-                    close={hideStageEdit}
-                    create={() => updateStage(selectedTaskId)}
-                    closeButtonText="x"
-                    createButtonText="Update">
-                    <h1>Edit stage</h1>
-                    <Button onclick={() => deleteStage(selectedStageId)}
-                        text="Delete Stage"
-                        classname="default-button"
-                    />
-                </HiddenMenu>
             </div>
+            <HiddenMenu classname="hidden-stage-create"
+                visible={stageMenuActive} 
+                close={() => setStageMenuActive(false)} 
+                create={() => addStage()}>
+                <h1>Create new stage</h1>
+                <Input
+                    textcolor="black"
+                    width="100%"
+                    onchange={handleStageNameChange}
+                    visible={true}
+                    placeholder="Enter stage name..."
+                />
+            </HiddenMenu>
+            <HiddenMenu classname="hidden-task-create"
+                visible={taskMenuActive} 
+                close={hideTaskMenu} 
+                create={() => addTaskToStage(selectedStageId)}>
+                <h1>Create new task</h1>
+                <Input
+                    textcolor="black"
+                    width="100%"
+                    onchange={handleTaskNameChange}
+                    visible={true}
+                    placeholder="Enter task title..."
+                />
+                <div className="task-timing-inputs">
+                    <div className="block">
+                        <DateInput text="Set start date: "
+                            onDateChange={handleStartDateChange}
+                        />
+                        <TimeInput text="Set start time: "
+                            onTimeChange={handleStartTimeChange}
+                        />
+                    </div>
+                    <div className="block">
+                        <DateInput text="Set end date: "
+                            displayDate={taskEnd.date}
+                            onDateChange={handleEndDateChange}
+                        />
+                        <TimeInput text="Set end time: "
+                            onTimeChange={handleEndTimeChange}
+                        />
+                    </div>
+                </div>
+            </HiddenMenu>
+            <HiddenMenu classname="hidden-task-edit"
+                visible={taskEditActive}
+                close={hideTaskEdit}
+                create={() => updateTask(selectedTaskId)}
+                closeButtonText="x"
+                createButtonText="Update">
+                <h1>Edit task</h1>
+                <Button onclick={() => deleteTask(selectedStageId,selectedTaskId)}  /// CHANGE HERE
+                    text="Delete Task"
+                    classname="default-button"
+                />
+            </HiddenMenu>
+            <HiddenMenu classname="hidden-stage-edit"
+                visible={stageEditActive}
+                close={hideStageEdit}
+                create={() => updateStage(selectedTaskId)}
+                closeButtonText="x"
+                createButtonText="Update">
+                <h1>Edit stage</h1>
+                <Button onclick={() => deleteStage(selectedStageId)}
+                    text="Delete Stage"
+                    classname="default-button"
+                />
+            </HiddenMenu>
+            <ThemeChanger visible={themeMenuActive} 
+                closeMenu={() => setThemeMenuActive(false)}
+            />
         </div>
     )
 }

@@ -26,8 +26,6 @@ export const ProtectedRoute = () => {
             }
         
             const data = await res.json();
-            console.log(uid);
-            console.log(data);
             setIsMobile(!data.verified && (data.uid == uid));
         }
 

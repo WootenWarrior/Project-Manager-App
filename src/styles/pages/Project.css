@@ -1,13 +1,12 @@
+body {
+    overflow: hidden;
+}
+
 .project{
     width: 100vw;
     height: 100vh;
-    background-color: var(--project-bg-colour);
+    background: var(--project-bg);
     transition: 0.3s;
-}
-
-.project .navbar{
-    width: 100%;
-    height: 10%;
 }
 
 .project .panels{
@@ -21,22 +20,28 @@
 }
 
 .project .panels .toolbar{
-    height: var(--navbar-height);
-    width: 100%;
+    min-height: var(--navbar-height);
     border-radius: 2rem;
-    border: 1px solid black;
     display: flex;
     align-items: center;
     justify-content: start;
     flex-direction: row;
+    margin: 1rem;
     padding: 1rem;
-    gap: 1rem;
+    gap: 3rem;
+    background: var(--translucent-theme-color);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.project .panels .toolbar h2{
+    color: var(--default-text-color);
+    margin-left: 2rem;
 }
 
 .project .panels .project-creation-window{
     width: 100%;
     height: 90%;
-    border: 1px solid black;
     display: flex;
     justify-content: space-between;
     flex-direction: row;
@@ -46,11 +51,13 @@
 .project .panels .project-creation-window .stages{
     width: 100%;
     height: 100%;
-    border: 1px solid black;
     display: flex;
     justify-content: left;
     flex-direction: row;
     overflow-x: scroll;
     overflow-y: hidden;
-    gap: 1rem;
+}
+
+.theme-menu {
+    position: fixed;
 }
