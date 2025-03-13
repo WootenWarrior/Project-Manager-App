@@ -1,7 +1,3 @@
-body {
-    overflow: hidden;
-}
-
 .project{
     width: 100vw;
     height: 100vh;
@@ -21,18 +17,31 @@ body {
 
 .project .panels .toolbar{
     min-height: var(--navbar-height);
-    border-radius: 2rem;
     display: flex;
     align-items: center;
-    justify-content: start;
+    justify-content:space-around;
     flex-direction: row;
     margin: 1rem;
     padding: 1rem;
     gap: 3rem;
-    background: var(--translucent-theme-color);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    width: 100%;
 }
+
+.project .panels .toolbar .tools{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row;
+    gap: 3rem;
+    background: var(--translucent-color5);
+    padding: 2rem;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 2rem;
+}
+
 
 .project .panels .toolbar h2{
     color: var(--default-text-color);
@@ -58,6 +67,11 @@ body {
     overflow-y: hidden;
 }
 
-.theme-menu {
-    position: fixed;
+::-webkit-scrollbar {
+    width: 0.5rem;
+    display: block;
+}
+
+::-webkit-scrollbar-track {
+    opacity: 1;
 }

@@ -1,7 +1,6 @@
 .default-button{
-    --default-button-text-color: black;
-    --default-button-background: transparent;
-
+    --highlight: var(--default-button-highlight);
+    
     font-size: medium;
     border: 1px solid var(--default-button-outline);
     border-radius: 1rem;
@@ -15,8 +14,8 @@
 
 .default-button:hover {
     background-color: var(--color5);
-    color: var(--default-button-highlight);
-    border-color: var(--default-button-highlight);
+    color: var(--highlight);
+    border-color: var(--highlight);
 }
 
 .select-button {
@@ -35,20 +34,20 @@
 }
 
 .select-button:hover {
-    background-color: var(--highlight);
-    color: var(--backgroundbase);
+    background-color: var(--default-button-highlight);
 }
 
 .toggle-button {
-    --toggle-button-text-color: rgb(160, 0, 0);
-    --toggle-button-background: transparent;
-    --toggle-button-highlight: green;
+    --toggle-button-text-color: var(--color6);
+    --toggle-button-background: var(--default-button-background);
+    --toggle-button-highlight: var(--default-button-highlight);
+    --toggle-button-border: 1px solid var(--default-button-outline);
 
     font-size: medium;
     padding: 1rem;
     border-radius: 1rem;
     cursor: pointer;
-    border: 1px solid var(--toggle-button-background);
+    border: var(--toggle-button-border);
     background-color: var(--toggle-button-background);
     color: var(--toggle-button-text-color);
     transition: 0.3s ease-in-out;
@@ -59,5 +58,7 @@
 
 .toggle-button:hover {
     color: var(--toggle-button-highlight);
+    background-color: var(--translucent-color6);
+    border-color: var(--toggle-button-highlight);
 }
 

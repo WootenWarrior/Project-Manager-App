@@ -14,7 +14,7 @@
     --footer-default-color: linear-gradient(to bottom, var(--color1), var(--color2));
 
     /* Buttons */
-    --default-button-background: white;
+    --default-button-background: transparent;
     --default-button-outline: white;
     --default-button-highlight: white;
 
@@ -52,9 +52,16 @@
     --themecolor5: #a1d0ff;
     --themecolor6: #ffffff;
 
-    --translucent-theme-color: #98b5e475;
+    --translucent-theme-color1: #98b5e475;
+    --translucent-theme-color2: #477bd075;
 
     --project-bg: linear-gradient(to bottom, var(--themecolor1), var(--themecolor2));
+
+    --theme-text-color: var(---themecolor6);
+
+    /* Task and stage variables */
+    --task-default-size-x: 30rem;
+    --task-default-size-y: 30rem;
 }
 
 /* Global scrollbar styles */

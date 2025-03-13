@@ -10,11 +10,11 @@ interface ColorTheme {
 }
 
 interface ThemeChangerProps {
-    visible: boolean;
+    isvisible: boolean;
     closeMenu: () => void;
 }
 
-const ThemeChanger: React.FC<ThemeChangerProps> = ({visible, closeMenu,/*theme: ColorTheme*/}) => {
+const ThemeChanger: React.FC<ThemeChangerProps> = ({isvisible, closeMenu,/*theme: ColorTheme*/}) => {
     const [activeTheme, setActiveTheme] = useState<ColorTheme | null>(null);
     const [userTheme, setUserTheme] = useState<ColorTheme>({
         background: "#ffffff",
@@ -28,9 +28,6 @@ const ThemeChanger: React.FC<ThemeChangerProps> = ({visible, closeMenu,/*theme: 
         { background: "#282c34", highlight: "#61dafb", hiddenMenuBackground: "#4f0147", outlineColor: "#940085" },
         { background: "#2d2a32", highlight: "#c678dd", hiddenMenuBackground: "#4f0147", outlineColor: "#940085" }
     ];
-
-    console.log(visible);
-    console.log(activeTheme); // temp
 
     useEffect(() => {
         const savedTheme = localStorage.getItem("activeTheme");
@@ -56,58 +53,57 @@ const ThemeChanger: React.FC<ThemeChangerProps> = ({visible, closeMenu,/*theme: 
     };
 
     return(
-        <div className="theme-changer">
-            <HiddenMenu classname="theme-menu"
-                visible={visible}
-                close={() => closeMenu()}>
-                <div className="options">
-                    {themes.map((theme, index) => (
-                        <div className="theme" key={index}>
-                            <Button
-                                classname="toggle-button"
-                                onclick={() => applyTheme(theme)}
-                                text={`Theme ${index + 1}`}
-                            />
-                            <span className="colors">
-                                <div className="color" style={{ background: theme.background }}></div>
-                                <div className="color" style={{ background: theme.highlight }}></div>
-                                <div className="color" style={{ background: theme.hiddenMenuBackground }}></div>
-                                <div className="color" style={{ background: theme.outlineColor }}></div>
-                            </span>
-                        </div>
-                    ))}
-                    <div className="user-theme">
-                        <Button classname="toggle-button"
-                            text="Custom theme"
-                            onclick={() => applyTheme(userTheme)}
+        <HiddenMenu classname="theme-menu"
+            visible={isvisible}
+            close={() => closeMenu()}>
+            <div className="options">
+                <h1 className="title">Choose a theme:</h1>
+                {themes.map((theme, index) => (
+                    <div className="theme" key={index}>
+                        <Button
+                            classname="toggle-button"
+                            onclick={() => applyTheme(theme)}
+                            text={`Theme ${index + 1}`}
                         />
-                        <span className="user-colors">
-                            <div className="user-color" style={{ background: userTheme.background }}>
-                                <input
-                                    type="color"
-                                    value={userTheme.background}
-                                    onChange={(e) => updateUserTheme("background", e.target.value)}
-                                />
-                            </div>
-                            <div className="user-color" style={{ background: userTheme.highlight }}>
-                                <input
-                                    type="color"
-                                    value={userTheme.background}
-                                    onChange={(e) => updateUserTheme("highlight", e.target.value)}
-                                />
-                            </div>
-                            <div className="user-color" style={{ background: userTheme.background }}>
-                                <input
-                                    type="color"
-                                    value={userTheme.background}
-                                    onChange={(e) => updateUserTheme("background", e.target.value)}
-                                />
-                            </div>
+                        <span className="colors">
+                            <div className="color" style={{ background: theme.background }}></div>
+                            <div className="color" style={{ background: theme.highlight }}></div>
+                            <div className="color" style={{ background: theme.hiddenMenuBackground }}></div>
+                            <div className="color" style={{ background: theme.outlineColor }}></div>
                         </span>
                     </div>
+                ))}
+                <div className="user-theme">
+                    <Button classname="toggle-button"
+                        text="Custom theme"
+                        onclick={() => applyTheme(userTheme)}
+                    />
+                    <span className="user-colors">
+                        <div className="user-color" style={{ background: userTheme.background }}>
+                            <input
+                                type="color"
+                                value={userTheme.background}
+                                onChange={(e) => updateUserTheme("background", e.target.value)}
+                            />
+                        </div>
+                        <div className="user-color" style={{ background: userTheme.highlight }}>
+                            <input
+                                type="color"
+                                value={userTheme.background}
+                                onChange={(e) => updateUserTheme("highlight", e.target.value)}
+                            />
+                        </div>
+                        <div className="user-color" style={{ background: userTheme.background }}>
+                            <input
+                                type="color"
+                                value={userTheme.background}
+                                onChange={(e) => updateUserTheme("background", e.target.value)}
+                            />
+                        </div>
+                    </span>
                 </div>
-            </HiddenMenu>
-        </div>
+            </div>
+        </HiddenMenu>
     )
 }
     

@@ -82,6 +82,10 @@ body{
   background: var(--footer-default-color);
 }
 
+::-webkit-scrollbar {
+  display: none;
+}
+
 @keyframes appear {
   from{
     opacity: 0;

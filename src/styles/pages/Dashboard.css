@@ -18,6 +18,35 @@
     background: var(--page-default-background);
 }
 
+.dashboard-page .toolbar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-direction: row;
+    gap: 5rem;
+}
+
+.dashboard-page .toolbar .upcoming-task .task-details {
+    background-color: var(--translucent-color3);
+    border-radius: 1rem;
+    padding: 1rem;
+}
+
+.dashboard-page .toolbar .upcoming-task h3 {
+    font-size: medium;
+    color: var(--default-text-color);
+}
+
+.dashboard-page .toolbar .upcoming-task p {
+    font-size: medium;
+    color: var(--default-text-color);
+}
+
+.dashboard-page .toolbar .upcoming-task p b {
+    text-transform: uppercase;
+}
+
 .dashboard-page .project-list{
     height: 100%;
     width: 80%;
@@ -30,6 +59,11 @@
 
 .dashboard-page .project-list h1{
     font-size: xx-large;
+    color: var(--default-text-color);
+}
+
+.dashboard-page .project-list h2{
+    font-size: large;
     color: var(--default-text-color);
 }
 
@@ -53,6 +87,9 @@
     gap: 1rem;
     padding: 3rem;
     overflow-y: scroll;
+    background-color: var(--translucent-color3);
+    border-radius: 1rem;
+    margin-bottom: 1rem;
 }
 
 .dashboard-page .project-list .projects .option{

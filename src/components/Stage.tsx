@@ -5,7 +5,9 @@ import '../styles/components/Stage.css';
 import { StageProps } from "../utils/Interfaces";
 import { useDroppable } from "@dnd-kit/core";
 
-const Stage: React.FC<StageProps> = ({stageName, taskList, showTaskMenu, stageID, showTaskEdit, filterText, showStageEdit}) => {
+const Stage: React.FC<StageProps> = ({stageName, taskList, showTaskMenu, 
+    stageID, showTaskEdit, filterText, showStageEdit}) => {
+
     const { setNodeRef } = useDroppable({
         id: stageID,
     });
@@ -18,13 +20,13 @@ const Stage: React.FC<StageProps> = ({stageName, taskList, showTaskMenu, stageID
         <div className="stage" id={stageName} ref={setNodeRef}>
             <span className="title" onClick={() => showStageEdit(stageID)}>{stageName}</span>
             <div className="tasks">
-            {filteredTasks.map((task) => (
-                <Task
-                    key={task.taskID}
-                    {...task}
-                    onclick={showTaskEdit}
-                />
-            ))}
+                {filteredTasks.map((task) => (
+                    <Task
+                        key={task.taskID}
+                        {...task}
+                        onclick={showTaskEdit}
+                    />
+                ))}
             </div>
             <Button classname="default-button" 
                 onclick={() => showTaskMenu(stageID)}

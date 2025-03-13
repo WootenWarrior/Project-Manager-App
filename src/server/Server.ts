@@ -108,7 +108,6 @@ const createTask = async (email: string, taskData: taskData, projectID: string, 
         const tasks = db.collection(`users/${email}/projects/${projectID}/stages/${stageID}/tasks`);
         await tasks.doc(taskData.taskID).set(taskData);
 
-        console.log(`User: ${email}, created task: ${taskData.taskID}`);
         return taskData.taskID;
     } catch (error) {
         let errormessage = "Failed to create task.";
@@ -116,6 +115,72 @@ const createTask = async (email: string, taskData: taskData, projectID: string, 
             errormessage = error.message;
         }
         throw new Error(errormessage);
+    }
+}
+
+const getUrgentTask = async (email: string) => {
+    try {
+        let urgentTask = null;
+        let minRemainingTime = Infinity;
+
+        const usersCollection = admin.firestore().collection("users");
+        const projectsSnapshot = await usersCollection.doc(email)
+            .collection("projects")
+            .get();
+        for (const projectDoc of projectsSnapshot.docs) {
+            const projectID = projectDoc.id;
+            const projectName = projectDoc.data().title;
+
+            const stagesSnapshot = await usersCollection
+                .doc(email)
+                .collection("projects")
+                .doc(projectID)
+                .collection("stages")
+                .get();
+            if (!stagesSnapshot) {
+                throw new Error(`Problem with fetching stages from project: ${projectID}.`);
+            }
+
+            for (const stageDoc of stagesSnapshot.docs) {
+                const stageID = stageDoc.id;
+                const tasksSnapshot = await usersCollection
+                    .doc(email)
+                    .collection("projects")
+                    .doc(projectID)
+                    .collection("stages")
+                    .doc(stageID)
+                    .collection("tasks")
+                    .get();
+                if (!tasksSnapshot) {
+                    throw new Error(`Problem with fetching tasks from stage: ${stageDoc.id}.`);
+                }
+        
+                tasksSnapshot.forEach(taskDoc => {
+                    const task = taskDoc.data();
+                    const endDateTime = new Date(`${task.endDate}T${task.endTime}:00`).getTime();
+                    const currentTime = Date.now();
+                    const remainingTime = endDateTime - currentTime;
+
+                    if (remainingTime > 0 && remainingTime < minRemainingTime) {
+                        minRemainingTime = remainingTime;
+                        urgentTask = { 
+                            id: taskDoc.id, 
+                            remainingTime: remainingTime, 
+                            name: task.name,
+                            projectName
+                        };
+                    }
+                });
+            }
+        }
+
+        if (urgentTask) {
+            return urgentTask;
+        } else {
+            return null;
+        }
+    } catch (error) {
+        console.log(error);
     }
 }
 
@@ -449,6 +514,7 @@ app.delete("/api/task", async (req: Request, res: Response)=> {
         
         await taskRef.delete();
         console.log(`User: ${email}, deleted task: ${taskID}`);
+
         res.status(200).json({ message: "Task deleted successfully." });
     } catch (error) {
         console.log("An error occurred during task deletion: ", error);
@@ -503,8 +569,10 @@ app.get("/api/dashboard", async (req: Request, res: Response) => {
                 imageurl: data.imageURL,
             };
         });
+
+        const urgentTask = await getUrgentTask(email);
         
-        res.status(200).json({ projects });
+        res.status(200).json({ projects, urgentTask });
     } catch (error) {
         res.status(500).json({ error: "Failed to load dashboard data." });
     }

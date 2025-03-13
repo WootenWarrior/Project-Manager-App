@@ -1,7 +1,7 @@
 import "../styles/pages/Dashboard.css"
 import { useState, useEffect } from "react";
 import { Button, Option, Input, Textbox } from "../components";
-import { FaPlus } from "react-icons/fa6";
+import { FaPlus, FaRegTrashCan } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { handleLogout } from "../utils/Logout";
 import { URL } from "../utils/BackendURL";
@@ -14,12 +14,24 @@ function Dashboard() {
     const [error, setError] = useState("");
     const [menuActive, setMenuActive] = useState(false);
     const [deleteMenuActive, setDeleteMenuActive] = useState(false);
+    const [taskDetailsActive, setTaskDetailsActive] = useState(false);
     const [projectName, setProjectName] = useState("");
     const [projectData, setProjectData] = useState<ProjectProps>({
         title: '',
         description: '',
         theme: "default"
     });
+    const [upcomingTask, setUpcomingTask] = useState<{
+        id: string,
+        remainingTime: number,
+        name: string,
+        projectName: string
+    }>({
+        id: "",
+        remainingTime: 0,
+        name: "",
+        projectName: ""
+    })
 
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) : void => {
         const { value } = e.target;
@@ -54,6 +66,15 @@ function Dashboard() {
         setMenuActive(false);
         setDeleteMenuActive(false);
     }
+
+    const formatRemainingTime = (remainingTime: number) => {
+        const totalSeconds = Math.floor(remainingTime / 1000);
+        const days = Math.floor(totalSeconds / (60 * 60 * 24));
+        const hours = Math.floor((totalSeconds % (60 * 60 * 24)) / (60 * 60));
+        const minutes = Math.floor((totalSeconds % (60 * 60)) / 60);
+    
+        return `Days: ${days} Time: ${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+    };
     
     const createProject = async () => {
         if (projectData.title === "") {
@@ -168,6 +189,22 @@ function Dashboard() {
             else {
                 console.log("Problem with fetched projects.")
             }
+
+            const upcomingTask = data.urgentTask;
+            if (upcomingTask) {
+                setUpcomingTask(upcomingTask);
+                setTaskDetailsActive(true);
+            }
+            else {
+                setUpcomingTask({
+                    id: "",
+                    remainingTime: 0,
+                    name: "",
+                    projectName: ""
+                });
+                setTaskDetailsActive(false);
+                console.log("Problem with fetched upcoming task.")
+            }
         } catch (error) {
             console.log('Unexpected error: ', error);
             handleLogout(navigate);
@@ -183,22 +220,41 @@ function Dashboard() {
         <span className="dashboard">
             <div className="dashboard-page">
                 <div className="project-list">
-                    <h1>DASHBOARD</h1>
-                    <div className="buttons">
-                        <Button
-                            beforeicon={<FaPlus/>}
-                            text="Create project"
-                            classname="default-button"
-                            onclick={() => setMenuActive(true)}
-                        />
-                        <Button
-                            beforeicon={<FaPlus/>}
-                            text="Delete project"
-                            classname="default-button"
-                            onclick={() => setDeleteMenuActive(true)}
-                        />
+                    <div className="toolbar">
+                        <div className="title-section">
+                            <h1>DASHBOARD</h1>
+                            <div className="buttons">
+                                <Button
+                                    beforeicon={<FaPlus/>}
+                                    text="Create project"
+                                    classname="default-button"
+                                    onclick={() => setMenuActive(true)}
+                                />
+                                <Button
+                                    beforeicon={<FaRegTrashCan/>}
+                                    text="Delete project"
+                                    classname="default-button"
+                                    onclick={() => setDeleteMenuActive(true)}
+                                    highlightColor="red"
+                                />
+                            </div>
+                        </div>
+                        <div className="upcoming-task">
+                            <h3>Upcoming task:</h3>
+                            <div className="task-details">
+                                {taskDetailsActive?
+                                    <>
+                                        <p><b style={{ color: "red" }}>{upcomingTask.name? upcomingTask.name : ""}</b></p>
+                                        <p>{upcomingTask.remainingTime? formatRemainingTime(upcomingTask.remainingTime) : ""}</p>
+                                        <p>From project: <b>{upcomingTask.projectName? upcomingTask.projectName : ""}</b></p>
+                                    </> :
+                                    <p><b>No upcoming tasks.</b></p>
+                                }
+                            </div>
+                        </div>
                     </div>
                     {error && <p className="error" style={{ color: "red" }}>{error}</p>}
+                    <h2>MY PROJECTS:</h2>
                     <div className="projects">
                         {options
                             .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())

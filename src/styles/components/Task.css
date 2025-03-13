@@ -1,14 +1,17 @@
 .task {
     width: 100%;
-    max-height: 30rem;
-    max-width: 30rem;
+    max-height: var(--task-default-size-x);
+    max-width: var(--task-default-size-y);
     border-radius: 2rem;
-    background-color: rgba(165, 42, 42, 0.303);
+    background-color: var(--translucent-theme-color2);
     border: 1px solid black;
+    position: absolute;
     display: flex;
     justify-content: start;
     align-items: center;
     flex-direction: column;
+    left: var(--x);
+    top: var(--y);
 }
 
 .task .task-toolbar {

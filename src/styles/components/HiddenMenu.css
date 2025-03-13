@@ -5,7 +5,6 @@
     top: 0%;
     left: 0%;
     z-index: 100;
-    display: block;
     width: 100%;
     display: none;
 }
@@ -16,7 +15,6 @@
     top: 0%;
     left: 0%;
     z-index: 100;
-    display: block;
     width: 100vw;
     height: 100vh;
     display: flex;
@@ -33,7 +31,6 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    background-color: var();
     border-radius: 2rem;
     border: 2px solid var(--outline-color50);
     padding: 1rem;
@@ -83,10 +80,18 @@
 }
 
 
+.theme-menu h1 {
+    color: var(--theme-text-color);
+    margin-bottom: 2rem;
+}
 
 .theme-menu .inputs {
     width: 50vw;
     height: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
 }
 
 .theme-menu .options {
@@ -94,9 +99,12 @@
     height: 100%;
     display: flex;
     align-items: center;
-    justify-content: space-around;
+    justify-content: space-between;
     flex-direction: column;
-    background-color: var(--translucent-color1);
+    background-color: var(--translucent-color2);
+    padding: 4rem;
+    border-radius: 2rem;
+    border: 1px solid var(--default-global-outline);
 }
 
 .theme-menu .options .theme {

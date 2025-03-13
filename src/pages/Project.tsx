@@ -1,15 +1,17 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import "../styles/pages/Project.css";
 import { useEffect, useState } from "react";
 import { URL } from "../utils/BackendURL";
 import { Stage, Button, Input, HiddenMenu, TimeInput, DateInput } from "../components/index";
 import { TaskProps, StageProps } from "../utils/Interfaces";
 import { FaPlus } from "react-icons/fa6";
+import { FaArrowCircleLeft } from "react-icons/fa";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import ThemeChanger from "../components/ThemeChanger";
 
 
 function Project() {
+    const navigate = useNavigate();
     const { projectID } = useParams();
     const [stages, setStages] = useState<StageProps[]>([]);
     const [themeMenuActive, setThemeMenuActive] = useState(false);
@@ -304,7 +306,6 @@ function Project() {
         loadProjectData();
     }, []);
 
-
     const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over, delta } = event;
         if (!over) return;
@@ -317,6 +318,8 @@ function Project() {
         const updatedStages = stages.map((stage) => {
             let newTaskList = stage.taskList.filter((task: TaskProps) => {
                 if (task.taskID === taskId) {
+                    console.log(`Task moved from ${task.x}, ${task.y}`)
+                    console.log(`Task moved ${delta.x}, ${delta.y}`);
                     draggedTask = { ...task, stageID: stage.stageID, x: task.x + delta.x, y: task.y + delta.y };
                     oldStageID = stage.stageID;
                     return false;
@@ -334,6 +337,8 @@ function Project() {
 
         if (draggedTask) {
             try {
+                draggedTask = preventOverlap(draggedTask, updatedStages.find(s => s.stageID === newStageID)?.taskList || []);
+
                 const token = sessionStorage.getItem("token") || localStorage.getItem("token");
                 const res = await fetch(`${URL}/api/task`, {
                     method: "PUT",
@@ -361,27 +366,62 @@ function Project() {
         }
     };
 
+    const preventOverlap = (task: TaskProps, taskList: TaskProps[]) => {
+        const taskWidth = 300;
+        const taskHeight = 100;
+        let newX = task.x;
+        let newY = task.y;
+    
+        const isOverlappingX = (x: number) => {
+            return taskList
+                .filter(newtask => task.taskID !== newtask.taskID)
+                .some(task => Math.abs(task.x - x) < taskWidth
+            );
+        };
+        const isOverlappingY = (y: number) => {
+            return taskList
+                .filter(newtask => task.taskID !== newtask.taskID)
+                .some(task => Math.abs(task.y - y) < taskHeight
+            );
+        };
+    
+        while (isOverlappingX(newX)) {
+            newX += 10;
+        }
+        while (isOverlappingY(newY)) {
+            newY += 10;
+        }
+    
+        console.log(`overlapping tasks ${task.name} to ${newX}, ${newY}`)
+        return { ...task, x: newX, y: newY };
+    };
+
     return (
         <div className="project">
             <div className="panels">
                 <div className="toolbar">
-                    <h2>Toolbar</h2>
-                    <Button onclick={() => setStageMenuActive(!stageMenuActive)} 
-                        classname="default-button" 
-                        text="Add Stage"
-                        beforeicon={<FaPlus/>}
-                    />
-                    <Input
-                        textcolor="black"
-                        width="100%"
-                        placeholder="Filter tasks..."
-                        onchange={handleFilterChange}
-                        visible={true}
-                    />
                     <Button classname="default-button"
-                        onclick={() => setThemeMenuActive(!themeMenuActive)}
-                        text="Change theme"
+                        beforeicon={<FaArrowCircleLeft/>}
+                        onclick={() => navigate("/Dashboard")}
                     />
+                    <div className="tools">
+                        <Button onclick={() => setStageMenuActive(!stageMenuActive)} 
+                            classname="default-button" 
+                            text="Add Stage"
+                            beforeicon={<FaPlus/>}
+                        />
+                        <Button classname="default-button"
+                            onclick={() => setThemeMenuActive(!themeMenuActive)}
+                            text="Change theme"
+                        />
+                        <Input
+                            textcolor="black"
+                            width="100%"
+                            placeholder="Filter tasks..."
+                            onchange={handleFilterChange}
+                            visible={true}
+                        />
+                    </div>
                 </div>
                 <div className="project-creation-window">
                     <DndContext onDragEnd={handleDragEnd}>
@@ -470,7 +510,7 @@ function Project() {
                     classname="default-button"
                 />
             </HiddenMenu>
-            <ThemeChanger visible={themeMenuActive} 
+            <ThemeChanger isvisible={themeMenuActive} 
                 closeMenu={() => setThemeMenuActive(false)}
             />
         </div>
