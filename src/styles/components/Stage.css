@@ -1,6 +1,7 @@
 .stage {
     --stage-background-color: var(--translucent-color3);
     --stage-highlight-color: var(--color3);
+    --stage-text-color: var(--themecolor6);
 
     position: relative;
     width: 100%;
@@ -26,14 +27,15 @@
     font-weight: bold;
     text-transform: uppercase;
     cursor: pointer;
+    color: var(--stage-text-color);
+
 }
 
 .stage .tasks {
     flex: 1;
     padding-bottom: 5rem;
     width: 100%;
-    overflow-y: scroll;
-    overflow-x: scroll;
+    overflow: auto;
 }
 
 .stage .default-button {
@@ -60,4 +62,13 @@
     transition: 1s;
     background-color: var(--stage-highlight-color);
     color: var(--backgroundbase);
+}
+
+.stage .tasks::-webkit-scrollbar {
+    width: 0.5rem;
+    display: block;
+}
+
+.stage .tasks::-webkit-scrollbar-track{
+    opacity: 1;
 }

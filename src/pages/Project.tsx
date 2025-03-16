@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import "../styles/pages/Project.css";
 import { useEffect, useState } from "react";
 import { URL } from "../utils/BackendURL";
-import { Stage, Button, Input, HiddenMenu, TimeInput, DateInput } from "../components/index";
+import { Stage, Button, Input, HiddenMenu, TimeInput, DateInput, Textbox } from "../components/index";
 import { TaskProps, StageProps } from "../utils/Interfaces";
 import { FaPlus } from "react-icons/fa6";
 import { FaArrowCircleLeft } from "react-icons/fa";
@@ -19,6 +19,7 @@ function Project() {
     const [stageMenuActive, setStageMenuActive] = useState(false);
     const [taskEditActive, setTaskEditActive] = useState(false);
     const [stageEditActive, setStageEditActive] = useState(false);
+    const [completeMenuActive, setCompleteMenuActive] = useState(false);
     const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
     const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
     const [taskStart, setTaskStart] = useState<{ date: string; time: string }>({
@@ -35,8 +36,15 @@ function Project() {
     });
     const [taskName, setTaskName] = useState("");
     const [stageName, setStageName] = useState("");
+    const [taskDescription, setTaskDescription] = useState("");
     const [filterText, setFilterText] = useState("");
+    const taskSize = { x: 150, y: 200 }
 
+    if (!projectID) {
+        console.log("No project ID set.");
+        navigate("/Dashboard");
+        return;
+    }
 
     // MENU TOGGLES
 
@@ -124,8 +132,11 @@ function Project() {
             startTime: taskStart.time,
             endDate: taskEnd.date,
             endTime: taskEnd.time,
+            description: taskDescription,
             x: 0,
-            y: 0
+            y: 0,
+            nextTask: null,
+            prevTask: null
         };
 
         try {
@@ -172,7 +183,7 @@ function Project() {
 
             const data = await res.json();
 
-            const projectData = data.projectData
+            const projectData = data.projectData;
 
             if (projectData.stages) {
                 const stages: StageProps[] = Object.entries(
@@ -274,6 +285,9 @@ function Project() {
     const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFilterText(e.target.value);
     };
+    const handleTaskDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setTaskDescription(e.target.value);
+    };
     const handleStartTimeChange = (time: string) => {
         setTaskStart((prev) => ({
             ...prev,
@@ -300,6 +314,7 @@ function Project() {
     };
 
 
+
     // Data Updates
 
     useEffect(() => {
@@ -318,26 +333,41 @@ function Project() {
         const updatedStages = stages.map((stage) => {
             let newTaskList = stage.taskList.filter((task: TaskProps) => {
                 if (task.taskID === taskId) {
-                    console.log(`Task moved from ${task.x}, ${task.y}`)
-                    console.log(`Task moved ${delta.x}, ${delta.y}`);
-                    draggedTask = { ...task, stageID: stage.stageID, x: task.x + delta.x, y: task.y + delta.y };
+                    console.log(`Task moved to ${task.x + delta.x}, ${task.y + delta.y}`);
+                    draggedTask = { 
+                        ...task, 
+                        stageID: stage.stageID, 
+                        x: task.x + delta.x, 
+                        y: task.y + delta.y 
+                    };
                     oldStageID = stage.stageID;
                     return false;
                 }
                 return true;
             });
     
-            if (stage.stageID === newStageID && draggedTask) {
+            if (oldStageID === newStageID && draggedTask) {
                 newTaskList.push(draggedTask);
+            }
+            if (oldStageID !== newStageID && draggedTask) {
+                newTaskList.push({
+                    ...draggedTask,
+                    x: 0,
+                    y: 0
+                });
             }
     
             return { ...stage, taskList: newTaskList };
         });
-        setStages(updatedStages);
+        
 
         if (draggedTask) {
             try {
-                draggedTask = preventOverlap(draggedTask, updatedStages.find(s => s.stageID === newStageID)?.taskList || []);
+                /*
+                draggedTask = preventOverlap(draggedTask, 
+                    updatedStages.find(stage => stage.stageID === newStageID)?.taskList || []
+                );
+                */
 
                 const token = sessionStorage.getItem("token") || localStorage.getItem("token");
                 const res = await fetch(`${URL}/api/task`, {
@@ -359,31 +389,37 @@ function Project() {
         
                 const data = await res.json();
                 console.log(data);
-                loadProjectData();
+
+                loadProjectData(); //slow for frontend
             } catch (error) {
                 console.log(error);
             }
         }
     };
 
+    /*
     const preventOverlap = (task: TaskProps, taskList: TaskProps[]) => {
-        const taskWidth = 300;
-        const taskHeight = 100;
         let newX = task.x;
         let newY = task.y;
     
         const isOverlappingX = (x: number) => {
+            console.dir(taskList
+                .filter(newtask => task.taskID !== newtask.taskID)
+                .some(task => Math.abs(task.x - x) < taskSize.x
+            ));
             return taskList
                 .filter(newtask => task.taskID !== newtask.taskID)
-                .some(task => Math.abs(task.x - x) < taskWidth
+                .some(task => Math.abs(task.x - x) < taskSize.x
             );
         };
         const isOverlappingY = (y: number) => {
             return taskList
                 .filter(newtask => task.taskID !== newtask.taskID)
-                .some(task => Math.abs(task.y - y) < taskHeight
+                .some(task => Math.abs(task.y - y) < taskSize.y
             );
         };
+    
+        console.log(`overlapping tasks with ${task.name}`)
     
         while (isOverlappingX(newX)) {
             newX += 10;
@@ -392,9 +428,8 @@ function Project() {
             newY += 10;
         }
     
-        console.log(`overlapping tasks ${task.name} to ${newX}, ${newY}`)
         return { ...task, x: newX, y: newY };
-    };
+    };*/
 
     return (
         <div className="project">
@@ -413,6 +448,10 @@ function Project() {
                         <Button classname="default-button"
                             onclick={() => setThemeMenuActive(!themeMenuActive)}
                             text="Change theme"
+                        />
+                        <Button onclick={() => setCompleteMenuActive(!completeMenuActive)} 
+                            classname="default-button" 
+                            text="View Completed Tasks"
                         />
                         <Input
                             textcolor="black"
@@ -484,6 +523,10 @@ function Project() {
                             onTimeChange={handleEndTimeChange}
                         />
                     </div>
+                    <Textbox text="Enter task description:  "
+                        onchange={handleTaskDescriptionChange} 
+                        placeholder="Task description... "
+                    />
                 </div>
             </HiddenMenu>
             <HiddenMenu classname="hidden-task-edit"
@@ -510,8 +553,14 @@ function Project() {
                     classname="default-button"
                 />
             </HiddenMenu>
+            <HiddenMenu classname="hidden-complete-tasks"
+                visible={completeMenuActive}
+                close={() => setCompleteMenuActive(false)}
+                closeButtonText="Close">
+            </HiddenMenu>
             <ThemeChanger isvisible={themeMenuActive} 
                 closeMenu={() => setThemeMenuActive(false)}
+                projectID={projectID}
             />
         </div>
     )

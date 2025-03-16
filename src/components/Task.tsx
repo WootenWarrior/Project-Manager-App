@@ -3,17 +3,23 @@ import Button from "./Button";
 import { useDraggable } from "@dnd-kit/core";
 import '../styles/components/Task.css';
 import { TaskProps } from "../utils/Interfaces";
-import { FaGripLines } from "react-icons/fa";
 import { FaX } from "react-icons/fa6";
 
 const Task: React.FC<TaskProps> = ({stageID, taskID, name, completed, onclick, 
-    startDate, startTime, endDate, endTime, x, y}) => {
+    startDate, startTime, endDate, endTime, description, x, y}) => {
     const [isCompleted, setCompleted] = useState<boolean>(completed);
-    const [completedText, setCompletedText] = useState<string>("Incomplete");
-    const { attributes, listeners, setNodeRef, transform} = useDraggable({id: taskID,});
+    const [isHeld, setIsHeld] = useState(false);
+    const { attributes, listeners, setNodeRef, transform} = useDraggable({
+        id: taskID
+    });
+    const [_taskSize, _setTaskSize] = useState<{x:number, y:number}>({x: 200, y: 150});
 
-    //Bugfix temp
-    const [_temp, _temp1, _temp2] = [isCompleted, completedText, setCompletedText];
+    const handleMouseDown = () => {
+        setIsHeld(true);
+    };
+    const handleMouseUp = () => {
+        setIsHeld(false);
+    };
 
     const style = {
         left: `${x}px`,
@@ -76,25 +82,26 @@ const Task: React.FC<TaskProps> = ({stageID, taskID, name, completed, onclick,
     };
 
     return (
-        <div ref={setNodeRef} style={style} className="task">
-            <div className="task-toolbar">
-                <Button classname="select-button" 
-                    onclick={() => handleSelect()}
-                    text={name}>
-                </Button>
-                <div className="drag-handle" {...listeners} {...attributes}>
-                    <FaGripLines/>
-                </div>
+        <div ref={setNodeRef} style={style} 
+            className={`task ${isHeld ? "grabbing" : ""}`} 
+            {...listeners} {...attributes}
+            onMouseDown={handleMouseDown}
+            onMouseUp={handleMouseUp}
+            onClick={() => handleSelect()}
+        >
+            <div className="task-header">
+                <p>{name}</p>
             </div>
             <div className="task-body">
                 <Button classname="toggle-button"
-                    text="Unfinished"
+                    text={isCompleted ? "Incomplete" : "Completed"}
                     onclick={handleToggle}
                     beforeicon={<FaX/>}>
                 </Button>
-                <span>Start: {formattedStartDate}</span>
-                <span>Deadline: {formattedDeadline}</span>
-                <span>Remaining time: {calculateRemainingTime()}</span>
+                <p>Start: {formattedStartDate}</p>
+                <p>Deadline: {formattedDeadline}</p>
+                <p>Remaining time: {calculateRemainingTime()}</p>
+                <div className="description-container"><p>{description}</p></div>
             </div>
         </div>
     )

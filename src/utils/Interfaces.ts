@@ -58,9 +58,12 @@ export interface TaskProps {
     endDate: string;
     startTime: string;
     endTime: string;
+    description: string;
     x: number;
     y: number;
     onclick?: (stageID: string, taskID:string) => void;
+    nextTask: string | null;
+    prevTask: string | null;
 }
 
 export interface StageProps {
@@ -81,6 +84,7 @@ export interface TextboxProps {
     height?: string;
     placeholder?: string;
     onchange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
+    text?: string;
 }
 
 export interface TimeInputProps {

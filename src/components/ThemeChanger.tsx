@@ -1,4 +1,5 @@
 import { Button, HiddenMenu } from "../components";
+import { URL } from "../utils/BackendURL";
 import { useState, useEffect } from "react";
 import '../styles/components/ThemeChanger.css';
 
@@ -12,37 +13,80 @@ interface ColorTheme {
 interface ThemeChangerProps {
     isvisible: boolean;
     closeMenu: () => void;
+    projectID: string;
 }
 
-const ThemeChanger: React.FC<ThemeChangerProps> = ({isvisible, closeMenu,/*theme: ColorTheme*/}) => {
-    const [activeTheme, setActiveTheme] = useState<ColorTheme | null>(null);
-    const [userTheme, setUserTheme] = useState<ColorTheme>({
-        background: "#ffffff",
-        highlight: "#ff0000",
-        hiddenMenuBackground: "#ffffff",
-        outlineColor: "#ffffff"
-    });
+const ThemeChanger: React.FC<ThemeChangerProps> = ({isvisible, closeMenu, projectID}) => {
+    const defaultTheme = { background: "#477bd0", highlight: "#7098da", hiddenMenuBackground: "#6eb6ff", outlineColor: "#ffffff" };
+    const [userTheme, setUserTheme] = useState<ColorTheme>(defaultTheme);
     const themes: ColorTheme[] = [
-        { background: "#11001c", highlight: "#5a028d", hiddenMenuBackground: "#4f0147", outlineColor: "#940085" },
-        { background: "#fdf6e3", highlight: "#268bd2", hiddenMenuBackground: "#4f0147", outlineColor: "#940085" },
-        { background: "#282c34", highlight: "#61dafb", hiddenMenuBackground: "#4f0147", outlineColor: "#940085" },
-        { background: "#2d2a32", highlight: "#c678dd", hiddenMenuBackground: "#4f0147", outlineColor: "#940085" }
+        { background: "#477bd0", highlight: "#7098da", hiddenMenuBackground: "#6eb6ff", outlineColor: "#ffffff" },
+        { background: "#c85250", highlight: "#e7625f", hiddenMenuBackground: "#f7bec0", outlineColor: "#e9eae0" },
+        { background: "#778a35", highlight: "#d1e2c4", hiddenMenuBackground: "#ebebe8", outlineColor: "#31352e" },
+        { background: "#0a0708", highlight: "#444444", hiddenMenuBackground: "#747474", outlineColor: "#b1b1b1" }
     ];
 
-    useEffect(() => {
-        const savedTheme = localStorage.getItem("activeTheme");
-        if (savedTheme) {
-            const parsedTheme = JSON.parse(savedTheme);
-            applyTheme(parsedTheme);
-            setActiveTheme(parsedTheme);
+    //Themes sources:
+    //https://www.canva.com/colors/color-palettes/cool-cream-strawberry/
+    //https://www.canva.com/colors/color-palettes/wall-greens/
+    //https://www.canva.com/colors/color-palettes/dark-road-curve/
+
+    const setTheme = async (theme: ColorTheme) => {
+        try {
+            const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+            const res = await fetch(`${URL}/api/theme`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ projectID, token, theme }),
+            });
+
+            if(!res.ok){
+                const errorData = await res.text();
+                console.log(errorData);
+                return;
+            }
+        } catch (error) {
+            console.log(error);
         }
+    }
+    
+    useEffect(() => {
+        const fetchTheme = async () => {
+            try {
+                const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+                const res = await fetch(`${URL}/api/theme?projectID=${projectID}&token=${token}`);
+
+                if(!res.ok){
+                    const errorData = await res.text();
+                    console.log(errorData);
+                    return;
+                }
+                const data = await res.json();
+
+                const savedTheme = data.theme;
+
+                console.log(data);
+
+                if (savedTheme) {
+                    applyTheme(savedTheme);
+                }
+                else {
+                    applyTheme(defaultTheme);
+                    console.log("Problem with fetched theme");
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        fetchTheme();
     }, []);
 
     const applyTheme = (theme: ColorTheme) => {
-        document.documentElement.style.setProperty("--project-bg-color", theme.background);
-        document.documentElement.style.setProperty("--project-highlight-color", theme.highlight);
-        setActiveTheme(theme);
-        localStorage.setItem("activeTheme", JSON.stringify(theme));
+        document.documentElement.style.setProperty("--themecolor1", theme.background);
+        document.documentElement.style.setProperty("--themecolor2", theme.highlight);
+        document.documentElement.style.setProperty("--themecolor3", theme.hiddenMenuBackground);
+        document.documentElement.style.setProperty("--themecolor4", theme.outlineColor);
+        setTheme(theme);
     };
 
     const updateUserTheme = (key: keyof ColorTheme, value: string) => {
@@ -91,6 +135,13 @@ const ThemeChanger: React.FC<ThemeChangerProps> = ({isvisible, closeMenu,/*theme
                                 type="color"
                                 value={userTheme.background}
                                 onChange={(e) => updateUserTheme("highlight", e.target.value)}
+                            />
+                        </div>
+                        <div className="user-color" style={{ background: userTheme.background }}>
+                            <input
+                                type="color"
+                                value={userTheme.background}
+                                onChange={(e) => updateUserTheme("background", e.target.value)}
                             />
                         </div>
                         <div className="user-color" style={{ background: userTheme.background }}>

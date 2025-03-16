@@ -1,35 +1,71 @@
 .task {
-    width: 100%;
-    max-height: var(--task-default-size-x);
-    max-width: var(--task-default-size-y);
+    height: var(--task-default-size-x);
+    width: var(--task-default-size-y);
     border-radius: 2rem;
     background-color: var(--translucent-theme-color2);
-    border: 1px solid black;
-    position: absolute;
-    display: flex;
-    justify-content: start;
-    align-items: center;
-    flex-direction: column;
-    left: var(--x);
-    top: var(--y);
-}
-
-.task .task-toolbar {
-    display: flex;
-    justify-content: start;
-    align-items: center;
-    width: 100%;
-}
-
-.task .task-toolbar .drag-handle {
-    font-size: large;
-    cursor: grab;
-    height: 100%;
-}
-
-.task .task-body {
+    position: relative;
     display: flex;
     justify-content: start;
     align-items: start;
     flex-direction: column;
+    left: var(--x);
+    top: var(--y);
+    overflow-y: scroll;
+    overflow-x: hidden;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.task.grabbing {
+    cursor: grabbing;
+}
+
+.task .task-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 3rem;
+    color: var(--default-text-color);
+    border-radius: 2rem 2rem 0 0;
+    font-size: large;
+    position: sticky;
+    top: 0;
+    backdrop-filter: blur(10px);
+}
+
+.task .select-button span {
+    color: var(--default-text-color);
+}
+
+.task .toggle-button {
+    border: 0;
+    max-width: fit-content;
+}
+
+.task .task-body {
+    width: 100%;
+    display: flex;
+    justify-content: start;
+    align-items: start;
+    flex-direction: column;
+    background: var(--translucent-color6);
+    border-radius: 2rem;
+}
+
+.task .task-body p {
+    color: var(--default-text-color);
+    font-size: small;
+}
+
+.task:hover {
+    border: 2px solid var(--default-text-color);
+}
+
+.task .task-toolbar .drag-handle:hover {
+    background: var(--translucent-color3);
+}
+
+.task .select-button:hover {
+    background: var(--translucent-color3);
 }

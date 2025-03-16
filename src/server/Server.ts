@@ -289,7 +289,7 @@ app.post("/api/project", async (req: Request, res: Response) => {
             title: data.projectData?.title,
             description: data.projectData?.description,
             createdAt: new Date(Date.now()),
-            theme: data.projectData?.theme || "default"
+            theme: data.projectData?.theme
         };
         
         const projectId = await createProject(email, projectData);
@@ -530,7 +530,7 @@ app.post("/api/login", async (req: Request, res: Response) => {
         const uid = userRecord.uid;
 
         //session valid for 1 hour
-        const token = generateToken({ userId: uid, email: email }, "1h");
+        const token = generateToken({ userId: uid, email: email }, "24h");
         res.status(200).json({ uid, token });
     } catch (error) {
         console.log("Error when logging in: ", error);
@@ -633,7 +633,90 @@ app.get("/api/mobile-restrict", async (req: Request, res: Response) => {
     catch (error) {
         res.status(500).json({ message: "Unexpected error: ", error });
     }
-})
+});
+
+app.put("/api/theme", async (req: Request, res: Response) => {
+    try {
+        const { projectID, token, theme } = req.body;
+
+
+        const verifiedToken = verifyToken(token);
+        if(!verifiedToken){
+            res.status(401).json({ message: "Token verification failed." });
+            return;
+        }
+        const uid = verifiedToken.userId;
+        const user = await admin.auth().getUser(uid);
+        if(!user){
+            res.status(401).json({ message: "Invalid session user ID." });
+            return;
+        }
+        const email = user.email;
+        if (!email) {
+            res.status(403).json({ message: "Failed to get user email." });
+            return;
+        }
+
+        const usersCollection = admin.firestore().collection("users");
+        const projectRef = usersCollection
+            .doc(email)
+            .collection("projects")
+            .doc(projectID);
+        await projectRef.update({
+            theme: theme
+        });
+
+        res.status(200).json({ message: "Theme updated successfully." });
+    } catch (error) {
+        res.status(500).json({ message: "Unexpected error: ", error });
+    }
+});
+
+app.get("/api/theme", async (req: Request, res: Response) => {
+    try {
+        const token = String(req.query.token);
+        const projectID = String(req.query.projectID);
+
+        const verifiedToken = verifyToken(token);
+        if(!verifiedToken){
+            res.status(401).json({ message: "Token verification failed." });
+            return;
+        }
+        const uid = verifiedToken.userId;
+        const user = await admin.auth().getUser(uid);
+        if(!user){
+            res.status(401).json({ message: "Invalid session user ID." });
+            return;
+        }
+        const email = user.email;
+        if (!email) {
+            res.status(403).json({ message: "Failed to get user email." });
+            return;
+        }
+
+        const usersCollection = admin.firestore().collection("users");
+        const projectRef = usersCollection
+            .doc(email)
+            .collection("projects")
+            .doc(projectID);
+        const projectSnapshot = await projectRef.get();
+
+        if (!projectSnapshot.exists) {
+            res.status(401).json({ message: "Failed to get project." });
+            return;
+        }
+
+        const projectData = projectSnapshot.data();
+        if (!projectData) {
+            res.status(401).json({ message: "Failed to get project data." });
+            return;
+        }
+
+        res.status(200).json({ theme: projectData.theme });
+    } catch (error) {
+        res.status(500).json({ message: "Unexpected error: ", error });
+    }
+});
 
 // Catch-all route
 

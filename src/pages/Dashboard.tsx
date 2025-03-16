@@ -19,7 +19,7 @@ function Dashboard() {
     const [projectData, setProjectData] = useState<ProjectProps>({
         title: '',
         description: '',
-        theme: "default"
+        theme: ''
     });
     const [upcomingTask, setUpcomingTask] = useState<{
         id: string,
@@ -157,7 +157,7 @@ function Dashboard() {
         try {
             const token = sessionStorage.getItem("token") || localStorage.getItem("token");
             if (!token) {
-                console.log("Error: No token in session.")
+                console.log("No token in session.")
                 handleLogout(navigate);
                 return;
             }
@@ -181,7 +181,7 @@ function Dashboard() {
                     title: project.name,
                     description: project.description,
                     time: new Date(project.createdAt).toLocaleString(),
-                    theme: project.theme || "default"
+                    theme: project.theme
                 }));
                 setOptions(mappedOptions);
                 console.dir(mappedOptions);

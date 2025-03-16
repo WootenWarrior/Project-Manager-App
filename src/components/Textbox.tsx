@@ -2,16 +2,20 @@ import '../styles/components/Textbox.css'
 import { TextboxProps } from '../utils/Interfaces'
 
 const Textbox: React.FC<TextboxProps> = 
-({classname, backgroundcolour, textcolor, width, height, placeholder, onchange}) => {
+({text, classname, backgroundcolour, textcolor, width, height, placeholder, onchange}) => {
     return (
-        <textarea className={classname} 
-            placeholder={placeholder}
-            onChange={onchange}
-            style={{background: backgroundcolour,
-                color: textcolor,
-                width: width,
-                height: height}}>
-        </textarea>
+        <div className={classname}>
+            <p>
+                {text}
+            </p>
+            <textarea placeholder={placeholder}
+                onChange={onchange}
+                style={{background: backgroundcolour,
+                    color: textcolor,
+                    width: width,
+                    height: height}}>
+            </textarea>
+        </div>
     )
 }
 

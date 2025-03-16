@@ -24,8 +24,6 @@
     margin: 1rem;
     padding: 1rem;
     gap: 3rem;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
     width: 100%;
 }
 
@@ -65,13 +63,4 @@
     flex-direction: row;
     overflow-x: scroll;
     overflow-y: hidden;
-}
-
-::-webkit-scrollbar {
-    width: 0.5rem;
-    display: block;
-}
-
-::-webkit-scrollbar-track {
-    opacity: 1;
 }
