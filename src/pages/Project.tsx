@@ -580,18 +580,22 @@ function Project() {
                     <div className="block">
                         <DateInput text="Set start date: "
                             onDateChange={handleStartDateChange}
+                            id="start-date"
                         />
                         <TimeInput text="Set start time: "
                             onTimeChange={handleStartTimeChange}
+                            id="start-time"
                         />
                     </div>
                     <div className="block">
                         <DateInput text="Set end date: "
                             displayDate={taskEnd.date}
                             onDateChange={handleEndDateChange}
+                            id="end-date"
                         />
                         <TimeInput text="Set end time: "
                             onTimeChange={handleEndTimeChange}
+                            id="end-time"
                         />
                     </div>
                     <Textbox text="Enter task description:  "

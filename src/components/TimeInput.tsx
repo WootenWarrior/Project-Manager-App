@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { TimeInputProps } from "../utils/Interfaces";
 
-const TimeInput: React.FC<TimeInputProps> = ({ onTimeChange, text }) => {
+const TimeInput: React.FC<TimeInputProps> = ({ onTimeChange, text, id }) => {
   const [selectedTime, setSelectedTime] = useState<string>("00:00");
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -14,7 +14,7 @@ const TimeInput: React.FC<TimeInputProps> = ({ onTimeChange, text }) => {
     <div className="time-input">
       <label htmlFor="time-input">{text}</label>
       <input
-        id="time-input"
+        id={id}
         type="time"
         value={selectedTime}
         onChange={handleTimeChange}

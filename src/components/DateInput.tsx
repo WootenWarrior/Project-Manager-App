@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { DateInputProps } from "../utils/Interfaces";
 
-const DateInput: React.FC<DateInputProps> = ({ onDateChange, text, displayDate }) => {
+const DateInput: React.FC<DateInputProps> = ({ onDateChange, text, displayDate, id }) => {
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split("T")[0]
   );
@@ -16,7 +16,7 @@ const DateInput: React.FC<DateInputProps> = ({ onDateChange, text, displayDate }
     <div className="date-input">
       <label htmlFor="date-input">{text}</label>
       <input
-        id="date-input"
+        id={id}
         type="date"
         value={displayDate ? displayDate : selectedDate}
         onChange={handleDateChange}

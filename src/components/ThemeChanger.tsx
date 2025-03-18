@@ -19,7 +19,7 @@ interface ThemeChangerProps {
 const ThemeChanger: React.FC<ThemeChangerProps> = ({isvisible, closeMenu, projectID}) => {
     const defaultTheme = { background: "#477bd0", highlight: "#7098da", hiddenMenuBackground: "#6eb6ff", outlineColor: "#ffffff" };
     const [userTheme, setUserTheme] = useState<ColorTheme>(defaultTheme);
-    const [activeTheme, setActiveTheme] = useState<ColorTheme>(defaultTheme);
+    const [_activeTheme, _setActiveTheme] = useState<ColorTheme>(defaultTheme);
     const themes: ColorTheme[] = [
         { background: "#477bd0", highlight: "#7098da", hiddenMenuBackground: "#6eb6ff", outlineColor: "#ffffff" },
         { background: "#c85250", highlight: "#e7625f", hiddenMenuBackground: "#f7bec0", outlineColor: "#e9eae0" },

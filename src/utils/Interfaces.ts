@@ -89,11 +89,13 @@ export interface TextboxProps {
 }
 
 export interface TimeInputProps {
+    id: string;
     onTimeChange: (time: string) => void;
     text?: string;
 }
 
 export interface DateInputProps {
+    id: string;
     onDateChange: (date: string) => void;
     text?: string;
     displayDate?: string;
