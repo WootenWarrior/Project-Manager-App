@@ -2,8 +2,8 @@
     height: var(--task-default-size-x);
     width: var(--task-default-size-y);
     border-radius: 2rem;
-    background-color: var(--translucent-theme-color2);
-    position: relative;
+    background-color: var(--themecolor1);
+    position: absolute;
     display: flex;
     justify-content: start;
     align-items: start;
@@ -46,16 +46,23 @@
 .task .task-body {
     width: 100%;
     display: flex;
-    justify-content: start;
-    align-items: start;
+    justify-content: flex-start;
+    align-items: flex-start;
     flex-direction: column;
-    background: var(--translucent-color6);
-    border-radius: 2rem;
+    background: var(--themecolor3);
+    border-radius: 1rem;
 }
 
 .task .task-body p {
     color: var(--default-text-color);
     font-size: small;
+    margin: 0;
+    margin-top: 1rem;
+}
+
+.task .task-body .description-container {
+    background: var(--themecolor4);
+    margin-top: 1rem;
 }
 
 .task:hover {

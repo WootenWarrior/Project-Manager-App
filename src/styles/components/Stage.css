@@ -1,6 +1,6 @@
 .stage {
     --stage-background-color: var(--translucent-color3);
-    --stage-highlight-color: var(--color3);
+    --stage-highlight-color: var(--themecolor3);
     --stage-text-color: var(--themecolor6);
 
     position: relative;
@@ -13,7 +13,9 @@
     background-color: var(--stage-background-color);
     border-radius: 2rem;
     margin: 1rem;
+    overflow-y: scroll;
     overflow-x: scroll;
+    z-index: 5;
 }
 
 .stage .title {
@@ -28,6 +30,7 @@
     text-transform: uppercase;
     cursor: pointer;
     color: var(--stage-text-color);
+    position: sticky;
 
 }
 
@@ -36,6 +39,14 @@
     padding-bottom: 5rem;
     width: 100%;
     overflow: auto;
+}
+
+.stage .button-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: sticky;
 }
 
 .stage .default-button {
@@ -61,7 +72,7 @@
 .stage .title:hover {
     transition: 1s;
     background-color: var(--stage-highlight-color);
-    color: var(--backgroundbase);
+    color: var(--theme-highlight-color);
 }
 
 .stage .tasks::-webkit-scrollbar {

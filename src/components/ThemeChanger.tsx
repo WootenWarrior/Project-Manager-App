@@ -19,6 +19,7 @@ interface ThemeChangerProps {
 const ThemeChanger: React.FC<ThemeChangerProps> = ({isvisible, closeMenu, projectID}) => {
     const defaultTheme = { background: "#477bd0", highlight: "#7098da", hiddenMenuBackground: "#6eb6ff", outlineColor: "#ffffff" };
     const [userTheme, setUserTheme] = useState<ColorTheme>(defaultTheme);
+    const [activeTheme, setActiveTheme] = useState<ColorTheme>(defaultTheme);
     const themes: ColorTheme[] = [
         { background: "#477bd0", highlight: "#7098da", hiddenMenuBackground: "#6eb6ff", outlineColor: "#ffffff" },
         { background: "#c85250", highlight: "#e7625f", hiddenMenuBackground: "#f7bec0", outlineColor: "#e9eae0" },
@@ -65,8 +66,6 @@ const ThemeChanger: React.FC<ThemeChangerProps> = ({isvisible, closeMenu, projec
 
                 const savedTheme = data.theme;
 
-                console.log(data);
-
                 if (savedTheme) {
                     applyTheme(savedTheme);
                 }
@@ -81,11 +80,30 @@ const ThemeChanger: React.FC<ThemeChangerProps> = ({isvisible, closeMenu, projec
         fetchTheme();
     }, []);
 
+    const isLightColor = (hexColor: string): boolean => {
+        hexColor = hexColor.replace("#", "");
+    
+        const r = parseInt(hexColor.substring(0, 2), 16);
+        const g = parseInt(hexColor.substring(2, 4), 16);
+        const b = parseInt(hexColor.substring(4, 6), 16);
+    
+        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        
+        return luminance > 0.5;
+    };
+
     const applyTheme = (theme: ColorTheme) => {
         document.documentElement.style.setProperty("--themecolor1", theme.background);
         document.documentElement.style.setProperty("--themecolor2", theme.highlight);
         document.documentElement.style.setProperty("--themecolor3", theme.hiddenMenuBackground);
         document.documentElement.style.setProperty("--themecolor4", theme.outlineColor);
+        const isLightTheme = isLightColor(theme.background);
+        const textColor = isLightTheme ? "#000000" : "#FFFFFF";
+        document.documentElement.style.setProperty("--themecolor6", textColor);
+        document.documentElement.style.setProperty("--theme-outline-color", textColor);
+        isLightTheme ? 
+            document.documentElement.style.setProperty("--theme-highlight-color", "#000000")
+            : "";
         setTheme(theme);
     };
 
@@ -137,18 +155,18 @@ const ThemeChanger: React.FC<ThemeChangerProps> = ({isvisible, closeMenu, projec
                                 onChange={(e) => updateUserTheme("highlight", e.target.value)}
                             />
                         </div>
-                        <div className="user-color" style={{ background: userTheme.background }}>
+                        <div className="user-color" style={{ background: userTheme.hiddenMenuBackground }}>
                             <input
                                 type="color"
-                                value={userTheme.background}
-                                onChange={(e) => updateUserTheme("background", e.target.value)}
+                                value={userTheme.hiddenMenuBackground}
+                                onChange={(e) => updateUserTheme("hiddenMenuBackground", e.target.value)}
                             />
                         </div>
-                        <div className="user-color" style={{ background: userTheme.background }}>
+                        <div className="user-color" style={{ background: userTheme.outlineColor }}>
                             <input
                                 type="color"
-                                value={userTheme.background}
-                                onChange={(e) => updateUserTheme("background", e.target.value)}
+                                value={userTheme.outlineColor}
+                                onChange={(e) => updateUserTheme("outlineColor", e.target.value)}
                             />
                         </div>
                     </span>

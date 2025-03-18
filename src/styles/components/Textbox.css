@@ -1,10 +1,24 @@
-.default-textbox{
+.default-textbox textarea {
     border-radius: 1rem;
     resize: none;
     font-size: large;
 }
 
-.default-textbox::placeholder {
+.default-textbox textarea::placeholder {
     color: var(--color6);
     opacity: 1;
+}
+
+.project-textbox {
+    width: 60%;
+}
+
+.project-textbox textarea {
+    width: 100%;
+    min-height: 10rem;
+    background: transparent;
+    border: 2px solid var(--themecolor4);
+    outline: none;
+    resize: vertical;
+    border-radius: 1rem;
 }

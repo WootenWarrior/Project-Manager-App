@@ -62,5 +62,33 @@
     justify-content: left;
     flex-direction: row;
     overflow-x: scroll;
-    overflow-y: hidden;
+    overflow-y: scroll;
+}
+
+.project .visible-menu.active {
+    background-color: var(--translucent-theme-color5);
+}
+
+.project .visible-menu.active .options {
+    background-color: var(--themecolor2);
+    border: 1px solid var(--theme-outline-color);
+}
+
+.project .input {
+    border: 1px solid var(--theme-outline-color);
+    color: var(--themecolor6);
+}
+
+.project .default-button {
+    border: 1px solid var(--theme-outline-color);
+    color: var(--themecolor6);
+}
+
+.project .default-button:hover {
+    background-color: var(--themecolor3);
+    border: 1px solid var(--theme-outline-color);
+}
+
+.project .hidden-task-edit form .inputs {
+    padding: 1rem;
 }

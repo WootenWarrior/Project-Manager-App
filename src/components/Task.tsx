@@ -1,25 +1,15 @@
-import { useState } from "react";
-import Button from "./Button";
+import { useState, useEffect } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import '../styles/components/Task.css';
 import { TaskProps } from "../utils/Interfaces";
-import { FaX } from "react-icons/fa6";
 
 const Task: React.FC<TaskProps> = ({stageID, taskID, name, completed, onclick, 
     startDate, startTime, endDate, endTime, description, x, y}) => {
-    const [isCompleted, setCompleted] = useState<boolean>(completed);
-    const [isHeld, setIsHeld] = useState(false);
-    const { attributes, listeners, setNodeRef, transform} = useDraggable({
+    const [isCompleted, _setCompleted] = useState<boolean>(completed);
+    const [isDragging, setIsDragging] = useState<boolean>(false);
+    const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: taskID
     });
-    const [_taskSize, _setTaskSize] = useState<{x:number, y:number}>({x: 200, y: 150});
-
-    const handleMouseDown = () => {
-        setIsHeld(true);
-    };
-    const handleMouseUp = () => {
-        setIsHeld(false);
-    };
 
     const style = {
         left: `${x}px`,
@@ -28,14 +18,25 @@ const Task: React.FC<TaskProps> = ({stageID, taskID, name, completed, onclick,
           ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
           : undefined,
         transition: transform ? "transform 20ms ease" : undefined,
-        zIndex: transform ? 1000 : "auto",
+        zIndex: 1000,
+    };
+
+    // Dates
+
+    const dateOptions: Intl.DateTimeFormatOptions = {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
     };
 
     const formattedDeadline = (() => {
         if (endDate && endTime) {
             const dateTimeString = `${endDate}T${endTime}:00`;
             const deadlineDate = new Date(dateTimeString);
-            return deadlineDate.toLocaleString();
+            return deadlineDate.toLocaleString(undefined, dateOptions);
         }
         return "No deadline set";
     })();
@@ -44,16 +45,21 @@ const Task: React.FC<TaskProps> = ({stageID, taskID, name, completed, onclick,
         if (startDate && startTime) {
             const dateTimeString = `${startDate}T${startTime}:00`;
             const start = new Date(dateTimeString);
-            return start.toLocaleString();
+            return start.toLocaleString(undefined, dateOptions);
         }
         return "No start date set";
     })();
 
     const calculateRemainingTime = () => {
-        if (!formattedDeadline) { 
-            return "No deadline set";
-        } 
-        const deadlineDate = new Date(formattedDeadline);
+        if (!endDate || !endTime) { 
+            return "No deadline set"; 
+        }
+        const deadlineDate = new Date(`${endDate}T${endTime}:00`);
+
+        if (isNaN(deadlineDate.getTime())) {
+            console.log("Invalid deadline date");
+            return "Invalid deadline";
+        }
 
         const now = new Date();
         const timeDifference = deadlineDate.getTime() - now.getTime();
@@ -68,39 +74,42 @@ const Task: React.FC<TaskProps> = ({stageID, taskID, name, completed, onclick,
 
         return `${days}d ${hours}h ${minutes}m`;
     };
+    const [remainingTime, setRemainingTime] = useState<string>(calculateRemainingTime());
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setRemainingTime(calculateRemainingTime());
+        }, 60000);
+
+        return () => clearInterval(interval);
+    }, []);
+
 
     const handleSelect = () => {
         if (!onclick) {
             console.log("No onclick method set.");
             return;
         }
+        console.log("clicked");
         onclick(String(stageID), String(taskID));
     }
 
-    const handleToggle = () => {
-        setCompleted((completed) => !completed);
-    };
 
     return (
         <div ref={setNodeRef} style={style} 
-            className={`task ${isHeld ? "grabbing" : ""}`} 
+            className={`task ${isDragging ? "grabbing" : ""}`} 
             {...listeners} {...attributes}
-            onMouseDown={handleMouseDown}
-            onMouseUp={handleMouseUp}
-            onClick={() => handleSelect()}
-        >
+            onMouseDown={() => setIsDragging(true)}
+            onMouseUp={() => setIsDragging(false)}
+            onClick={() => handleSelect()}>
             <div className="task-header">
                 <p>{name}</p>
             </div>
             <div className="task-body">
-                <Button classname="toggle-button"
-                    text={isCompleted ? "Incomplete" : "Completed"}
-                    onclick={handleToggle}
-                    beforeicon={<FaX/>}>
-                </Button>
+                <p>Status: {isCompleted ? "Completed" : "Incomplete"}</p>
                 <p>Start: {formattedStartDate}</p>
                 <p>Deadline: {formattedDeadline}</p>
-                <p>Remaining time: {calculateRemainingTime()}</p>
+                <p>Remaining time: {remainingTime}</p>
                 <div className="description-container"><p>{description}</p></div>
             </div>
         </div>

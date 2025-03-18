@@ -6,7 +6,7 @@ import { Stage, Button, Input, HiddenMenu, TimeInput, DateInput, Textbox } from 
 import { TaskProps, StageProps } from "../utils/Interfaces";
 import { FaPlus } from "react-icons/fa6";
 import { FaArrowCircleLeft } from "react-icons/fa";
-import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import { DndContext, DragEndEvent, useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
 import ThemeChanger from "../components/ThemeChanger";
 
 
@@ -38,7 +38,21 @@ function Project() {
     const [stageName, setStageName] = useState("");
     const [taskDescription, setTaskDescription] = useState("");
     const [filterText, setFilterText] = useState("");
-    const taskSize = { x: 150, y: 200 }
+    const [updatedTask, setUpdatedTask] = useState<{
+        name: string,
+        status: boolean,
+        description: string
+    }>({ name: "", status: false, description: "" });
+    const [_updatedStage, _setUpdatedStage] = useState<{
+        name: string
+        color: string
+    }>({ name: "", color: "" });
+    const sensors = useSensors(useSensor(PointerSensor, {
+        activationConstraint: {
+            delay: 100,
+            tolerance: 5,
+        },
+    }));
 
     if (!projectID) {
         console.log("No project ID set.");
@@ -60,8 +74,15 @@ function Project() {
     const showTaskEdit = (stageID: string, taskID: string) => {
         setSelectedTaskId(taskID);
         setSelectedStageId(stageID);
-        loadTaskData(taskID);
         setTaskEditActive(true);
+
+        const stageWithTask = stages.find((stage) => stage.stageID === stageID);
+        const task = stageWithTask?.taskList.find((task) => task.taskID === taskID) || null;
+        const description = task?.description || "";
+        const name = task?.name || "";
+        const status = task?.completed || false;
+        console.log(status);
+        setUpdatedTask(({ status, name, description }));
     }
     const hideTaskEdit = () => {
         setTaskEditActive(false);
@@ -136,7 +157,7 @@ function Project() {
             x: 0,
             y: 0,
             nextTask: null,
-            prevTask: null
+            prevTask: null,
         };
 
         try {
@@ -255,11 +276,70 @@ function Project() {
         console.log(data);
     }
 
-    const updateTask = async (taskID: string | null) => {
+    const updateTask = async (stageID: string | null, taskID: string | null) => {
         if (!taskID) {
             console.log("No selected task ID set.")
             return;
         }
+        if (!stageID) {
+            console.log("No selected stage ID set.")
+            return;
+        }
+
+        const stageWithTask = stages.find((stage) =>
+            stage.stageID === stageID
+        );
+
+        const task = stageWithTask?.taskList.find((task) => task.taskID === taskID) || null;
+
+        const newTask = {
+            ...task,
+            completed: updatedTask.status,
+            name: updatedTask.name,
+            description: updatedTask.description
+        };
+
+        console.log(newTask.completed)
+
+        setStages((prevStages) =>
+            prevStages.map((stage) =>
+                stage.stageID === stageID
+                    ? {
+                          ...stage,
+                          taskList: stage.taskList.map((task) =>
+                              task.taskID === taskID ? { 
+                                ...task,
+                                completed: updatedTask.status,
+                                name: updatedTask.name,
+                                description: updatedTask.description 
+                            } : task
+                          ),
+                      }
+                    : stage
+            )
+        );
+
+        const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+        const res = await fetch(`${URL}/api/task`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                token, 
+                projectID, 
+                sourceID: stageID, 
+                destID: stageID,
+                task: newTask
+            }),
+        });
+
+        if(!res.ok){
+            const errorData = await res.text();
+            console.log(errorData);
+            return;
+        }
+
+        const data = await res.json();
+        console.log(data);
     }
 
     const updateStage = async (taskID: string | null) => {
@@ -267,10 +347,6 @@ function Project() {
             console.log("No selected task ID set.")
             return;
         }
-    }
-
-    const loadTaskData = async (taskID: string | null) => {
-        console.log(taskID);
     }
 
     
@@ -312,10 +388,19 @@ function Project() {
             date: date,
         }));
     };
+    const handleTaskNameUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setUpdatedTask((prev) => ({
+            ...prev,
+            name: e.target.value,
+        }));
+    }
+    const handleTaskDescriptionUpdate = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setUpdatedTask((prev) => ({
+            ...prev,
+            description: e.target.value,
+        }));
+    }
 
-
-
-    // Data Updates
 
     useEffect(() => {
         loadProjectData();
@@ -326,17 +411,16 @@ function Project() {
         if (!over) return;
     
         const taskId = active.id as string;
-        const newStageID = over.id as string;
         let draggedTask: TaskProps | null = null;
         let oldStageID: string | null = null;
-    
-        const updatedStages = stages.map((stage) => {
-            let newTaskList = stage.taskList.filter((task: TaskProps) => {
+
+
+        stages.map((stage) => {
+            let newTaskList = stage.taskList.map((task: TaskProps) => {
                 if (task.taskID === taskId) {
                     console.log(`Task moved to ${task.x + delta.x}, ${task.y + delta.y}`);
                     draggedTask = { 
                         ...task, 
-                        stageID: stage.stageID, 
                         x: task.x + delta.x, 
                         y: task.y + delta.y 
                     };
@@ -345,18 +429,6 @@ function Project() {
                 }
                 return true;
             });
-    
-            if (oldStageID === newStageID && draggedTask) {
-                newTaskList.push(draggedTask);
-            }
-            if (oldStageID !== newStageID && draggedTask) {
-                newTaskList.push({
-                    ...draggedTask,
-                    x: 0,
-                    y: 0
-                });
-            }
-    
             return { ...stage, taskList: newTaskList };
         });
         
@@ -376,7 +448,6 @@ function Project() {
                     body: JSON.stringify({ token, 
                         projectID, 
                         sourceID: oldStageID, 
-                        destID: newStageID, 
                         task: draggedTask 
                     }),
                 });
@@ -388,7 +459,7 @@ function Project() {
                 }
         
                 const data = await res.json();
-                console.log(data);
+                console.log(data.message? data.message : "");
 
                 loadProjectData(); //slow for frontend
             } catch (error) {
@@ -463,7 +534,7 @@ function Project() {
                     </div>
                 </div>
                 <div className="project-creation-window">
-                    <DndContext onDragEnd={handleDragEnd}>
+                    <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
                         <div className="stages">
                             {stages.map((stage) => (
                                 <Stage key={stage.stageID}
@@ -532,14 +603,43 @@ function Project() {
             <HiddenMenu classname="hidden-task-edit"
                 visible={taskEditActive}
                 close={hideTaskEdit}
-                create={() => updateTask(selectedTaskId)}
+                create={() => {
+                    updateTask(selectedStageId, selectedTaskId);
+                    hideTaskEdit();
+                }}
                 closeButtonText="x"
                 createButtonText="Update">
                 <h1>Edit task</h1>
-                <Button onclick={() => deleteTask(selectedStageId,selectedTaskId)}  /// CHANGE HERE
-                    text="Delete Task"
-                    classname="default-button"
-                />
+                <div className="edit-options">
+                    <div className="toggle-complete">
+                        <label className="switch">
+                            <input 
+                                type="checkbox" 
+                                checked={updatedTask.status} 
+                                onChange={(e) => {
+                                    setUpdatedTask(prev => {
+                                        const newTask = { ...prev, status: e.target.checked };
+                                        updateTask(selectedStageId, selectedTaskId);
+                                        return newTask;
+                                    });
+                                }} 
+                            />
+                            <span className="slider round"></span>
+                        </label>
+                        <p>{updatedTask.status? "COMPLETE" : "INCOMPLETE"}</p>
+                    </div>
+                    <Input placeholder="Set a new task title..."
+                        visible={true} 
+                        onchange={handleTaskNameUpdate}
+                        value={updatedTask.name}/>
+                    <Textbox classname="project-textbox" 
+                        value={updatedTask.description}
+                        onchange={handleTaskDescriptionUpdate}/>
+                    <Button onclick={() => deleteTask(selectedStageId, selectedTaskId)}
+                        text="Delete Task"
+                        classname="default-button"
+                    />
+                </div>
             </HiddenMenu>
             <HiddenMenu classname="hidden-stage-edit"
                 visible={stageEditActive}
@@ -548,6 +648,7 @@ function Project() {
                 closeButtonText="x"
                 createButtonText="Update">
                 <h1>Edit stage</h1>
+                <Input placeholder="Set a new task title..."/>
                 <Button onclick={() => deleteStage(selectedStageId)}
                     text="Delete Stage"
                     classname="default-button"
@@ -557,6 +658,19 @@ function Project() {
                 visible={completeMenuActive}
                 close={() => setCompleteMenuActive(false)}
                 closeButtonText="Close">
+                <div className="completed-tasks-container">
+                    {stages.flatMap(stage => 
+                        stage.taskList
+                            .filter(task => task.completed)
+                            .map(task => (
+                                <div key={task.taskID} className="completed-task">
+                                    <p>{task.name}</p>
+                                    <p>{task.description}</p>
+                                </div>
+                            ))
+                        )
+                    }
+                </div>
             </HiddenMenu>
             <ThemeChanger isvisible={themeMenuActive} 
                 closeMenu={() => setThemeMenuActive(false)}

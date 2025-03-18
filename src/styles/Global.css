@@ -55,6 +55,10 @@
     --translucent-theme-color1: #98b5e475;
     --translucent-theme-color2: #477bd075;
 
+    --theme-outline-color: #ffffff;
+    --theme-highlight-color: var(--themecolor1);
+
+
     --project-bg: linear-gradient(to bottom, var(--themecolor1), var(--themecolor2));
 
 

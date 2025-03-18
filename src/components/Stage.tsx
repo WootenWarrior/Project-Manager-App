@@ -28,11 +28,13 @@ const Stage: React.FC<StageProps> = ({stageName, taskList, showTaskMenu,
                     />
                 ))}
             </div>
-            <Button classname="default-button" 
-                onclick={() => showTaskMenu(stageID)}
-                text="Add Task"
-                beforeicon={<FaPlus/>}
-            />
+            <div className="button-container">
+                <Button classname="default-button" 
+                    onclick={() => showTaskMenu(stageID)}
+                    text="Add Task"
+                    beforeicon={<FaPlus/>}
+                />
+            </div>
         </div>
     )
 }

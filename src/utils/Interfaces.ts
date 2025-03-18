@@ -85,6 +85,7 @@ export interface TextboxProps {
     placeholder?: string;
     onchange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
     text?: string;
+    value?: string;
 }
 
 export interface TimeInputProps {

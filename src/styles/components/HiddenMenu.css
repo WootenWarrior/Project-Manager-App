@@ -41,10 +41,11 @@
     color: var(--default-text-color);
 }
 
-.visible-menu.active .default-textbox {
+.visible-menu.active .default-textbox textarea   {
     border: var(--default-global-outline);
     outline: 1px solid var(--color6);
     color: var(--color6);
+    min-height: 10rem;
 }
 
 .visible-menu.active .buttons {
@@ -122,4 +123,85 @@
     justify-content: space-between;
     flex-direction: row;
     gap: 2rem;
+}
+
+.hidden-task-edit form {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.hidden-task-edit form .edit-options {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.hidden-task-edit form .edit-options .input-container {
+    width: 70%;
+}
+
+.toggle-complete {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    gap: 2rem;
+}
+
+.toggle-complete p {
+    color: var(--color6);
+    font-size: x-large;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 10rem;
+    height: 4rem;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: transparent;
+    transition: .4s;
+    border-radius: 2rem;
+    border: 2px solid var(--themecolor1);
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 3rem;
+    width: 3rem;
+    left: 5px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--themecolor1);
+}
+
+input:checked + .slider:before {
+    transform: translateX(6rem);
 }

@@ -286,6 +286,7 @@ function Dashboard() {
                     width="100%"
                     onchange={handleTitleChange}
                     visible={true}
+                    placeholder="Enter project name..."
                 />
                 <Textbox
                     classname="default-textbox"
