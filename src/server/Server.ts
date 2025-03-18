@@ -395,6 +395,8 @@ app.delete("/api/stage", async (req: Request, res: Response)=> {
             res.status(404).json({ error: "Stage not found." });
             return;
         }
+
+        console.log(`Attempting to delete stage with ID: ${stageID}`);
         
         await stageRef.delete();
         console.log(`User: ${email}, deleted stage: ${stageID}`);

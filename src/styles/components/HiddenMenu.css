@@ -78,6 +78,38 @@
     justify-content: space-between;
     flex-direction: row;
     flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.hidden-task-create .task-timing-inputs .block .time-input {
+    color: var(--color6);
+}
+
+.hidden-task-create .task-timing-inputs .block .date-input {
+    color: var(--color6);
+}
+
+.hidden-task-create .visible-menu.active label {
+    color: var(--color6);
+    font-size: medium;
+}
+
+.hidden-task-create .visible-menu.active p {
+    color: var(--color6);
+    font-size: medium;
+}
+
+.hidden-task-create .visible-menu.active textarea {
+    border: var(--default-global-outline);
+    outline: 1px solid var(--color6);
+    color: var(--color6);
+    min-height: 10rem;
+    background-color: transparent;
+    border-radius: 1rem;
+}
+
+.hidden-task-create .visible-menu.active textarea::placeholder {
+    color: var(--color6);
 }
 
 
@@ -146,6 +178,16 @@
 .hidden-task-edit form .edit-options .input-container {
     width: 70%;
 }
+
+.hidden-stage-edit form {
+    width: 50%;
+}
+
+.hidden-stage-edit form .input-container {
+    width: 70%;
+    margin-bottom: 2rem;
+}
+
 
 .toggle-complete {
     display: flex;

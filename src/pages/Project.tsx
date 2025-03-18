@@ -435,19 +435,15 @@ function Project() {
 
         if (draggedTask) {
             try {
-                /*
-                draggedTask = preventOverlap(draggedTask, 
-                    updatedStages.find(stage => stage.stageID === newStageID)?.taskList || []
-                );
-                */
-
                 const token = sessionStorage.getItem("token") || localStorage.getItem("token");
                 const res = await fetch(`${URL}/api/task`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ token, 
+                    body: JSON.stringify({ 
+                        token, 
                         projectID, 
                         sourceID: oldStageID, 
+                        destID: oldStageID,
                         task: draggedTask 
                     }),
                 });
@@ -598,11 +594,11 @@ function Project() {
                             id="end-time"
                         />
                     </div>
-                    <Textbox text="Enter task description:  "
-                        onchange={handleTaskDescriptionChange} 
-                        placeholder="Task description... "
-                    />
                 </div>
+                <Textbox text="Enter task description:  "
+                    onchange={handleTaskDescriptionChange} 
+                    placeholder="Task description... "
+                />
             </HiddenMenu>
             <HiddenMenu classname="hidden-task-edit"
                 visible={taskEditActive}
@@ -652,7 +648,7 @@ function Project() {
                 closeButtonText="x"
                 createButtonText="Update">
                 <h1>Edit stage</h1>
-                <Input placeholder="Set a new task title..."/>
+                <Input placeholder="Set a new stage title..."/>
                 <Button onclick={() => deleteStage(selectedStageId)}
                     text="Delete Stage"
                     classname="default-button"
