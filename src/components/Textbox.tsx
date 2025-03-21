@@ -9,13 +9,12 @@ const Textbox: React.FC<TextboxProps> = ({text, classname, backgroundcolour,
                 {text}
             </p>
             <textarea placeholder={placeholder}
-                onChange={onchange}
-                style={{background: backgroundcolour,
-                    color: textcolor,
-                    width: width,
-                    height: height}}
-                    value={value}>
-            </textarea>
+            onChange={onchange}
+            style={{background: backgroundcolour,
+            color: textcolor,
+            width: width,
+            height: height}}
+            value={value}/>
         </div>
     )
 }

@@ -118,6 +118,39 @@ const createTask = async (email: string, taskData: taskData, projectID: string, 
     }
 }
 
+const deleteAllStages = async (email: string, projectID: string) => {
+    try {
+        const stages = db.collection(`users/${email}/projects/${projectID}/stages`);
+        const snapshot = await stages.get();
+        for (const stageDoc of snapshot.docs) {
+            await deleteAllTasks(email, projectID, stageDoc.id);
+            await stageDoc.ref.delete();
+        }
+    } catch (error) {
+        let errormessage = "Failed to delete stages.";
+        if (error instanceof Error) {
+            errormessage = error.message;
+        }
+        throw new Error(errormessage);
+    }
+}
+
+const deleteAllTasks = async (email: string, projectID: string, stageID: string) => {
+    try {
+        const tasks = db.collection(`users/${email}/projects/${projectID}/stages/${stageID}/tasks`);
+        const snapshot = await tasks.get();
+        for (const taskDoc of snapshot.docs) {
+            await taskDoc.ref.delete();
+        }
+    } catch (error) {
+        let errormessage = "Failed to delete tasks.";
+        if (error instanceof Error) {
+            errormessage = error.message;
+        }
+        throw new Error(errormessage);
+    }
+}
+
 const getUrgentTask = async (email: string) => {
     try {
         let urgentTask = null;
@@ -323,8 +356,10 @@ app.delete("/api/project", async (req: Request, res: Response)=> {
             res.status(404).json({ error: "Project not found." });
             return;
         }
-
+        
+        await deleteAllStages(email, projectID);
         await projectRef.delete();
+
         console.log(`User: ${email}, deleted project: ${projectID}`);
         res.status(200).json({ message: "Project deleted successfully." });
     } catch (error) {
@@ -398,6 +433,7 @@ app.delete("/api/stage", async (req: Request, res: Response)=> {
 
         console.log(`Attempting to delete stage with ID: ${stageID}`);
         
+        await deleteAllTasks(email, projectID, stageID);
         await stageRef.delete();
         console.log(`User: ${email}, deleted stage: ${stageID}`);
         res.status(200).json({ message: "Stage deleted successfully." });

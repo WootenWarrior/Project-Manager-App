@@ -101,7 +101,8 @@ const Task: React.FC<TaskProps> = ({stageID, taskID, name, completed, onclick,
             {...listeners} {...attributes}
             onMouseDown={() => setIsDragging(true)}
             onMouseUp={() => setIsDragging(false)}
-            onClick={() => handleSelect()}>
+            onClick={() => handleSelect()}
+            id={taskID}>
             <div className="task-header">
                 <p>{name}</p>
             </div>
@@ -110,7 +111,10 @@ const Task: React.FC<TaskProps> = ({stageID, taskID, name, completed, onclick,
                 <p>Start: {formattedStartDate}</p>
                 <p>Deadline: {formattedDeadline}</p>
                 <p>Remaining time: {remainingTime}</p>
-                <div className="description-container"><p>{description}</p></div>
+                <div className="description-container">
+                    <p>Description: </p>
+                    <p>{description? description : "No description set"}</p>
+                </div>
             </div>
         </div>
     )

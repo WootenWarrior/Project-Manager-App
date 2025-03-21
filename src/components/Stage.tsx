@@ -17,8 +17,17 @@ const Stage: React.FC<StageProps> = ({stageName, taskList, showTaskMenu,
     );
 
     return (
-        <div className="stage" id={stageName} ref={setNodeRef}>
-            <span className="title" onClick={() => showStageEdit(stageID)}>{stageName}</span>
+        <div className="stage" id={stageID} ref={setNodeRef}>
+            <div className="title-section">
+                <span className="title" onClick={() => showStageEdit(stageID)}>{stageName}</span>
+                <div className="button-container">
+                    <Button classname="default-button" 
+                        onclick={() => showTaskMenu(stageID)}
+                        text="Add Task"
+                        beforeicon={<FaPlus/>}
+                    />
+                </div>
+            </div>
             <div className="tasks">
                 {filteredTasks.map((task) => (
                     <Task
@@ -27,13 +36,6 @@ const Stage: React.FC<StageProps> = ({stageName, taskList, showTaskMenu,
                         onclick={showTaskEdit}
                     />
                 ))}
-            </div>
-            <div className="button-container">
-                <Button classname="default-button" 
-                    onclick={() => showTaskMenu(stageID)}
-                    text="Add Task"
-                    beforeicon={<FaPlus/>}
-                />
             </div>
         </div>
     )

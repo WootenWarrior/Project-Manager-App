@@ -8,3 +8,4 @@ export { default as HiddenMenu } from './HiddenMenu';
 export { default as TimeInput } from './TimeInput';
 export { default as DateInput } from './DateInput';
 export { default as BackgroundChanger } from './BackgroundChanger';
+export { default as ThemeChanger } from './ThemeChanger';

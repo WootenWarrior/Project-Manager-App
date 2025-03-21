@@ -1,3 +1,7 @@
+.button-small-icon {
+    display: none;
+}
+
 .default-button{
     --highlight: var(--default-button-highlight);
     
@@ -62,3 +66,20 @@
     border-color: var(--toggle-button-highlight);
 }
 
+@media screen and (max-width: 600px) {
+    .button-small-icon {
+        display: block;
+    }
+
+    .button-before-icon {
+        display: none;
+    }
+
+    .button-after-icon {
+        display: none;
+    }
+
+    .button-text {
+        display: none;
+    }
+}

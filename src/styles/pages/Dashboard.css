@@ -90,6 +90,7 @@
     background-color: var(--translucent-color3);
     border-radius: 1rem;
     margin-bottom: 1rem;
+    position: relative;
 }
 
 .dashboard-page .project-list .projects .option{
@@ -121,6 +122,10 @@
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 6;
     line-clamp: 6;
+}
+
+.loading-page {
+    position: absolute;
 }
 
 .dashboard-page .project-info{

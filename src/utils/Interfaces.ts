@@ -13,6 +13,7 @@ export interface ButtonProps {
     textcolor?: string;
     backgroundcolor?: string;
     highlightColor?: string;
+    altIcon?: React.ReactNode;
 }
 
 export interface HiddenMenuProps {
@@ -64,6 +65,7 @@ export interface TaskProps {
     onclick?: (stageID: string, taskID:string) => void;
     nextTask: string | null;
     prevTask: string | null;
+    color?: string;
 }
 
 export interface StageProps {
@@ -74,6 +76,7 @@ export interface StageProps {
     showTaskEdit: (stageID: string, taskID: string) => void;
     showStageEdit: (stageID: string) => void;
     filterText?: string;
+    color?: string;
 }
 
 export interface TextboxProps {

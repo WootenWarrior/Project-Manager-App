@@ -10,15 +10,21 @@
 }
 
 .project-textbox {
-    width: 60%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center ;
 }
 
 .project-textbox textarea {
     width: 100%;
+    min-width: 100px;
+    max-width: 450px;
     min-height: 10rem;
+    max-height: 400px;
     background: transparent;
     border: 2px solid var(--themecolor4);
     outline: none;
-    resize: vertical;
+    resize: both;
     border-radius: 1rem;
 }

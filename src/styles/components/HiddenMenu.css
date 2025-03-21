@@ -56,6 +56,12 @@
     gap: 2rem;
 }
 
+.visible-menu.active .close-button {
+    position: absolute;
+    left: 5rem;
+    top: 5rem;
+}
+
 
 /* alternate menu styles */
 .dashboard-hidden-menu .inputs {
@@ -225,7 +231,7 @@
     background-color: transparent;
     transition: .4s;
     border-radius: 2rem;
-    border: 2px solid var(--themecolor1);
+    border: 2px solid var(--themecolor6);
 }
 
 .slider:before {
@@ -235,7 +241,7 @@
     width: 3rem;
     left: 5px;
     bottom: 3px;
-    background-color: white;
+    background-color: var(--themecolor6);
     transition: .4s;
     border-radius: 50%;
 }
