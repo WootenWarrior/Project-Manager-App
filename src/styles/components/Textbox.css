@@ -28,3 +28,10 @@
     resize: both;
     border-radius: 1rem;
 }
+
+@media screen and (max-width: 600px) {
+    .project-textbox textarea {
+        max-width: 300px;
+        max-height: 170px;
+    }
+}

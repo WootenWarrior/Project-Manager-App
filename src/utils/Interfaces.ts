@@ -68,13 +68,26 @@ export interface TaskProps {
     color?: string;
 }
 
+export interface AttachmentProps {
+    attachmentID: string;
+    stageID: string;
+    name: string;
+    attachment?: string | null;
+    mimeType?: string | null;
+    x: number;
+    y: number;
+    onclick?: (stageID: string, attachmentID: string) => void;
+}
+
 export interface StageProps {
     stageID: string;
     stageName: string;
     taskList: TaskProps[];
+    attachmentList: AttachmentProps[];
     showTaskMenu: (stageID: string) => void;
     showTaskEdit: (stageID: string, taskID: string) => void;
     showStageEdit: (stageID: string) => void;
+    showAttachmentMenu: (stageID: string) => void;
     filterText?: string;
     color?: string;
 }
@@ -107,4 +120,10 @@ export interface DateInputProps {
 export interface ErrorPageProps {
     header?: string;
     message?: string;
+}
+
+export interface ConfirmationProps {
+    onConfirm: () => void;
+    text: string;
+    visible: boolean;
 }

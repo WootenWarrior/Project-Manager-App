@@ -6,6 +6,8 @@ body, html {
     width: 100vw;
     height: 100vh;
     background: var(--project-bg);
+    position: relative;
+    overflow: hidden;
 }
 
 .project .project-title {
@@ -14,6 +16,7 @@ body, html {
     margin-left: 2rem;
     text-transform: uppercase;
     font-weight: bold;
+    position: relative;
 }
 
 .project .panels{
@@ -52,6 +55,13 @@ body, html {
     border-radius: 2rem;
 }
 
+.project .panels .toolbar .input-container input{
+    border: 1px solid var(--themecolor6);
+}
+
+.project .panels .toolbar .input-container input::placeholder{
+    color: 1px solid var(--themecolor6);
+}
 
 .project .panels .toolbar h2{
     color: var(--default-text-color);
@@ -76,6 +86,7 @@ body, html {
     flex-direction: row;
     align-items: center;
     position: absolute;
+    z-index: 10;
 }
 
 .project .panels .project-creation-window .stages{
@@ -87,6 +98,7 @@ body, html {
     flex-direction: row;
     overflow-x: scroll;
     overflow-y: hidden;
+    z-index: 1;
 }
 
 .project .visible-menu.active {
@@ -135,98 +147,9 @@ body, html {
     outline: 1px solid var(--themecolor6);
 }
 
-.project .hidden-task-edit form {
-    padding: 1rem;
-    width: 90%;
-}
-
-.project .hidden-task-edit form textarea::placeholder {
-    color: var(--theme-outline-color);
-}
-
-.project .hidden-task-edit form .input-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    margin: 0;
-}
-
-.project .hidden-task-edit form .edit-options {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    flex-direction: row;
-    width: 100%;
-}
-
-.project .hidden-task-edit form .edit-options .left {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    padding: 1rem;
-    border-radius: 1rem;
-    outline: 1px solid var(--theme-outline-color);
-}
-
-.project .hidden-task-edit form .edit-options .right {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    padding: 1rem;
-    border-radius: 1rem;
-}
-
-.project .hidden-task-create .description-update {
-    width: 100%;
-    min-height: 15rem;
-    display: flex;
-    justify-content: center;
-}
-
-.project .completed-tasks-container {
-    border: 1px solid var(--theme-outline-color);
-    max-height: 90vh;
-    overflow-y: scroll;
-    border-radius: 1rem;
-    padding: 3rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.project .completed-task {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: row;
-    border-radius: 1rem;
-    background-color: var(--themecolor3);
-    padding: 1rem;
-    gap: 2rem;
-}
-
-.project .hidden-complete-tasks p {
-    color: var(--themecolor6);
-    font-size: large;
-}
-
-.project .hidden-complete-tasks .task-name {
-    text-transform: uppercase;
-}
-
 @media screen and (max-width: 600px) {
     .project .panels .toolbar .tools{
         transition: 0.5s;
         gap: 1rem;
-    }
-
-    .project .hidden-complete-tasks .task-description {
-        display: none;
     }
 }

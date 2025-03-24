@@ -10,14 +10,12 @@ const HiddenMenu: React.FC<HiddenMenuProps> = ({classname, visible, close, creat
             <div className={`visible-menu ${visible ? 'active' : ''}`}>
                 {close? <span className="close-button">
                     <Button classname="default-button"
-                    text={closeButtonText ? closeButtonText : "close"}
+                    text={closeButtonText ? closeButtonText : "Close"}
                     onclick={() => close()}
                     altIcon={<FaX/>}
                 /></span> : <></>}
-                <form className="inputs">
-                    {children}
-                </form>
-                <div className="buttons">
+                {children}
+                <div className="bottom-button">
                     {create? <span className="create-button">
                         <Button classname="default-button"
                         text={createButtonText ? createButtonText : "create"}

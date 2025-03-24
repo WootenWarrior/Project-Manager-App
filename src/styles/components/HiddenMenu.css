@@ -17,6 +17,7 @@
     z-index: 100;
     width: 100vw;
     height: 100vh;
+    max-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -41,6 +42,14 @@
     color: var(--default-text-color);
 }
 
+.visible-menu.active .input {
+    color: var(--default-text-color);
+}
+
+.visible-menu.active .input::placeholder {
+    color: var(--default-text-color);
+}
+
 .visible-menu.active .default-textbox textarea   {
     border: var(--default-global-outline);
     outline: 1px solid var(--color6);
@@ -49,7 +58,7 @@
 }
 
 .visible-menu.active .buttons {
-    width: 30%;
+    width: 100%;
     display: flex;
     justify-content: space-around;
     align-items: center;
@@ -57,19 +66,52 @@
 }
 
 .visible-menu.active .close-button {
-    position: absolute;
-    left: 5rem;
+    width: 100%;
+    position: fixed;
     top: 5rem;
+    padding-left: 5rem;
 }
 
 
-/* alternate menu styles */
-.dashboard-hidden-menu .inputs {
-    width: 30%;
-    height: 50%;
+/* ALTERNATE MENU STYLES */
+
+
+/* DASHBOARD HIDDEN MENUS */
+
+.dashboard-hidden-menu .visible-menu.active .form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 2rem;
+    width: 50%;
+    height: 30%;
+}
+
+.dashboard-hidden-menu .visible-menu.active .close-button {
+    position: absolute;
+    top: 5rem;
+    left: 3rem;
 }
 
 
+/* STAGE CREATE MENU */
+
+.hidden-stage-create p {
+    color: var(--themecolor6);
+    font-size: small;
+}
+
+.hidden-stage-create .input-container {
+    margin-bottom: 3rem;
+}
+
+
+/* TASK CREATE MENU */
+
+.hidden-task-create .input {
+    color: var(--themecolor6);
+}
 
 .hidden-task-create .task-timing-inputs {
     display: flex;
@@ -119,6 +161,8 @@
 }
 
 
+/* THEME MENU */
+
 .theme-menu h1 {
     color: var(--theme-text-color);
     margin-bottom: 2rem;
@@ -133,14 +177,18 @@
     flex-direction: column;
 }
 
+.theme-menu .toggle-button {
+    border: 1px solid var(--themecolor6);
+    color: var(--themecolor6);
+}
+
 .theme-menu .options {
     z-index: 100;
-    height: 100%;
+    height: 60%;
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-direction: column;
-    background-color: var(--translucent-color2);
     padding: 4rem;
     border-radius: 2rem;
     border: 1px solid var(--default-global-outline);
@@ -163,37 +211,149 @@
     gap: 2rem;
 }
 
-.hidden-task-edit form {
+
+/* STAGE EDIT MENU */
+
+.hidden-stage-edit h1 {
+    text-transform: uppercase;
+    font-size: x-large;
+}
+
+.hidden-stage-edit .inputs {
     width: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    gap: 2rem;
+    color: var(--themecolor6);
+    font-size: small;
 }
 
-.hidden-task-edit form .edit-options {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    gap: 2rem;
-}
-
-.hidden-task-edit form .edit-options .input-container {
-    width: 70%;
-}
-
-.hidden-stage-edit form {
-    width: 50%;
-}
-
-.hidden-stage-edit form .input-container {
+.hidden-stage-edit .inputs .input-container {
     width: 70%;
     margin-bottom: 2rem;
 }
 
+
+/* TASK EDIT MENU */
+
+.hidden-task-edit .visible-menu.active {
+    max-height: 100vh;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.hidden-task-edit .tools {
+    width: 100%;
+    position: sticky;
+    display: flex;
+    justify-content: start;
+    align-items: start;
+    flex-direction: column;
+    top: 2rem;
+    left: 5rem;
+    padding-left: 5rem;
+    gap: 1rem;
+}
+
+.hidden-task-edit .edit-task-menu {
+    width: auto;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    flex-direction: column;
+    gap: 5rem;
+}
+
+.hidden-task-edit .edit-task-menu h1 {
+    font-size: xx-large;
+    text-transform: uppercase;
+}
+
+.hidden-task-edit textarea::placeholder {
+    color: var(--theme-outline-color);
+}
+
+.hidden-task-edit .input-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+}
+
+.hidden-task-edit .input-container input {
+    color: var(--themecolor6);
+}
+
+.hidden-task-edit .edit-options {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 2rem;
+    gap: 5rem;
+}
+
+.hidden-task-edit .edit-options .edit-details {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 1rem;
+    border-radius: 1rem;
+    outline: 1px solid var(--theme-outline-color);
+    color: var(--themecolor6);
+    font-size: small;
+    background: var(--themecolor2);
+}
+
+.hidden-task-edit .edit-options .edit-attachment {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 1rem;
+    border-radius: 1rem;
+    gap: 1rem;
+}
+
+.hidden-task-edit .edit-options .edit-attachment .file-options {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    gap: 2rem;
+}
+
+.hidden-task-edit .edit-options .edit-attachment p {
+    color: var(--themecolor6);
+    font-size: small;
+}
+
+.hidden-task-edit .edit-options .edit-attachment a {
+    color: var(--themecolor6);
+    font-size: small;
+    text-decoration: none;
+    border: 1px solid var(--theme-outline-color);
+    padding: 1rem;
+    border-radius: 1rem;
+}
+
+.hidden-task-edit .edit-options .edit-attachment a:hover {
+    transition: 1s;
+    background-color: var(--themecolor3);
+}
+
+.hidden-task-edit .edit-options .create-button .default-button {
+    margin-top: 5rem;
+}
+
+.hidden-task-create .description-update {
+    width: 100%;
+    min-height: 15rem;
+    display: flex;
+    justify-content: center;
+}
 
 .toggle-complete {
     display: flex;
@@ -205,7 +365,7 @@
 
 .toggle-complete p {
     color: var(--color6);
-    font-size: x-large;
+    font-size: large;
 }
 
 .switch {
@@ -252,4 +412,63 @@ input:checked + .slider {
 
 input:checked + .slider:before {
     transform: translateX(6rem);
+}
+
+
+/* COMPLETE TASKS MENU */
+
+.completed-tasks-container {
+    max-height: 90vh;
+    overflow-y: scroll;
+    border-radius: 1rem;
+    padding: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.completed-task {
+    max-height: var(--task-default-size-x);
+    max-width: var(--task-default-size-y);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    border-radius: 1rem;
+    background: linear-gradient(to top, var(--themecolor3), var(--themecolor1));
+    padding: 1rem;
+    cursor: pointer;
+}
+
+.completed-task .ID {
+    display: none;
+}
+
+.hidden-complete-tasks p {
+    color: var(--themecolor6);
+    font-size: large;
+    padding: 1rem;
+    margin: 0;
+}
+
+.hidden-complete-tasks .task-name {
+    text-transform: uppercase;
+}
+
+@media screen and (max-width: 600px) {
+    .hidden-complete-tasks .task-description {
+        display: none;
+    }
+
+    .hidden-task-edit .edit-task-menu {
+        padding-top: 5rem;
+    }
+
+    .hidden-task-edit .tools {
+        padding-left: 0rem;
+        flex-direction: row;
+    }
 }

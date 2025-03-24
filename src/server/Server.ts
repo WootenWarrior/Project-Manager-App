@@ -7,6 +7,8 @@ import { getServerOrigin, getServiceAccountOrigin, getStaticFilePath } from "./S
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { projectData, stageData, taskData } from "./ServerUtils";
+import fs from 'fs';
+import multer from "multer";
 
 
 // SETUP
@@ -45,25 +47,13 @@ const __dirname = path.dirname(filename);
 const static_path = getStaticFilePath();
 app.use(express.static(path.join(__dirname, static_path)));
 
+// Bucket
+
+const MAX_FILE_SIZE = 2 * 1024 * 1024;
 const bucket = admin.storage().bucket();
+const upload = multer({ storage: multer.memoryStorage() });
 
 // FUNCTIONS
-
-const uploadFile = async (filePath: string, destination: string) => {
-    try {
-        await bucket.upload(filePath, {
-            destination: destination,
-            public: true,
-            metadata: {
-                contentType: "image/png",
-            },
-        });
-        console.log(`File ${filePath} uploaded to ${destination}`);
-    } catch (error) {
-        console.error("Error uploading file:", error);
-    }
-};
-console.log(uploadFile);  // temp
 
 const createProject = async (email: string, projectData: projectData) => {
     try {
@@ -219,6 +209,114 @@ const getUrgentTask = async (email: string) => {
 
 
 // ROUTES
+
+app.put("/api/file", upload.single('file'), async (req: Request, res: Response) => {
+    const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/jpg", "application/pdf", "text/plain",];
+    try {
+        const { token, projectID, stageID, attachmentData } = req.body;
+        const file = req.file;
+        if (file?.mimetype && !ALLOWED_TYPES.includes(file.mimetype)) {
+            res.status(400).json({ error: 'Invalid file type.' });
+            return;
+        }
+        if (!file) {
+            res.status(400).json({ error: 'No file uploaded.' });
+            return;
+        }
+        if (file.size > MAX_FILE_SIZE) {
+            res.status(400).json({ error: 'File size exceeds the 2MB limit.' });
+            return;
+        }
+
+        if (!projectID || typeof projectID !== "string") {
+            res.status(400).json({ error: "Project ID not provided or invalid." });
+            return;
+        }
+        if (!token || typeof token !== "string") {
+            res.status(400).json({ error: "Token not provided or invalid." });
+            return;
+        }
+        const verifiedToken = verifyToken(token);
+        if(!verifiedToken) {
+            res.status(401).json({ message: "Token verification failed." });
+            return;
+        }
+        const uid = verifiedToken.userId;
+        const user = await admin.auth().getUser(uid);
+        const email = user.email;
+        if (!email) {
+            res.status(403).json({ error: "Failed to get user email." });
+            return;
+        }
+
+        const folderPath = `userUploads/${email}/${projectID}/${stageID}`;
+        const [files] = await bucket.getFiles({ prefix: folderPath });
+        if (files.length > 0) {
+            await Promise.all(files.map(file => file.delete()));
+        }
+
+        const destination = `${folderPath}${file.originalname}`;
+        const fileUpload = bucket.file(destination);
+        await fileUpload.save(file.buffer, {
+            metadata: { contentType: file.mimetype },
+            public: true,
+        });
+        const url = `https://storage.googleapis.com/${bucket.name}/${fileUpload.name}`;
+
+        const attachments = db.collection(`users/${email}/projects/${projectID}/stages/${stageID}/attachments`);
+        const attachment = await attachments.add(attachmentData);
+        await attachment.set({ attachmentID: attachment.id }, { merge: true });
+
+        res.status(200).json({ message: 'File uploaded successfully.', 
+            url, mimetype: file.mimetype, attachmentID: attachment.id });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to upload file." });
+    }
+});
+
+app.delete("/api/file", async (req: Request, res: Response) => {
+    try {
+        const { token, projectID, stageID, attachmentID } = req.body;
+        if (!projectID || typeof projectID !== "string") {
+            res.status(400).json({ error: "Project ID not provided or invalid." });
+            return;
+        }
+        if (!token || typeof token !== "string") {
+            res.status(400).json({ error: "Token not provided or invalid." });
+            return;
+        }
+        const verifiedToken = verifyToken(token);
+        if(!verifiedToken) {
+            res.status(401).json({ message: "Token verification failed." });
+            return;
+        }
+        const uid = verifiedToken.userId;
+        const user = await admin.auth().getUser(uid);
+        const email = user.email;
+        if (!email) {
+            res.status(403).json({ error: "Failed to get user email." });
+            return;
+        }
+
+        const folderPath = `userUploads/${email}/${projectID}/${stageID}/${attachmentID}/`;
+        const [files] = await bucket.getFiles({ prefix: folderPath });
+        if (files.length > 0) {
+            await Promise.all(files.map(file => file.delete()));
+        }
+
+        const attachments = db.collection(`users/${email}/projects/${projectID}/stages/${stageID}/attachments`);
+        const attachmentSnapshot = await attachments.doc(attachmentID).get();
+        if (!attachmentSnapshot.exists) {
+            res.status(404).json({ error: "Attachment not found." });
+            return;
+        }
+        await attachmentSnapshot.ref.delete();
+
+        res.status(200).json({ message: 'File deleted successfully.' });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to upload file." });
+    }
+});
 
 app.get("/api/project", async (req: Request, res: Response) => {
     try {
@@ -408,6 +506,32 @@ app.post("/api/stage", async (req: Request, res: Response) => {
     }
 });
 
+app.put("/api/stage", async (req: Request, res: Response) => {
+    try {
+        const { token, projectID, stageID, stageData } = req.body;
+        const verifiedToken = verifyToken(token);
+        if (!verifiedToken) {
+            res.status(401).json({ message: "Token verification failed." });
+            return;
+        }
+        const uid = verifiedToken.userId;
+        const user = await admin.auth().getUser(uid);
+        const email = user.email;
+        if (!email) {
+            res.status(403).json({ message: "Failed to get user email." });
+            return;
+        }
+
+        const stages = db.collection(`users/${email}/projects/${projectID}/stages`);
+        const stageRef = stages.doc(stageID);
+        await stageRef.set({...stageData, stageName: stageData.name}, { merge: true });
+
+        res.status(200).json({ message: "Successfully updated stage.", stageID });
+    } catch (error) {
+        res.status(500).json({ error: "An error occurred trying to update stage." });
+    }
+});
+
 app.delete("/api/stage", async (req: Request, res: Response)=> {
     try {
         const { projectID, stageID, token } = req.body;
@@ -567,7 +691,6 @@ app.post("/api/login", async (req: Request, res: Response) => {
         const userRecord = await admin.auth().getUserByEmail(email);
         const uid = userRecord.uid;
 
-        //session valid for 1 hour
         const token = generateToken({ userId: uid, email: email }, "24h");
         res.status(200).json({ uid, token });
     } catch (error) {
@@ -582,7 +705,7 @@ app.get("/api/dashboard", async (req: Request, res: Response) => {
         const token = String(req.query.token);
         
         const verifiedToken = verifyToken(token);
-        if(!verifiedToken){
+        if(!verifiedToken) {
             res.status(401).json({ message: "Token verification failed." });
             return;
         }
@@ -590,7 +713,7 @@ app.get("/api/dashboard", async (req: Request, res: Response) => {
         const uid = verifiedToken.userId;
         const user = await admin.auth().getUser(uid);
         const email = user.email;
-        if (!email){
+        if (!email) {
             res.status(401).json({ message: "Error matching user id to email." });
             return;
         }
@@ -604,7 +727,7 @@ app.get("/api/dashboard", async (req: Request, res: Response) => {
                 createdAt: data.createdAt,
                 description: data.description,
                 name: data.title,
-                imageurl: data.imageURL,
+                theme: data.theme
             };
         });
 
@@ -760,6 +883,10 @@ app.get("/api/theme", async (req: Request, res: Response) => {
 
 app.get('*', (_req, res) => {
     try {
+        const filePath = path.join(__dirname, static_path, 'index.html');
+        if (!fs.existsSync(filePath)) {
+            throw new Error(`File not found: ${filePath}`);
+        }
         res.sendFile(path.join(__dirname, static_path, 'index.html'));
     } catch (error) {
         res.status(404).json({ message: "Unexpected error: ", error });

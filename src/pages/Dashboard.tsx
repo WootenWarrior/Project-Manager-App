@@ -1,6 +1,6 @@
 import "../styles/pages/Dashboard.css"
 import { useState, useEffect } from "react";
-import { Button, Option, Input, Textbox } from "../components";
+import { Button, Option, Input, Textbox, BackgroundWaves } from "../components";
 import { FaPlus, FaRegTrashCan } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { handleLogout } from "../utils/Logout";
@@ -10,6 +10,7 @@ import HiddenMenu from "../components/HiddenMenu";
 import Loading from "./Loading";
 import Template1 from "../assets/Template1.png";
 import Placeholder from "../assets/Placeholder.png";
+import { FiLogOut } from "react-icons/fi";
 
 
 function Dashboard() {
@@ -210,19 +211,22 @@ function Dashboard() {
 
             const data = await res.json();
             const projects = data.projects;
+            console.log(projects)
 
             if (projects && Array.isArray(projects)) {
-                const mappedOptions = data.projects.map((project: any) => ({
-                    id: project.id,
-                    title: project.name,
-                    description: project.description,
-                    time: new Date(project.createdAt).toLocaleString(),
-                    theme: project.theme
-                }));
+                const mappedOptions = data.projects.map((project: any) => {
+                    return {
+                        id: project.id,
+                        title: project.name,
+                        description: project.description,
+                        time: new Date(project.createdAt).toLocaleString(),
+                        backgroundColor: project.theme.background,
+                    }
+                });
                 setOptions(mappedOptions);
             }
             else {
-                console.log("Problem with fetched projects.")
+                console.log("Problem with fetched projects.");
             }
 
             const upcomingTask = data.urgentTask;
@@ -252,7 +256,12 @@ function Dashboard() {
     }, []);
 
     return(
-        <span className="dashboard">
+        <div className="dashboard">
+            <BackgroundWaves bottom={false} top={true} 
+                color1="var(--color1)"
+                color2="var(--color2)"
+                color3="var(--color3)"
+            />
             <div className="dashboard-page">
                 <div className="project-list">
                     <div className="toolbar">
@@ -304,6 +313,7 @@ function Dashboard() {
                                 height="200px"
                                 description={option.description}
                                 onclick={() => handleProjectSelect(String(option.id))}
+                                backgroundColor={option.backgroundColor}
                             />
                         ))}
                     </div>
@@ -316,6 +326,7 @@ function Dashboard() {
                 visible={menuActive} 
                 close={() => setMenuActive(false)} 
                 create={createProject}
+                closeButtonText="Back"
             >
                 {isBlank?
                 <div className="blank-option">
@@ -350,17 +361,27 @@ function Dashboard() {
                 close={() => setDeleteMenuActive(false)} 
                 create={deleteProject}
                 createButtonText="Delete"
+                closeButtonText="Back"
             >
-                <h1>Delete project</h1>
-                <Input
-                    textcolor="black"
-                    width="100%"
-                    onchange={handleProjectNameChange}
-                    visible={true}
-                    placeholder="Enter project name..."
-                />
+                <div className="form">
+                    <h1>Delete project</h1>
+                    <Input
+                        textcolor="black"
+                        width="100%"
+                        onchange={handleProjectNameChange}
+                        visible={true}
+                        placeholder="Enter project name..."
+                    />
+                </div>
             </HiddenMenu>
-        </span>
+            <div className="logout-section">
+                <Button onclick={() => handleLogout(navigate)}
+                    classname="default-button"
+                    text="Logout"
+                    altIcon={<FiLogOut />}
+                />
+            </div>
+        </div>
     )
 }
 

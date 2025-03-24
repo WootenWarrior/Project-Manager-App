@@ -70,7 +70,7 @@
 }
 
 html {
-    background-color: black;
+    background-color: var(--page-default-background);
 }
 
 /* Global scrollbar styles */

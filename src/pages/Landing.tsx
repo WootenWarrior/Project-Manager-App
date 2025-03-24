@@ -1,7 +1,11 @@
 import { useNavigate } from "react-router-dom"
-import { Button } from "../components";
+import { BackgroundWaves, Button } from "../components";
 import "../styles/pages/Landing.css";
 import logo from "../assets/Logo-white.png";
+import Example from "../assets/Example.gif";
+import Example2 from "../assets/Example2.gif";
+import Example3 from "../assets/Example3.png";
+import Example4 from "../assets/Example4.gif";
 
 
 function Landing() {
@@ -17,6 +21,11 @@ function Landing() {
 
     return (
         <div className="landing-page">
+            <BackgroundWaves bottom={true} top={true} 
+                color1="var(--color1)"
+                color2="var(--color2)"
+                color3="var(--color3)"
+            />
             <div className="navbar">
                 <img className="logo" src={logo} alt="logo"/>
                 <div className="menu">
@@ -39,12 +48,13 @@ function Landing() {
                         TAILORED FOR YOU.</p>
                     </div>
                     <div className="item">
-                </div>
+                    <img src={Example} alt="GIF"/>
+                    </div>
 
                 </div>
                 <div className="panel">
                     <div className="item">
-                        
+                    <img src={Example2} alt="GIF"/>
                     </div>
                     <div className="text">
                         <p>QUICKLY EDIT TASKS <br/>
@@ -54,21 +64,21 @@ function Landing() {
 
                 <div className="panel">
                     <div className="text">
-                        <p>KEEP TRACK OF TASKS <br/>
-                        AND SET NOTIFICATIONS.</p>
+                        <p>KEEP TRACK OF UPCOMING <br/>
+                        TASKS ACROSS ALL YOUR PROJECTS. </p>
                     </div>
                     <div className="item">
-
+                    <img src={Example3} alt="GIF"/>
                     </div>
                 </div>
 
                 <div className="panel">
                     <div className="item">
-
+                    <img src={Example4} alt="GIF"/>
                     </div>
                     <div className="text">
-                        <p>ARRANGE STAGES AND <br/>
-                        CUSTOMISE EACH PROJECT. </p>
+                        <p>CUSTOMISE EACH PROJECT <br/>
+                        WITH SET OR CUSTOM THEMES. </p>
                     </div>
                 </div>
             </div>

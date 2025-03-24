@@ -17,7 +17,7 @@
     margin: 1rem;
     overflow-y: scroll;
     overflow-x: scroll;
-    z-index: 5;
+    z-index: 1;
 }
 
 .stage .title-section {
@@ -27,6 +27,7 @@
     flex-direction: row;
     margin-top: 0.5rem;
     gap: 2rem;
+    z-index: 5;
 }
 
 .stage .title {
@@ -48,6 +49,7 @@
     flex: 1;
     width: 100%;
     overflow: auto;
+    z-index: 2;
 }
 
 .stage .button-container {

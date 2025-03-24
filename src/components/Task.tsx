@@ -5,7 +5,6 @@ import { TaskProps } from "../utils/Interfaces";
 
 const Task: React.FC<TaskProps> = ({stageID, taskID, name, completed, onclick, 
     startDate, startTime, endDate, endTime, description, x, y}) => {
-    const [isCompleted, _setCompleted] = useState<boolean>(completed);
     const [isDragging, setIsDragging] = useState<boolean>(false);
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: taskID
@@ -107,7 +106,7 @@ const Task: React.FC<TaskProps> = ({stageID, taskID, name, completed, onclick,
                 <p>{name}</p>
             </div>
             <div className="task-body">
-                <p>Status: {isCompleted ? "Completed" : "Incomplete"}</p>
+                <p>Status: {completed ? "Completed" : "Incomplete"}</p>
                 <p>Start: {formattedStartDate}</p>
                 <p>Deadline: {formattedDeadline}</p>
                 <p>Remaining time: {remainingTime}</p>

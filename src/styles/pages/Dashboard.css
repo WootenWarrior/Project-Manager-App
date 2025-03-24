@@ -4,7 +4,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
+    background: var(--page-default-background);
 }
 
 .dashboard-page{
@@ -15,7 +15,7 @@
     align-items: center;
     justify-content: space-around;
     overflow: hidden;
-    background: var(--page-default-background);
+    background-color: transparent;
 }
 
 .dashboard-page .toolbar {
@@ -102,7 +102,8 @@
     border-radius: 1rem;
     overflow-y: scroll;
     overflow-x: hidden;
-    box-shadow: var(--inside-shadow);
+    box-shadow: var(--under-shadow);
+    outline: none;
 }
 
 .title{
@@ -138,6 +139,12 @@
     transform: translateY(-2rem);
 }
 
+.dashboard .logout-section{
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
 @media screen and (max-width:900px) {
     .dashboard-page .project-list .projects{
         transition: 1s;
@@ -151,12 +158,9 @@
         transition: 1s;
         grid-template-columns: repeat(1, 1fr);
     }
-}
-
-.dashboard-hidden-menu .visible-menu.active form {
-    width: 60%;
-}
-
-.dashboard-hidden-menu .visible-menu.active form {
-    width: 60%;
+    .dashboard-page .toolbar {
+        flex-direction: column;
+        margin-bottom: 4rem;
+        gap: 1rem;
+    }
 }

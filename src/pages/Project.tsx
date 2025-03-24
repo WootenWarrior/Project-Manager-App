@@ -2,9 +2,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import "../styles/pages/Project.css";
 import { useEffect, useState } from "react";
 import { URL } from "../utils/BackendURL";
-import { Stage, Button, Input, HiddenMenu, TimeInput, DateInput, Textbox, ThemeChanger } from "../components/index";
+import { Stage, Button, Input, HiddenMenu, 
+    TimeInput, DateInput, Textbox, ThemeChanger,
+    BackgroundWaves
+} from "../components/index";
 import { TaskProps, StageProps } from "../utils/Interfaces";
-import { FaPlus } from "react-icons/fa6";
+import { FaPlus, FaRegTrashCan, FaX } from "react-icons/fa6";
 import { FaArrowCircleLeft } from "react-icons/fa";
 import { DndContext, DragEndEvent, useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
 import { Loading } from "./index";
@@ -14,19 +17,29 @@ import { TiTick } from "react-icons/ti";
 
 
 function Project() {
+    const MAX_FILE_SIZE = 2 * 1024 * 1024;
     const navigate = useNavigate();
     const { projectID } = useParams();
     const [projectTitle, setProjectTitle] = useState<string | null>("");
     const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState("");
+    const [uploading, setUploading] = useState(false);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [stages, setStages] = useState<StageProps[]>([]);
     const [themeMenuActive, setThemeMenuActive] = useState(false);
     const [taskMenuActive, setTaskMenuActive] = useState(false);
     const [stageMenuActive, setStageMenuActive] = useState(false);
     const [taskEditActive, setTaskEditActive] = useState(false);
     const [stageEditActive, setStageEditActive] = useState(false);
+    const [attachmentMenuActive, setAttachmentMenuActive] = useState(false);
+    const [attachmentEditActive, setAttachmentEditActive] = useState(false);
+    const [confirmTaskMenuActive, setConfirmTaskMenuActive] = useState(false);
+    const [confirmStageMenuActive, setConfirmStageMenuActive] = useState(false);
     const [completeMenuActive, setCompleteMenuActive] = useState(false);
+    const [_restoreMenuActive, setRestoreMenuActive] = useState(false);
     const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
     const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
+    const [_completeTaskSelected, setCompleteTaskSelected] = useState<string | null>(null);
     const [taskStart, setTaskStart] = useState<{ date: string; time: string }>({
         date: new Date().toISOString().split("T")[0],
         time: new Date().toTimeString().slice(0, 5),
@@ -77,6 +90,7 @@ function Project() {
         setSelectedTaskId(taskID);
         setSelectedStageId(stageID);
         setTaskEditActive(true);
+        setSelectedFile(null);
 
         const stageObject = stages.find((stage) => stage.stageID === stageID);
         const task = stageObject?.taskList.find((task) => task.taskID === taskID) || null;
@@ -84,6 +98,7 @@ function Project() {
         const name = task?.name || "";
         const status = task?.completed || false;
         const color = task?.color || "";
+        
 
         setUpdatedTask(({ status, name, description, color }));
     }
@@ -92,6 +107,12 @@ function Project() {
         setTaskEditActive(false);
         setSelectedTaskId(null);
         setSelectedStageId(null);
+        setUpdatedTask({ 
+            status: false, 
+            name: "", 
+            description: "", 
+            color: ""
+        });
     }
 
     const showStageEdit = (stageID: string) => {
@@ -100,7 +121,6 @@ function Project() {
         const color = stageObject?.color || "";
 
         setUpdatedStage(({ name, color }));
-
         setSelectedStageId(stageID);
         setStageEditActive(true);
     }
@@ -108,6 +128,16 @@ function Project() {
     const hideStageEdit = () => {
         setSelectedStageId(null);
         setStageEditActive(false);
+    }
+
+    const showAttachmentMenu = (stageID: string) => {
+        setSelectedStageId(stageID);
+        setAttachmentMenuActive(true);
+    }
+
+    const hideAttachmentMenu = () => {
+        setSelectedStageId(null);
+        setAttachmentMenuActive(false);
     }
 
 
@@ -124,9 +154,11 @@ function Project() {
             stageID: stageID,
             stageName: stageTitle,
             taskList: [],
-            showTaskMenu: showTaskMenu,
-            showTaskEdit: showTaskEdit,
-            showStageEdit: showStageEdit
+            attachmentList: [],
+            showTaskMenu,
+            showTaskEdit,
+            showStageEdit,
+            showAttachmentMenu
         };
 
         try {
@@ -162,16 +194,15 @@ function Project() {
         let newTaskName = taskName;
         if (taskName === "") {
             let taskNum = stages.find((stage) => stage.stageID === stageID)?.taskList.length;
-            const taskAddon = taskNum? taskNum + 1 : "";
-            newTaskName = "Task" + taskAddon;
+            const taskAddon = taskNum? taskNum + 1 : "1";
+            newTaskName = "Task " + taskAddon;
         }
-        console.log(newTaskName);
 
         const newTaskId = `task-${Date.now()}`;
         const newTask: TaskProps = {
             taskID: newTaskId,
             stageID: stageID,
-            name: taskName,
+            name: newTaskName,
             completed: false,
             startDate: taskStart.date,
             startTime: taskStart.time,
@@ -183,21 +214,6 @@ function Project() {
             nextTask: null,
             prevTask: null,
         };
-
-        setTaskName("");
-        setTaskDescription("");
-        setTaskStart({
-            date: new Date().toISOString().split("T")[0],
-            time: new Date().toTimeString().slice(0, 5)
-        });
-        setTaskEnd({
-            date: (() => {
-                const date = new Date();
-                date.setDate(date.getDate() + 7);
-                return date.toISOString().split("T")[0];
-            })(),
-            time: new Date().toTimeString().slice(0, 5)
-        })
 
         try {
             const token = sessionStorage.getItem("token") || localStorage.getItem("token");
@@ -226,7 +242,20 @@ function Project() {
         } catch (error) {
             console.log(error);
         }
-
+        setTaskName("");
+        setTaskDescription("");
+        setTaskStart({
+            date: new Date().toISOString().split("T")[0],
+            time: new Date().toTimeString().slice(0, 5)
+        });
+        setTaskEnd({
+            date: (() => {
+                const date = new Date();
+                date.setDate(date.getDate() + 7);
+                return date.toISOString().split("T")[0];
+            })(),
+            time: new Date().toTimeString().slice(0, 5)
+        })
         setTaskMenuActive(false);
     }
 
@@ -252,12 +281,7 @@ function Project() {
                     projectData.stages as Record<string, StageProps>
                 ).map(([stageNum, stageData]) => ({
                     key: stageNum,
-                    stageName: stageData.stageName,
-                    stageID: stageData.stageID,
-                    taskList: stageData.taskList,
-                    showTaskMenu: showTaskMenu,
-                    showTaskEdit: showTaskEdit,
-                    showStageEdit: showStageEdit
+                    ...stageData
                 }));
 
                 setStages(stages);
@@ -268,27 +292,31 @@ function Project() {
         setLoading(false);
     }
 
-    const deleteStage = async (stageID: string | null) => {
+    const deleteStage = async (stageID : string | null) => {
         if (!stageID) {
             console.log("No stage ID set to delete.");
             return;
         }
 
-        const token = sessionStorage.getItem("token") || localStorage.getItem("token");
-        const res = await fetch(`${URL}/api/stage`, {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ projectID, stageID, token }),
-        });
+        try {
+            const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+            const res = await fetch(`${URL}/api/stage`, {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ projectID, stageID, token }),
+            });
 
-        if(!res.ok){
-            const errorData = await res.text();
-            console.log(errorData);
-            return;
+            if(!res.ok){
+                const errorData = await res.text();
+                console.log(errorData);
+                return;
+            }
+
+            const data = await res.json();
+            console.log(data);
+        } catch (error) {
+            console.log(error);
         }
-
-        const data = await res.json();
-        console.log(data);
     }
 
     const deleteTask = async (stageID: string | null, taskID: string | null) => {
@@ -301,21 +329,34 @@ function Project() {
             return;
         }
 
-        const token = sessionStorage.getItem("token") || localStorage.getItem("token");
-        const res = await fetch(`${URL}/api/task`, {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ projectID, stageID, taskID, token }),
-        });
+        setStages((prevStages) =>
+            prevStages.map((stage) => stage.stageID === stageID
+                ? {...stage,
+                    taskList: stage.taskList.filter((task) => task.taskID !== taskID)
+                }
+                : stage
+            )
+        );
 
-        if(!res.ok){
-            const errorData = await res.text();
-            console.log(errorData);
-            return;
+        try {
+            const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+            const res = await fetch(`${URL}/api/task`, {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ projectID, stageID, taskID, token }),
+            });
+
+            if (!res.ok) {
+                const errorData = await res.text();
+                console.log(errorData);
+                return;
+            }
+
+            const data = await res.json();
+            console.log(data);
+        } catch (error) {
+            console.log(error);
         }
-
-        const data = await res.json();
-        console.log(data);
     }
 
     const updateTask = async (stageID: string | null, taskID: string | null) => {
@@ -334,6 +375,7 @@ function Project() {
 
         const task = stageWithTask?.taskList.find((task) => task.taskID === taskID) || null;
 
+        console.log(updatedTask.status);
         const newTask = {
             ...task,
             completed: updatedTask.status,
@@ -341,56 +383,135 @@ function Project() {
             description: updatedTask.description
         };
 
-        console.log(newTask.completed)
-
         setStages((prevStages) =>
-            prevStages.map((stage) =>
-                stage.stageID === stageID
-                    ? {
-                          ...stage,
-                          taskList: stage.taskList.map((task) =>
-                              task.taskID === taskID ? { 
-                                ...task,
-                                completed: updatedTask.status,
-                                name: updatedTask.name,
-                                description: updatedTask.description 
-                            } : task
-                          ),
-                      }
-                    : stage
+            prevStages.map((stage) => stage.stageID === stageID
+                ? {...stage,
+                    taskList: stage.taskList.map((task) =>
+                        task.taskID === taskID ? { 
+                        ...task,
+                        completed: updatedTask.status,
+                        name: updatedTask.name,
+                        description: updatedTask.description 
+                    } : task)
+                }
+                : stage
             )
         );
 
-        const token = sessionStorage.getItem("token") || localStorage.getItem("token");
-        const res = await fetch(`${URL}/api/task`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-                token, 
-                projectID, 
-                sourceID: stageID, 
-                destID: stageID,
-                task: newTask
-            }),
-        });
+        try {
+            const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+            const res = await fetch(`${URL}/api/task`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    token, 
+                    projectID, 
+                    sourceID: stageID, 
+                    destID: stageID,
+                    task: newTask
+                }),
+            });
 
-        if(!res.ok){
-            const errorData = await res.text();
-            console.log(errorData);
-            return;
-        }
+            if(!res.ok){
+                const errorData = await res.text();
+                console.log(errorData);
+                return;
+            }
 
-        const data = await res.json();
-        console.log(data);
-    }
-
-    const updateStage = async (taskID: string | null) => {
-        if (!taskID) {
-            console.log("No selected task ID set.")
-            return;
+            const data = await res.json();
+            console.log(data);
+        } catch (error) {
+            console.log(error);
         }
     }
 
+    const updateStage = async (stageID: string | null) => {
+        if (!stageID) {
+            console.log("No selected stage ID set.")
+            return;
+        }
+
+        setStages((prevStages) =>
+            prevStages.map((stage) => stage.stageID === stageID
+                ? {...stage,
+                    stageName: updatedStage.name
+                }
+                : stage
+            )
+        );
+
+        try {
+            console.log(updatedStage);
+            const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+            const res = await fetch(`${URL}/api/stage`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    token, 
+                    projectID,
+                    stageID,
+                    stageData: updatedStage
+                }),
+            });
+
+            if(!res.ok){
+                const errorData = await res.text();
+                console.log(errorData);
+                return;
+            }
+    
+            const data = await res.json();
+            console.log(data);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const uploadFile = async () => {
+        if (!selectedFile) return;
+        if (!selectedStageId) return;
+
+        if (selectedFile.size > MAX_FILE_SIZE) {
+            console.log("File size exceeds the 2MB limit. Please choose a smaller file.");
+            return;
+        }
+
+        setUploading(true);
+        
+        try {
+            const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+            const formData = new FormData();
+            formData.append("file", selectedFile);
+            formData.append("projectID", projectID);
+            formData.append("stageID", selectedStageId);
+            formData.append("token", token || "");
+            const res = await fetch(`${URL}/api/file`, {
+                method: "PUT",
+                body: formData
+            });
+
+            if(!res.ok){
+                const errorData = await res.text();
+                console.log(errorData);
+                return;
+            }
+
+            const data = await res.json();
+            const fileURL = data.url;
+            if(!fileURL){
+                console.log("No file URL returned.");
+                return;
+            }
+
+            setMessage("File uploaded successfully.");
+        } catch (error) {
+            console.error("Error uploading file:", error);
+        }
+        finally {
+            setUploading(false);
+            setTimeout(() => setMessage(""), 5000);
+        }
+    };
     
     // FRONTEND INPUT CHANGES
 
@@ -460,7 +581,11 @@ function Project() {
             description: e.target.value,
         }));
     }
-
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setSelectedFile(e.target.files[0]);
+        }
+    }
 
     useEffect(() => {
         loadProjectData();
@@ -471,42 +596,44 @@ function Project() {
         if (!over) return;
     
         const taskId = active.id as string;
+        const newStageID = over.id as string;
         let draggedTask: TaskProps | null = null;
         let oldStageID: string | null = null;
 
-        stages.map((stage) => {
+        const updatedStages = stages.map((stage) => {
             let newTaskList = stage.taskList.map((task: TaskProps) => {
                 if (task.taskID === taskId) {
-                    console.log("here");
                     const taskRect = document.getElementById(task.taskID)?.getBoundingClientRect();
-                    const stageRect = document.getElementById(stage.stageID)?.getBoundingClientRect();
-                    if (!stageRect) return;
-                    if (!taskRect) return;
-                    console.log(stageRect);
-                    console.log(taskRect);
-
+                    const currentStageRect = document.getElementById(stage.stageID)?.getBoundingClientRect();
+                    const newStageRect = document.getElementById(newStageID)?.getBoundingClientRect();
+                    if (!taskRect || !currentStageRect || !newStageRect) return task;
+        
                     const taskWidth = taskRect.width;
                     const taskHeight = taskRect.height;
-
+        
                     let newX = task.x + delta.x;
                     let newY = task.y + delta.y;
 
-                    newX = Math.max(0, Math.min(newX, stageRect.width - taskWidth));
-                    newY = Math.max(0, Math.min(newY, stageRect.height - taskHeight));
-
-                    console.log(`Task moved to ${task.x + delta.x}, ${task.y + delta.y}`);
-                    draggedTask = { 
-                        ...task, 
-                        x: newX, 
-                        y: newY 
-                    };
+                    newX = Math.max(0, Math.min(newX, newStageRect.width - taskWidth));
+                    newY = Math.max(0, Math.min(newY, newStageRect.height - taskHeight));
+                    draggedTask = { ...task, stageID: newStageID, x: newX, y: newY };
                     oldStageID = stage.stageID;
-                    return false;
+                    return draggedTask;
                 }
-                return true;
+
+                return task;
             });
+
+            newTaskList = newTaskList.filter((task) => task !== draggedTask);
+                
+            if (stage.stageID === newStageID && draggedTask !== null) {
+                newTaskList = [...newTaskList, draggedTask];
+            }
+
             return { ...stage, taskList: newTaskList };
         });
+
+        setStages(updatedStages);
         
 
         if (draggedTask) {
@@ -519,7 +646,7 @@ function Project() {
                         token, 
                         projectID, 
                         sourceID: oldStageID, 
-                        destID: oldStageID,
+                        destID: newStageID,
                         task: draggedTask 
                     }),
                 });
@@ -532,8 +659,6 @@ function Project() {
         
                 const data = await res.json();
                 console.log(data.message? data.message : "");
-
-                loadProjectData(); //slow for frontend
             } catch (error) {
                 console.log(error);
             }
@@ -574,8 +699,15 @@ function Project() {
         return { ...task, x: newX, y: newY };
     };*/
 
+    console.log(handleStageColorUpdate, handleTaskColorUpdate, attachmentEditActive, setAttachmentEditActive)
+
     return (
         <div className="project">
+            <BackgroundWaves bottom={true} top={true} 
+                color1="var(--themecolor1)"
+                color2="var(--themecolor2)"
+                color3="var(--themecolor3)"
+            />
             <div className="project-title">{projectTitle}</div>
             <div className="panels">
                 <div className="toolbar">
@@ -600,7 +732,7 @@ function Project() {
                             altIcon={<TiTick/>}
                         />
                         <Input
-                            textcolor="black"
+                            textcolor="var(--themecolor6)"
                             width="100%"
                             placeholder="Filter tasks..."
                             onchange={handleFilterChange}
@@ -626,9 +758,11 @@ function Project() {
                                     stageID={stage.stageID}
                                     stageName={stage.stageName}
                                     taskList={stage.taskList} 
+                                    attachmentList={stage.attachmentList}
                                     showTaskMenu={showTaskMenu}
                                     showTaskEdit={showTaskEdit}
                                     showStageEdit={showStageEdit}
+                                    showAttachmentMenu={showAttachmentMenu}
                                     filterText={filterText}
                                 />
                             ))}
@@ -647,6 +781,7 @@ function Project() {
                     setStageName("");
                 }}>
                 <h1>Create new stage</h1>
+                <p>Enter stage name:</p>
                 <Input
                     textcolor="black"
                     width="100%"
@@ -703,67 +838,78 @@ function Project() {
                 </div>
             </HiddenMenu>
             <HiddenMenu classname="hidden-task-edit"
-                visible={taskEditActive}
-                close={hideTaskEdit}
-                create={() => {
-                    updateTask(selectedStageId, selectedTaskId);
-                    hideTaskEdit();
-                }}
-                closeButtonText="Cancel"
-                createButtonText="Update">
-                <h1>Edit task</h1>
-                <div className="edit-options">
-                    <div className="left">
-                        <div className="toggle-complete">
-                            <label className="switch">
-                                <input 
-                                    type="checkbox" 
-                                    checked={updatedTask.status} 
-                                    onChange={(e) => {
-                                        setUpdatedTask(prev => {
-                                            const newTask = { ...prev, status: e.target.checked };
+                visible={taskEditActive}>
+                <div className="tools">
+                    <Button onclick={() => setConfirmTaskMenuActive(true)}
+                        text="Delete Task"
+                        classname="default-button"
+                        beforeicon={<FaRegTrashCan/>}
+                    />
+                    <Button onclick={() => {
+                        hideTaskEdit();
+                        updateTask(selectedStageId, selectedTaskId);
+                    }}
+                        text="Close"
+                        classname="default-button"
+                        beforeicon={<FaX/>}
+                    />
+                </div>
+                <div className="edit-task-menu">
+                    <h1>Edit task: {updatedTask.name}</h1>
+                    <div className="edit-options">
+                        <div className="edit-details">
+                        <h2 className="subheader">Update task details</h2>
+                            <div className="toggle-complete">
+                                <label className="switch">
+                                    <input 
+                                        type="checkbox" 
+                                        checked={updatedTask.status} 
+                                        onChange={(e) => {
+                                            setUpdatedTask(prev => {
+                                                const newTask = { ...prev, status: e.target.checked };
+                                                return newTask;
+                                            });
                                             updateTask(selectedStageId, selectedTaskId);
-                                            return newTask;
-                                        });
-                                    }} 
-                                />
-                                <span className="slider round"></span>
-                            </label>
-                            <p>{updatedTask.status? "COMPLETE" : "INCOMPLETE"}</p>
+                                        }} 
+                                    />
+                                    <span className="slider round"></span>
+                                </label>
+                                <p>{updatedTask.status? "COMPLETE" : "INCOMPLETE"}</p>
+                            </div>
+                            <p>Update task name: </p>
+                            <Input placeholder="Set a new task title..."
+                                visible={true} 
+                                onchange={handleTaskNameUpdate}
+                                value={updatedTask.name}/>
+                            <p>Update task description: </p>
+                            <Textbox classname="project-textbox" 
+                                placeholder="Enter description..."
+                                value={updatedTask.description}
+                                onchange={handleTaskDescriptionUpdate}/>
                         </div>
-                        <Input placeholder="Set a new task title..."
-                            visible={true} 
-                            onchange={handleTaskNameUpdate}
-                            value={updatedTask.name}/>
-                        <Textbox classname="project-textbox" 
-                            placeholder="Enter description..."
-                            value={updatedTask.description}
-                            onchange={handleTaskDescriptionUpdate}/>
-                    </div>
-                    <div className="right">
-                        <Button onclick={() => deleteTask(selectedStageId, selectedTaskId)}
-                            text="Delete Task"
-                            classname="default-button"
-                        />
                     </div>
                 </div>
             </HiddenMenu>
             <HiddenMenu classname="hidden-stage-edit"
                 visible={stageEditActive}
-                close={hideStageEdit}
-                create={() => updateStage(selectedTaskId)}
-                closeButtonText="x"
-                createButtonText="Update">
-                <h1>Edit stage</h1>
-                <Input placeholder="Set a new stage title..."
-                    value={updatedStage.name}
-                    visible={true}
-                    onchange={handleStageNameUpdate}
-                />
-                <Button onclick={() => deleteStage(selectedStageId)}
-                    text="Delete Stage"
-                    classname="default-button"
-                />
+                close={() => {
+                    hideStageEdit();
+                    updateStage(selectedStageId);
+                }}
+                closeButtonText="Back">
+                <h1>Edit stage: {updatedStage.name}</h1>
+                <div className="inputs">
+                    <p>Update stage name: </p>
+                    <Input placeholder="Set a new stage title..."
+                        value={updatedStage.name}
+                        visible={true}
+                        onchange={handleStageNameUpdate}
+                    />
+                    <Button onclick={() => setConfirmStageMenuActive(true)}
+                        text="Delete Stage"
+                        classname="default-button"
+                    />
+                </div>
             </HiddenMenu>
             <HiddenMenu classname="hidden-complete-tasks"
                 visible={completeMenuActive}
@@ -774,14 +920,69 @@ function Project() {
                         stage.taskList
                             .filter(task => task.completed)
                             .map(task => (
-                                <span key={task.taskID} className="completed-task">
+                                <span key={task.taskID} className="completed-task"
+                                    onClick={() => {
+                                        setCompleteTaskSelected(task.taskID);
+                                        setRestoreMenuActive(true)
+                                    }}>
                                     <p className="task-name">{task.name}</p>
-                                    {task.description && <p className="task-description">{task.description}</p>}
+                                    {
+                                    task.description? 
+                                        <p className="task-description">{task.description}</p> :
+                                        <p>No description</p>
+                                    }
+                                    <p className="ID">{task.taskID}</p>
                                 </span>
                             ))
                         )
                     }
                 </div>
+            </HiddenMenu>
+            <HiddenMenu visible={confirmTaskMenuActive}
+                classname="confirm-task-menu"
+                close={() => setConfirmTaskMenuActive(false)}
+                create={() => {
+                    deleteTask(selectedStageId, selectedTaskId); 
+                    setConfirmTaskMenuActive(false);
+                    hideTaskEdit();
+                }}
+                createButtonText="Confirm"
+                closeButtonText="Back"
+            >
+            </HiddenMenu>
+            <HiddenMenu visible={confirmStageMenuActive}
+                classname="confirm-stage-menu"
+                close={() => setConfirmStageMenuActive(false)}
+                create={() => {
+                    deleteStage(selectedStageId); 
+                    setConfirmStageMenuActive(false);
+                    hideStageEdit();
+                }}
+                createButtonText="Confirm"
+                closeButtonText="Back"
+            >
+            </HiddenMenu>
+            <HiddenMenu visible={attachmentMenuActive}
+                classname="create-attachment-menu"
+                close={() => setAttachmentMenuActive(false)}
+                create={() => {
+                    uploadFile();
+                    hideAttachmentMenu();
+                }}
+                createButtonText="Upload">
+                    <div className="create-attachment">
+                        <div className="attachment-display">
+                            
+                        </div>
+                        <div className="details">
+                            <p>Upload new file: </p>
+                            <p>Files must be less than 2MB</p>
+                            <p>Files must be either an image or a pdf / txt file</p>
+                            {uploading && <p>Uploading...</p>}
+                            {message && <p>{message}</p>}
+                        </div>
+                        <input type="file" onChange={handleFileChange} />
+                    </div>
             </HiddenMenu>
             <ThemeChanger isvisible={themeMenuActive} 
                 closeMenu={() => setThemeMenuActive(false)}

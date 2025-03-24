@@ -7,5 +7,6 @@ export { default as Stage } from './Stage';
 export { default as HiddenMenu } from './HiddenMenu';
 export { default as TimeInput } from './TimeInput';
 export { default as DateInput } from './DateInput';
-export { default as BackgroundChanger } from './BackgroundChanger';
 export { default as ThemeChanger } from './ThemeChanger';
+export { default as BackgroundBlobs } from './BackgroundBlobs';
+export { default as BackgroundWaves } from './BackgroundWaves';
