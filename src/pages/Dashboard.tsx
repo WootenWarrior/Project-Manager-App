@@ -19,7 +19,7 @@ function Dashboard() {
     const [options, setOptions] = useState<OptionProps[]>([]);
     const [error, setError] = useState("");
     const [menuActive, setMenuActive] = useState(false);
-    const [isBlank, setIsBlank] = useState(true);
+    const [isBlank, _setIsBlank] = useState(true);
     const [deleteMenuActive, setDeleteMenuActive] = useState(false);
     const [taskDetailsActive, setTaskDetailsActive] = useState(false);
     const [projectName, setProjectName] = useState("");

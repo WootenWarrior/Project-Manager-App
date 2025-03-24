@@ -22,7 +22,7 @@ const BackgroundWaves: React.FC<BackgroundProps> = ({top, bottom, color1, color2
     useEffect(() => {
         const animateWave = (
             wave: SVGPathElement | null,
-            d1: string,
+            _d1: string,
             d2: string,
             duration: number
         ) => {
