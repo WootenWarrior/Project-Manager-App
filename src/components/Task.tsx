@@ -10,6 +10,8 @@ const Task: React.FC<TaskProps> = ({stageID, taskID, name, completed, onclick,
         id: taskID
     });
 
+    console.log(selecting, dragging);
+
     const style = {
         left: `${x}px`,
         top: `${y}px`,
