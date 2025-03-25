@@ -9,7 +9,7 @@ import { Stage, Button, Input, HiddenMenu,
 import { TaskProps, StageProps } from "../utils/Interfaces";
 import { FaPlus, FaRegTrashCan, FaX } from "react-icons/fa6";
 import { FaArrowCircleLeft } from "react-icons/fa";
-import { DndContext, DragEndEvent, useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
+import { DndContext, DragEndEvent, DragStartEvent, useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
 import { Loading } from "./index";
 import { IoColorPalette } from "react-icons/io5";
 import { TiTick } from "react-icons/ti";
@@ -24,6 +24,8 @@ function Project() {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
     const [uploading, setUploading] = useState(false);
+    const [_draggingActive, _setDraggingActive] = useState(false);
+    const [_selecting, _setSelecting] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [stages, setStages] = useState<StageProps[]>([]);
     const [themeMenuActive, setThemeMenuActive] = useState(false);
@@ -32,7 +34,7 @@ function Project() {
     const [taskEditActive, setTaskEditActive] = useState(false);
     const [stageEditActive, setStageEditActive] = useState(false);
     const [attachmentMenuActive, setAttachmentMenuActive] = useState(false);
-    const [attachmentEditActive, setAttachmentEditActive] = useState(false);
+    const [_attachmentEditActive, _setAttachmentEditActive] = useState(false);
     const [confirmTaskMenuActive, setConfirmTaskMenuActive] = useState(false);
     const [confirmStageMenuActive, setConfirmStageMenuActive] = useState(false);
     const [completeMenuActive, setCompleteMenuActive] = useState(false);
@@ -99,7 +101,6 @@ function Project() {
         const status = task?.completed || false;
         const color = task?.color || "";
         
-
         setUpdatedTask(({ status, name, description, color }));
     }
 
@@ -297,6 +298,8 @@ function Project() {
             console.log("No stage ID set to delete.");
             return;
         }
+
+        setStages((prevStages) => prevStages.filter((stage) => stage.stageID !== stageID));
 
         try {
             const token = sessionStorage.getItem("token") || localStorage.getItem("token");
@@ -587,9 +590,17 @@ function Project() {
         }
     }
 
+    console.log(handleStageColorUpdate, handleTaskColorUpdate);
+
     useEffect(() => {
         loadProjectData();
     }, []);
+
+    const handleDragStart = (event: DragStartEvent) => {
+        const { active } = event;
+
+        console.log(active);
+    };
 
     const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over, delta } = event;
@@ -600,33 +611,49 @@ function Project() {
         let draggedTask: TaskProps | null = null;
         let oldStageID: string | null = null;
 
+        setStages((prevStages) =>
+            prevStages.map((stage) => ({
+                ...stage,
+                taskList: stage.taskList.map((task) => ({ ...task, dragging: false })),
+            }))
+        );
+
         const updatedStages = stages.map((stage) => {
             let newTaskList = stage.taskList.map((task: TaskProps) => {
                 if (task.taskID === taskId) {
                     const taskRect = document.getElementById(task.taskID)?.getBoundingClientRect();
                     const currentStageRect = document.getElementById(stage.stageID)?.getBoundingClientRect();
+                    const titleRect = document.getElementById(stage.stageID + "title-section")?.getBoundingClientRect();
                     const newStageRect = document.getElementById(newStageID)?.getBoundingClientRect();
                     if (!taskRect || !currentStageRect || !newStageRect) return task;
         
                     const taskWidth = taskRect.width;
                     const taskHeight = taskRect.height;
-        
+                    const newStageWidth = newStageRect.width;
+                    const newStageHeight = newStageRect.height;
+
                     let newX = task.x + delta.x;
                     let newY = task.y + delta.y;
 
-                    newX = Math.max(0, Math.min(newX, newStageRect.width - taskWidth));
-                    newY = Math.max(0, Math.min(newY, newStageRect.height - taskHeight));
+                    newX = Math.max(0, Math.min(newX, newStageWidth - taskWidth));
+                    if (titleRect) {
+                        const titleBottom = titleRect.bottom - newStageRect.top;
+                        newY = Math.max(titleBottom, Math.min(newY, newStageHeight - taskHeight));
+                    } else {
+                        newY = Math.max(0, Math.min(newY, newStageHeight - taskHeight));
+                    }
+
                     draggedTask = { ...task, stageID: newStageID, x: newX, y: newY };
                     oldStageID = stage.stageID;
-                    return draggedTask;
                 }
 
                 return task;
             });
 
-            newTaskList = newTaskList.filter((task) => task !== draggedTask);
-                
-            if (stage.stageID === newStageID && draggedTask !== null) {
+            
+            newTaskList = newTaskList.filter((task) => task.taskID !== draggedTask?.taskID);
+
+            if (stage.stageID === oldStageID && draggedTask !== null) {
                 newTaskList = [...newTaskList, draggedTask];
             }
 
@@ -635,7 +662,6 @@ function Project() {
 
         setStages(updatedStages);
         
-
         if (draggedTask) {
             try {
                 const token = sessionStorage.getItem("token") || localStorage.getItem("token");
@@ -646,7 +672,7 @@ function Project() {
                         token, 
                         projectID, 
                         sourceID: oldStageID, 
-                        destID: newStageID,
+                        destID: oldStageID,
                         task: draggedTask 
                     }),
                 });
@@ -699,8 +725,6 @@ function Project() {
         return { ...task, x: newX, y: newY };
     };*/
 
-    console.log(handleStageColorUpdate, handleTaskColorUpdate, attachmentEditActive, setAttachmentEditActive)
-
     return (
         <div className="project">
             <BackgroundWaves bottom={true} top={true} 
@@ -751,7 +775,9 @@ function Project() {
                             />
                         </div>
                     }
-                    <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
+                    <DndContext onDragEnd={handleDragEnd}
+                        onDragStart={handleDragStart}
+                        sensors={sensors}>
                         <div className="stages">
                             {stages.map((stage) => (
                                 <Stage key={stage.stageID}

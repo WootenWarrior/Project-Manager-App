@@ -66,6 +66,8 @@ export interface TaskProps {
     nextTask: string | null;
     prevTask: string | null;
     color?: string;
+    selecting?: boolean;
+    dragging?: boolean;
 }
 
 export interface AttachmentProps {

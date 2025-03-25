@@ -2,7 +2,7 @@ body, html {
     max-height: 100vh;
 }
 
-.project{
+.project {
     width: 100vw;
     height: 100vh;
     background: var(--project-bg);
@@ -19,7 +19,7 @@ body, html {
     position: relative;
 }
 
-.project .panels{
+.project .panels {
     width: 100%;
     height: 95vh;
     max-height: 100vh;
@@ -76,6 +76,7 @@ body, html {
     justify-content: space-between;
     flex-direction: row;
     align-items: flex-start;
+    overflow: hidden;
 }
 
 .project .panels .project-creation-window .new-stage-button{
@@ -98,7 +99,7 @@ body, html {
     flex-direction: row;
     overflow-x: scroll;
     overflow-y: hidden;
-    z-index: 1;
+    z-index: 4;
 }
 
 .project .visible-menu.active {

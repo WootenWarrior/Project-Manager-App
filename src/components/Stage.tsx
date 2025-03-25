@@ -7,7 +7,7 @@ import { useDroppable } from "@dnd-kit/core";
 
 const Stage: React.FC<StageProps> = ({stageName, taskList, showTaskMenu, 
     stageID, showTaskEdit, filterText, showStageEdit}) => {
-
+    
     const { setNodeRef } = useDroppable({
         id: stageID,
     });
@@ -18,7 +18,7 @@ const Stage: React.FC<StageProps> = ({stageName, taskList, showTaskMenu,
 
     return (
         <div className="stage" id={stageID} ref={setNodeRef}>
-            <div className="title-section">
+            <div className="title-section" id={stageID + "title-section"}>
                 <span className="title" onClick={() => showStageEdit(stageID)}>{stageName}</span>
                 <div className="button-container">
                     <Button classname="default-button" 

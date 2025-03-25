@@ -2,10 +2,10 @@ import { useNavigate } from "react-router-dom"
 import { BackgroundWaves, Button } from "../components";
 import "../styles/pages/Landing.css";
 import logo from "../assets/Logo-white.png";
-import Example from "../assets/Example.gif";
-import Example2 from "../assets/Example2.gif";
+import Example from "../assets/Example1.png";
+import Example2 from "../assets/Example2.png";
 import Example3 from "../assets/Example3.png";
-import Example4 from "../assets/Example4.gif";
+import Example4 from "../assets/Example4.png";
 
 
 function Landing() {
@@ -54,7 +54,7 @@ function Landing() {
                 </div>
                 <div className="panel">
                     <div className="item">
-                    <img src={Example2} alt="GIF"/>
+                    <img src={Example2} alt="IMG"/>
                     </div>
                     <div className="text">
                         <p>QUICKLY EDIT TASKS <br/>
@@ -68,7 +68,7 @@ function Landing() {
                         TASKS ACROSS ALL YOUR PROJECTS. </p>
                     </div>
                     <div className="item">
-                    <img src={Example3} alt="GIF"/>
+                    <img src={Example3} alt="IMG"/>
                     </div>
                 </div>
 
@@ -81,10 +81,6 @@ function Landing() {
                         WITH SET OR CUSTOM THEMES. </p>
                     </div>
                 </div>
-            </div>
-            
-            <div className="footer">
-                
             </div>
         </div>
     )

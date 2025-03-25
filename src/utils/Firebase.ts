@@ -35,7 +35,7 @@ export const userSignup = async (data: UserData) => {
         case "auth/email-already-in-use":
           return "This email is already in use.";
         case "auth/invalid-email":
-          return "The email address is badly formatted.";
+          return "Invalid email address.";
         case "auth/weak-password":
           return "The password must be at least 6 characters long.";
         case "auth/operation-not-allowed":

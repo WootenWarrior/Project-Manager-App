@@ -4,7 +4,7 @@ import '../styles/components/Task.css';
 import { TaskProps } from "../utils/Interfaces";
 
 const Task: React.FC<TaskProps> = ({stageID, taskID, name, completed, onclick, 
-    startDate, startTime, endDate, endTime, description, x, y}) => {
+    startDate, startTime, endDate, endTime, description, x, y, selecting, dragging}) => {
     const [isDragging, setIsDragging] = useState<boolean>(false);
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: taskID
@@ -102,17 +102,19 @@ const Task: React.FC<TaskProps> = ({stageID, taskID, name, completed, onclick,
             onMouseUp={() => setIsDragging(false)}
             onClick={() => handleSelect()}
             id={taskID}>
-            <div className="task-header">
-                <p>{name}</p>
-            </div>
-            <div className="task-body">
-                <p>Status: {completed ? "Completed" : "Incomplete"}</p>
-                <p>Start: {formattedStartDate}</p>
-                <p>Deadline: {formattedDeadline}</p>
-                <p>Remaining time: {remainingTime}</p>
-                <div className="description-container">
-                    <p>Description: </p>
-                    <p>{description? description : "No description set"}</p>
+            <div className="task-container">
+                <div className="task-header">
+                    <p>{name}</p>
+                </div>
+                <div className="task-body">
+                    <p>Status: {completed ? "Completed" : "Incomplete"}</p>
+                    <p>Start: {formattedStartDate}</p>
+                    <p>Deadline: {formattedDeadline}</p>
+                    <p>Remaining time: {remainingTime}</p>
+                    <div className="description-container">
+                        <p>Description: </p>
+                        <p>{description? description : "No description set"}</p>
+                    </div>
                 </div>
             </div>
         </div>

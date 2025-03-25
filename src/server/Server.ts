@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url';
 import { projectData, stageData, taskData } from "./ServerUtils";
 import fs from 'fs';
 import multer from "multer";
+import axios from "axios";
 
 
 // SETUP
@@ -66,7 +67,6 @@ const createProject = async (email: string, projectData: projectData) => {
 
         const doc = await project.add(projectData);
 
-        console.log(`User: ${email}, created project: ${doc.id}`);
         return doc.id;
     } catch (error) {
         let errormessage = "Failed to create project.";
@@ -82,7 +82,6 @@ const createStage = async (email: string, stageData: stageData, projectID: strin
         const stages = db.collection(`users/${email}/projects/${projectID}/stages`);
         await stages.doc(stageData.stageID).set(stageData);
 
-        console.log(`User: ${email}, created stage: ${stageData.stageID}`);
         return stageData.stageID;
     } catch (error) {
         let errormessage = "Failed to create stage.";
@@ -203,7 +202,7 @@ const getUrgentTask = async (email: string) => {
             return null;
         }
     } catch (error) {
-        console.log(error);
+        throw new Error("Failed to get urgent task.");
     }
 }
 
@@ -427,7 +426,6 @@ app.post("/api/project", async (req: Request, res: Response) => {
 
         res.status(200).json({ message: "Project created.", projectId: projectId });
     } catch (error) {
-        console.log("Error when creating project: ", error);
         res.status(500).json({ error: "An error occurred during project creation." });
     }
 });
@@ -458,10 +456,8 @@ app.delete("/api/project", async (req: Request, res: Response)=> {
         await deleteAllStages(email, projectID);
         await projectRef.delete();
 
-        console.log(`User: ${email}, deleted project: ${projectID}`);
         res.status(200).json({ message: "Project deleted successfully." });
     } catch (error) {
-        console.log("An error occurred during project deletion: ", error);
         res.status(500).json({ error: "An error occurred during project deletion." });
     }
 });
@@ -497,11 +493,9 @@ app.post("/api/stage", async (req: Request, res: Response) => {
         }
 
         const docid = createStage(email, stage, projectID);
-        console.log(`Stage ${docid} added succesfully.`)
 
         res.status(200).json({ message: "Stage added succesfully.", docid });
     } catch (error) {
-        console.log("Error when creating stage: ", error);
         res.status(500).json({ error: "An error occurred during stage creation." });
     }
 });
@@ -554,15 +548,11 @@ app.delete("/api/stage", async (req: Request, res: Response)=> {
             res.status(404).json({ error: "Stage not found." });
             return;
         }
-
-        console.log(`Attempting to delete stage with ID: ${stageID}`);
         
         await deleteAllTasks(email, projectID, stageID);
         await stageRef.delete();
-        console.log(`User: ${email}, deleted stage: ${stageID}`);
         res.status(200).json({ message: "Stage deleted successfully." });
     } catch (error) {
-        console.log("An error occurred during stage deletion: ", error);
         res.status(500).json({ error: "An error occurred during stage deletion." });
     }
 });
@@ -602,10 +592,8 @@ app.post("/api/task", async (req: Request, res: Response) => {
         }
 
         const docid = createTask(email, task, projectID, stageID);
-        console.log(`Task ${docid} added succesfully.`);
         res.status(200).json({ message: "Stage added succesfully.", docid });
     } catch (error) {
-        console.log("Error when creating task: ", error);
         res.status(500).json({ error: "An error occurred during task creation." });
     }
 });
@@ -675,11 +663,9 @@ app.delete("/api/task", async (req: Request, res: Response)=> {
         }
         
         await taskRef.delete();
-        console.log(`User: ${email}, deleted task: ${taskID}`);
 
         res.status(200).json({ message: "Task deleted successfully." });
     } catch (error) {
-        console.log("An error occurred during task deletion: ", error);
         res.status(500).json({ error: "An error occurred during task deletion." });
     }
 });
@@ -687,14 +673,22 @@ app.delete("/api/task", async (req: Request, res: Response)=> {
 app.post("/api/login", async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body; 
-        console.log(password);
         const userRecord = await admin.auth().getUserByEmail(email);
         const uid = userRecord.uid;
 
         const token = generateToken({ userId: uid, email: email }, "24h");
-        res.status(200).json({ uid, token });
+
+        const response = await axios.post(
+            `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.VITE_APP_API_KEY}`,
+            { email, password, returnSecureToken: false }
+        );
+
+        if (response.status !== 200) {
+            res.status(500).json({ error: "Incorrect password." });
+        }
+
+        res.status(200).json({ uid, token, data: response.data });
     } catch (error) {
-        console.log("Error when logging in: ", error);
         res.status(500).json({ error: "An error occurred during login." });
     }
 });

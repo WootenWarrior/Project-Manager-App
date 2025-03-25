@@ -1,8 +1,6 @@
 .task {
     height: var(--task-default-size-x);
     width: var(--task-default-size-y);
-    border-radius: 2rem;
-    background-color: var(--themecolor1);
     position: absolute;
     display: flex;
     justify-content: start;
@@ -10,14 +8,24 @@
     flex-direction: column;
     left: var(--x);
     top: var(--y);
-    overflow-y: scroll;
-    overflow-x: hidden;
     transition: 0.2s;
+    overflow: visible;
     cursor: pointer;
+    animation: none;
 }
 
-.task.grabbing {
+.task .task-container {
+    border-radius: 2rem;
+    background-color: var(--themecolor1);
+    overflow-y: scroll;
+    overflow-x: hidden;
+    transition: 0.1s;
+}
+
+.task.grabbing .task-container {
+    transition: 0.1s;
     cursor: grabbing;
+    animation: shake 4s ease-in-out infinite;
 }
 
 .task .task-header {
@@ -67,14 +75,20 @@
     width: 100%;
 }
 
-.task:hover {
+.task .task-container:hover {
     border: 2px solid var(--default-text-color);
 }
 
-.task .task-toolbar .drag-handle:hover {
-    background: var(--translucent-color3);
-}
-
-.task .select-button:hover {
-    background: var(--translucent-color3);
+@keyframes shake {
+    0% { transform: rotate(0deg); }
+    10% { transform: rotate(2deg); }
+    20% { transform: rotate(2deg); }
+    30% { transform: rotate(-2deg); }
+    40% { transform: rotate(2deg); }
+    50% { transform: rotate(0deg); }
+    60% { transform: rotate(-2deg); }
+    70% { transform: rotate(2deg); }
+    80% { transform: rotate(-2deg); }
+    90% { transform: rotate(2deg); }
+    100% { transform: rotate(0deg); }
 }
