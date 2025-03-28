@@ -4,7 +4,7 @@ import '../styles/components/Task.css';
 import { TaskProps } from "../utils/Interfaces";
 
 const Task: React.FC<TaskProps> = ({stageID, taskID, name, completed, onclick, 
-    startDate, startTime, endDate, endTime, description, x, y, selecting, dragging}) => {
+    startDate, startTime, endDate, endTime, description, x, y, dragging}) => {
     const [isDragging, setIsDragging] = useState<boolean>(dragging);
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: taskID

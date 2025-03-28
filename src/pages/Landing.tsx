@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom"
 import { BackgroundWaves, Button } from "../components";
-import { userLogin } from "../utils/Firebase";
 import "../styles/pages/Landing.css";
 import logo from "../assets/Logo-white.png";
 import Example from "../assets/Example1.png";
@@ -21,7 +20,6 @@ function Landing() {
         }
         navigate("/Dashboard");
     }
-    
 
     return (
         <div className="landing-page">
