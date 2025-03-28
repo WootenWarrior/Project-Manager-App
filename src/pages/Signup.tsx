@@ -41,22 +41,24 @@ function Signup(){
             .then(data => console.log(data));
             */
 
-            const message = await userSignup(userData);
+            const signupMessage = await userSignup(userData);
 
-            if(message == "Success"){
-                navigate("/Login")
-            }
-            else{
-                if(message){
-                    setError(message);
+            if (!(signupMessage && signupMessage == "Success")) {
+                if (signupMessage) {
+                    setError(signupMessage);
+                    return;
                 }
-                else{
-                    console.log("Error occurred with no message output.");
+                else {
+                    setError("Unexpected error occured.");
+                    return;
                 }
             }
         } catch (error) {
             if(error instanceof Error && error.message) {
                 setError(error.message);
+            }
+            else {
+                setError("Unexpected error occured.");
             }
             console.log(error);
         }
@@ -88,6 +90,10 @@ function Signup(){
                     <Button text="Sign up" classname="default-button"/>
                 </form>
                 {error && <p style={{ color: "red" }}>{error}</p>}
+                <p>Already have an account?</p>
+                <Button text="Login" 
+                    classname="default-button" 
+                    onclick={() => navigate("/Login")}/>
             </div>
         </div>
     )

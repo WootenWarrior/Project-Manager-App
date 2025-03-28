@@ -19,7 +19,7 @@ function Login() {
     useEffect(() => {
         setTimeout(() => {
             setError("");
-        }, 5000);
+        }, 10000);
     }, [error]);
 
     const goToSignup = () => {
@@ -32,8 +32,14 @@ function Login() {
             const loginMessage = await userLogin(email,password);
             
             if (!(loginMessage && loginMessage == "Success")) {
-                setError(loginMessage);
-                return;
+                if (loginMessage) {
+                    setError(loginMessage);
+                    return;
+                }
+                else {
+                    setError("Unexpected error occured.");
+                    return;
+                }
             }
 
             const res = await fetch(`${URL}/api/login`, {
@@ -43,8 +49,9 @@ function Login() {
             });
 
             if (!res.ok) {
-                const errorData = await res.text();
-                setError(errorData);
+                const errorData = await res.json();
+                if (errorData.error) {setError(errorData.error);}
+                else {setError("Unexpected error occured.");}
                 console.log(errorData);
                 return;
             }
@@ -60,7 +67,7 @@ function Login() {
             navigate("/Dashboard");
         } catch (e) {
             console.log(e);
-            navigate("/");
+            setError("Unexpected error occured.");
             return;
         }
     }

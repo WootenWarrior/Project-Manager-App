@@ -49,9 +49,10 @@ export const userSignup = async (data: UserData) => {
   }
 };
 
-export const userLogin = async (email: string, password: string): Promise<string> => {
+export const userLogin = async (email: string, password: string) => {
   try {
     await signInWithEmailAndPassword(auth, email, password);
+    return "Success";
   } catch (error: any) {
     if(email == "") {
       return "Please enter your email.";
@@ -78,5 +79,4 @@ export const userLogin = async (email: string, password: string): Promise<string
       }
     }
   }
-  return "Success";
 };

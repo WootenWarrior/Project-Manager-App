@@ -9,16 +9,14 @@
 }
 
 .signup-box{
-    border: 0.1rem solid var(--default-global-outline);
     transform: scale(1.25);
-    height: 60%;
+    height: fit-content;
     width: 40%;
     background: var(--signup-box-default-background);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 1rem;
     padding: 1rem; 
     border-radius: 8px;
 }
@@ -37,6 +35,10 @@
     align-items: center;
     justify-content: center;
     gap: 1rem 2rem;
+}
+
+.signup-box p {
+    color: var(--default-text-color);
 }
 
 .signup-box form .default-button {
