@@ -11,6 +11,8 @@ import Loading from "./Loading";
 import Template1 from "../assets/Template1.png";
 import Placeholder from "../assets/Placeholder.png";
 import { FiLogOut } from "react-icons/fi";
+import { MdArrowBackIos } from "react-icons/md";
+
 
 
 function Dashboard() {
@@ -265,6 +267,18 @@ function Dashboard() {
             <div className="dashboard-page">
                 <div className="project-list">
                     <div className="toolbar">
+                        <div className="navigation">
+                            <Button onclick={() => handleLogout(navigate)}
+                                classname="default-button"
+                                text="Logout"
+                                altIcon={<FiLogOut />}
+                            />
+                            <Button onclick={() => navigate("/")}
+                                classname="default-button"
+                                text="Back to home"
+                                beforeicon={<MdArrowBackIos />}
+                            />
+                        </div>
                         <div className="title-section">
                             <h1>DASHBOARD</h1>
                             <div className="buttons">
@@ -374,13 +388,6 @@ function Dashboard() {
                     />
                 </div>
             </HiddenMenu>
-            <div className="logout-section">
-                <Button onclick={() => handleLogout(navigate)}
-                    classname="default-button"
-                    text="Logout"
-                    altIcon={<FiLogOut />}
-                />
-            </div>
         </div>
     )
 }

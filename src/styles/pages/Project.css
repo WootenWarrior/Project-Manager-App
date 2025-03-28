@@ -1,5 +1,8 @@
 body, html {
     max-height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
 }
 
 .project {
@@ -7,16 +10,35 @@ body, html {
     height: 100vh;
     background: var(--project-bg);
     position: relative;
-    overflow: hidden;
+    overflow: scroll;
 }
 
 .project .project-title {
-    color: var(--themecolor6);
-    font-size: x-large;
-    margin-left: 2rem;
     text-transform: uppercase;
     font-weight: bold;
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.project .project-title .default-button {
+    padding: 0.5rem;
+    font-size: large;
+}
+
+.project .project-title input {
+    width: auto ;
+    background-color: var(--themecolor2);
+    color: var(--themecolor6);
+    font-size: xx-large;
+    text-transform: uppercase;
+    font-weight: bold;
+    position: relative;
+    outline: none;
+    border: none;
 }
 
 .project .panels {
@@ -77,6 +99,8 @@ body, html {
     flex-direction: row;
     align-items: flex-start;
     overflow: hidden;
+    margin: 0;
+    padding: 0;
 }
 
 .project .panels .project-creation-window .new-stage-button{
@@ -140,7 +164,6 @@ body, html {
 
 .project .panels .project-creation-window .stages::-webkit-scrollbar{
     display: block;
-    margin-left: 5rem;
 }
 
 .project .panels .project-creation-window .stages::-webkit-scrollbar-thumb{
@@ -151,6 +174,7 @@ body, html {
 @media screen and (max-width: 600px) {
     .project .panels .toolbar .tools{
         transition: 0.5s;
-        gap: 1rem;
+        gap: 0.5rem;
+        flex-wrap: wrap;
     }
 }

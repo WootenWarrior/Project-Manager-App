@@ -38,3 +38,7 @@
     justify-content: center;
     gap: 1rem 2rem;
 }
+
+.signup-box form .default-button {
+    margin-bottom: 1rem;
+}

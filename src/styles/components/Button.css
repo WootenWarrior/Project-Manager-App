@@ -2,6 +2,13 @@
     display: none;
 }
 
+button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem ;
+}
+
 .default-button{
     --highlight: var(--default-button-highlight);
     
@@ -82,5 +89,17 @@
 
     .button-text {
         display: none;
+    }
+}
+
+@media screen and (min-width: 1600px) {
+    .default-button {
+        font-size: xx-large;
+    }
+}
+
+@media screen and (min-width: 600px) {
+    .default-button {
+        font-size: medium;
     }
 }

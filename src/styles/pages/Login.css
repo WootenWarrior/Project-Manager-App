@@ -15,7 +15,7 @@ body {
 .login-box {
     border: 0.1rem solid var(--box-border-color);
     transform: scale(1.25);
-    height: 60%;
+    height: auto;
     width: 40%;
     background: var(--login-box-default-background);
     display: flex;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button,Input } from "../components"
 import "../styles/pages/Login.css"
 import { FaUser,FaEye,FaEyeSlash } from "react-icons/fa";
@@ -6,6 +6,8 @@ import { BiLogIn } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 import { userLogin } from "../utils/Firebase";
 import { URL } from "../utils/BackendURL";
+import { IoPersonAdd } from "react-icons/io5";
+
 
 function Login() {
     const navigate = useNavigate();
@@ -13,6 +15,12 @@ function Login() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [rememberMe, setRememberMe] = useState(false);
+
+    useEffect(() => {
+        setTimeout(() => {
+            setError("");
+        }, 5000);
+    }, [error]);
 
     const goToSignup = () => {
         navigate("/Signup");
@@ -101,6 +109,7 @@ function Login() {
                 <Button text="Sign Up" 
                     classname="default-button"
                     onclick={goToSignup}
+                    altIcon={<IoPersonAdd />}
                 />
             </div>
         </div>

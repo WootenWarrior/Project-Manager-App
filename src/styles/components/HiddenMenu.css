@@ -154,10 +154,45 @@
     min-height: 10rem;
     background-color: transparent;
     border-radius: 1rem;
+    min-width: 200px;
+    max-width: 90vw;
+}
+
+.hidden-task-create .description-update {
+    width: 70%;
+    min-height: 15rem;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.hidden-task-create .task-description-container {
+    width: 100%;
+    min-height: 15rem;
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    flex-direction: column;
 }
 
 .hidden-task-create .visible-menu.active textarea::placeholder {
     color: var(--color6);
+}
+
+/* ATTACHMENT CREATE MENU */
+
+.create-attachment-menu .visible-menu.active .create-attachment {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.create-attachment-menu .create-attachment .details {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
 }
 
 
@@ -195,6 +230,15 @@
 }
 
 .theme-menu .options .theme {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-direction: row;
+    gap: 2rem;
+}
+
+.theme-menu .options .user-theme {
     width: 100%;
     display: flex;
     align-items: center;
@@ -348,11 +392,25 @@
     margin-top: 5rem;
 }
 
-.hidden-task-create .description-update {
-    width: 100%;
-    min-height: 15rem;
-    display: flex;
-    justify-content: center;
+.hidden-task-edit select {
+    background-color: transparent;
+    border: 2px solid var(--themecolor6);
+    border-radius: 1rem;
+    padding: 1rem;
+    font-size: medium;
+    font-weight: bold;
+    color: var(--themecolor6);
+    cursor: pointer;
+    outline: none;
+}
+
+.hidden-task-edit select:focus {
+    border-color: var(--themecolor6);
+}
+
+.hidden-task-edit select option {
+    color: var(--themecolor1);
+    background-color: transparent;
 }
 
 .toggle-complete {
@@ -387,7 +445,7 @@
     top: 0;
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: 4px;
     background-color: transparent;
     transition: .4s;
     border-radius: 2rem;
@@ -446,10 +504,13 @@ input:checked + .slider:before {
     padding: 1rem;
     overflow-x: hidden;
     overflow-y: scroll;
+    transition: 0.5s;
 }
 
 .completed-task:hover {
+    transition: 0.5s;
     outline: 1px solid var(--themecolor6);
+    transform: translateY(-1rem);
 }
 
 .completed-task .ID {

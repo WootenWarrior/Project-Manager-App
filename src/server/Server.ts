@@ -30,6 +30,7 @@ admin.initializeApp({
 });
 
 const MAX_PROJECTS = 10;
+const MAX_FILE_NUM = 10;
 const db = admin.firestore();
 const configPath = './src/server/serverconfig.json';
 const config = JSON.parse(readFileSync(configPath, 'utf8'));
@@ -39,8 +40,8 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-    origin: serverOrigin,
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: [serverOrigin],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 }));
 
 const filename = fileURLToPath(import.meta.url);
@@ -53,6 +54,7 @@ app.use(express.static(path.join(__dirname, static_path)));
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
 const bucket = admin.storage().bucket();
 const upload = multer({ storage: multer.memoryStorage() });
+
 
 // FUNCTIONS
 
@@ -209,7 +211,9 @@ const getUrgentTask = async (email: string) => {
 
 // ROUTES
 
-app.put("/api/file", upload.single('file'), async (req: Request, res: Response) => {
+
+// FILES----------------------------------------------------------------------------|
+app.post("/api/file", upload.single('file'), async (req: Request, res: Response) => {
     const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/jpg", "application/pdf", "text/plain",];
     try {
         const { token, projectID, stageID, attachmentData } = req.body;
@@ -250,26 +254,79 @@ app.put("/api/file", upload.single('file'), async (req: Request, res: Response) 
 
         const folderPath = `userUploads/${email}/${projectID}/${stageID}`;
         const [files] = await bucket.getFiles({ prefix: folderPath });
-        if (files.length > 0) {
-            await Promise.all(files.map(file => file.delete()));
+        if (files.length > MAX_FILE_NUM) {
+            res.status(403).json({ error: "User has max files uploaded.", maxFiles: MAX_FILE_NUM });
+            return;
         }
 
-        const destination = `${folderPath}${file.originalname}`;
+        const isExistingFile = files.some((userFile) => file.originalname === userFile.name);
+        if (isExistingFile) {
+            res.status(403).json({ error: "File already exists." });
+            return;
+        }
+
+        const destination = `${folderPath}/${file.originalname}`;
         const fileUpload = bucket.file(destination);
         await fileUpload.save(file.buffer, {
             metadata: { contentType: file.mimetype },
             public: true,
         });
-        const url = `https://storage.googleapis.com/${bucket.name}/${fileUpload.name}`;
+        await fileUpload.makePublic();
+        const url = admin.storage().bucket().file(destination).publicUrl();
 
+        let parsedAttachmentData = JSON.parse(attachmentData);
+        parsedAttachmentData.attachment = url;
         const attachments = db.collection(`users/${email}/projects/${projectID}/stages/${stageID}/attachments`);
-        const attachment = await attachments.add(attachmentData);
-        await attachment.set({ attachmentID: attachment.id }, { merge: true });
+        const ID = "attachment-" + Date.now();
+        await attachments.doc(ID).set(parsedAttachmentData);
 
         res.status(200).json({ message: 'File uploaded successfully.', 
-            url, mimetype: file.mimetype, attachmentID: attachment.id });
+            url, mimetype: file.mimetype, attachmentID: ID });
     } catch (error) {
-        res.status(500).json({ error: "Failed to upload file." });
+        res.status(500).json({ error });
+    }
+});
+
+app.put("/api/file", async (req: Request, res: Response) => {
+    try {
+        const { token, projectID, sourceID, destID, attachmentData } = req.body;
+        if (!token) {
+            res.status(400).json({ error: "Token not provided or invalid." });
+            return;
+        }
+        const verifiedToken = verifyToken(token);
+        if(!verifiedToken) {
+            res.status(401).json({ message: "Token verification failed." });
+            return;
+        }
+        const uid = verifiedToken.userId;
+        const user = await admin.auth().getUser(uid);
+        const email = user.email;
+        if (!email) {
+            res.status(403).json({ error: "Failed to get user email." });
+            return;
+        }
+
+        const attachmentID = attachmentData.attachmentID;
+        if (!attachmentID) {
+            res.status(400).json({ error: "Attachment ID not provided or invalid." });
+            return;
+        }
+
+        const attachments = db.collection(`users/${email}/projects/${projectID}/stages/${sourceID}/attachments`);
+        const attachmentRef = attachments.doc(attachmentID);
+        const attachmentSnapshot = await attachmentRef.get();
+        if (attachmentSnapshot.exists) {
+            await attachmentRef.delete();
+        }
+
+        const newAttachments = db.collection(`users/${email}/projects/${projectID}/stages/${destID}/attachments`);
+        const newAttachment = newAttachments.doc(attachmentID);
+        await newAttachment.set({ ...attachmentData  }, { merge: true });
+
+        res.status(200).json({ message: "Successfully updated attachment." });
+    } catch (error) {
+        res.status(500).json({ error });
     }
 });
 
@@ -298,9 +355,11 @@ app.delete("/api/file", async (req: Request, res: Response) => {
         }
 
         const folderPath = `userUploads/${email}/${projectID}/${stageID}/${attachmentID}/`;
-        const [files] = await bucket.getFiles({ prefix: folderPath });
-        if (files.length > 0) {
-            await Promise.all(files.map(file => file.delete()));
+        const file = bucket.file(folderPath);
+        const deletedFile = await file.delete();
+        if (!deletedFile) {
+            res.status(403).json({ error: "Failed to delete file." });
+            return;
         }
 
         const attachments = db.collection(`users/${email}/projects/${projectID}/stages/${stageID}/attachments`);
@@ -309,7 +368,11 @@ app.delete("/api/file", async (req: Request, res: Response) => {
             res.status(404).json({ error: "Attachment not found." });
             return;
         }
-        await attachmentSnapshot.ref.delete();
+        const deletedAttachment = await attachmentSnapshot.ref.delete();
+        if (!deletedAttachment) {
+            res.status(403).json({ error: "Failed to delete attachment data." });
+            return;
+        }
 
         res.status(200).json({ message: 'File deleted successfully.' });
     } catch (error) {
@@ -317,6 +380,8 @@ app.delete("/api/file", async (req: Request, res: Response) => {
     }
 });
 
+
+// PROJECT----------------------------------------------------------------------------|
 app.get("/api/project", async (req: Request, res: Response) => {
     try {
         const usersCollection = admin.firestore().collection("users");
@@ -380,10 +445,25 @@ app.get("/api/project", async (req: Request, res: Response) => {
                     id: taskDoc.id,
                     ...taskDoc.data()
                 }));
+
+                const attachmentsSnapshot = await usersCollection
+                    .doc(email)
+                    .collection("projects")
+                    .doc(projectID)
+                    .collection("stages")
+                    .doc(stageDoc.id)
+                    .collection("attachments")
+                    .get();
+                const attachments = attachmentsSnapshot.docs.map(attachmentDoc => ({
+                    id: attachmentDoc.id,
+                    ...attachmentDoc.data()
+                }));
+
                 return {
                     id: stageDoc.id,
                     ...stageData,
                     taskList: tasks,
+                    attachmentList: attachments,
                 };
             })
         );
@@ -414,7 +494,6 @@ app.post("/api/project", async (req: Request, res: Response) => {
             return;
         }
 
-
         const projectData: projectData = {
             title: data.projectData?.title,
             description: data.projectData?.description,
@@ -430,7 +509,36 @@ app.post("/api/project", async (req: Request, res: Response) => {
     }
 });
 
-app.delete("/api/project", async (req: Request, res: Response)=> {
+app.put("/api/project", async (req: Request, res: Response) => {
+    try {
+        const { token, projectID, projectData } = req.body;
+        const verifiedToken = verifyToken(token);
+        if(!verifiedToken){
+            res.status(401).json({ message: "Token verification failed." });
+            return;
+        }
+
+        const uid = verifiedToken.userId;
+        const user = await admin.auth().getUser(uid);
+        const email = user.email;
+        if (!email){
+            res.status(401).json({ message: "Error matching user id to email." });
+            return;
+        }
+
+        const projects = db.collection(`users/${email}/projects`);
+        const projectRef = projects.doc(projectID);
+        if (!projectRef) {
+            res.status(404).json({ error: "Project not found." });
+            return;
+        }
+        await projectRef.set({...projectData}, { merge: true });
+    } catch (error) {
+        res.status(500).json({ error: "An error occurred during project updating." });
+    }
+});
+
+app.delete("/api/project", async (req: Request, res: Response) => {
     try {
         const { token, projectID } = req.body;
         const verifiedToken = verifyToken(token);
@@ -462,6 +570,8 @@ app.delete("/api/project", async (req: Request, res: Response)=> {
     }
 });
 
+
+// STAGE----------------------------------------------------------------------------|
 app.post("/api/stage", async (req: Request, res: Response) => {
     try {
         const data = req.body;
@@ -557,6 +667,8 @@ app.delete("/api/stage", async (req: Request, res: Response)=> {
     }
 });
 
+
+// TASK----------------------------------------------------------------------------|
 app.post("/api/task", async (req: Request, res: Response) => {
     try {
         const data = req.body;
@@ -619,9 +731,6 @@ app.put("/api/task", async (req: Request, res: Response) =>{
             res.status(401).json({ message: "No task set." });
             return;
         }
-        if (task.id) {
-            delete task.id;
-        }
         const taskRef = db.collection(`users/${email}/projects/${projectID}/stages/${sourceID}/tasks`).doc(task.taskID);
         const taskDoc = await taskRef.get();
         if (!taskDoc.exists) {
@@ -670,6 +779,8 @@ app.delete("/api/task", async (req: Request, res: Response)=> {
     }
 });
 
+
+// LOGIN----------------------------------------------------------------------------|
 app.post("/api/login", async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body; 
@@ -694,6 +805,7 @@ app.post("/api/login", async (req: Request, res: Response) => {
 });
 
 
+// DASHBOARD----------------------------------------------------------------------------|
 app.get("/api/dashboard", async (req: Request, res: Response) => {
     try {
         const token = String(req.query.token);
@@ -734,6 +846,7 @@ app.get("/api/dashboard", async (req: Request, res: Response) => {
 });
 
 
+// PROTECTED----------------------------------------------------------------------------|
 app.get("/api/protected", async (req: Request, res: Response) => {
     try {
         const token = String(req.query.token);
@@ -790,6 +903,8 @@ app.get("/api/mobile-restrict", async (req: Request, res: Response) => {
     }
 });
 
+
+// THEMES----------------------------------------------------------------------------|
 app.put("/api/theme", async (req: Request, res: Response) => {
     try {
         const { projectID, token, theme } = req.body;

@@ -19,7 +19,7 @@
     --default-button-highlight: white;
 
     /* Fonts */
-    font-size: x-small;
+    font-size: small;
     --default-text-color: white;
     font-family: 'Inter', Arial, Helvetica, sans-serif;
 
@@ -75,8 +75,6 @@ html {
 
 /* Global scrollbar styles */
 ::-webkit-scrollbar {
-    width: 2rem;
-    height: 2rem;
     border-radius: 2rem;
 }
 
@@ -91,4 +89,16 @@ html {
     border-radius: 6px;
     cursor: grabbing;
     outline: 1px solid var(--color6);
+}
+
+@media screen and (min-width: 1600px) {
+    :root {
+        font-size: medium;
+    }
+}
+
+@media screen and (min-width: 600px) {
+    :root {
+        font-size: small;
+    }
 }

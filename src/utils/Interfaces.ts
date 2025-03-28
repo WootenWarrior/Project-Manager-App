@@ -67,7 +67,7 @@ export interface TaskProps {
     prevTask: string | null;
     color?: string;
     selecting?: boolean;
-    dragging?: boolean;
+    dragging: boolean;
 }
 
 export interface AttachmentProps {
@@ -90,6 +90,7 @@ export interface StageProps {
     showTaskEdit: (stageID: string, taskID: string) => void;
     showStageEdit: (stageID: string) => void;
     showAttachmentMenu: (stageID: string) => void;
+    showAttachmentEdit: (stageID: string, attachmentID: string) => void;
     filterText?: string;
     color?: string;
 }

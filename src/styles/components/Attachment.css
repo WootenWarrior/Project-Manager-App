@@ -1,0 +1,34 @@
+.attachment {
+    border: 2px solid var(--themecolor6);
+    padding: 0.5rem;
+    border-radius: 1rem;
+    position: relative;
+    width: auto;
+    height: fit-content;
+    max-height: 3rem;
+    cursor: pointer;
+    transition: 1s;
+    left: var(--x);
+    top: var(--y);
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.attachment .attachment-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    gap: 0.5rem;
+    font-size: medium;
+    color: var(--themecolor6);
+}
+
+.attachment:hover {
+    transition: 1s;
+    background-color: var(--themecolor3);
+}
+
+.attachment.grabbing {
+    cursor: grabbing;
+}

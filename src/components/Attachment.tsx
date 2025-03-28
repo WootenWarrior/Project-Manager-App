@@ -1,18 +1,14 @@
 import { AttachmentProps } from "../utils/Interfaces";
+import "../styles/components/Attachment.css";
 import { useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
-import Button from "./Button";
 import { FaPaperclip } from "react-icons/fa6";
 
-const Attachment: React.FC<AttachmentProps> = ({attachmentID, stageID, name, 
-    attachment, mimeType, x, y, onclick}) => {
+const Attachment: React.FC<AttachmentProps> = ({attachmentID, stageID, name, x, y, onclick}) => {
     const [isDragging, setIsDragging] = useState<boolean>(false);
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: attachmentID
     });
-
-    console.log(attachment);
-    console.log(mimeType);
 
     const style = {
         left: `${x}px`,
@@ -29,7 +25,6 @@ const Attachment: React.FC<AttachmentProps> = ({attachmentID, stageID, name,
             console.log("No onclick method set.");
             return;
         }
-        console.log("clicked");
         onclick(String(stageID), String(attachmentID));
     }
 
@@ -39,11 +34,12 @@ const Attachment: React.FC<AttachmentProps> = ({attachmentID, stageID, name,
             {...attributes} {...listeners} ref={setNodeRef}
             onMouseDown={() => setIsDragging(true)}
             onMouseUp={() => setIsDragging(false)}
-            id={attachmentID}>
-            <Button onclick={() => handleSelect()}
-                beforeicon={<FaPaperclip />}
-                text={name}
-            />
+            id={attachmentID}
+            onClick={() => handleSelect()}>
+            <div className="attachment-container">
+                <FaPaperclip/>
+                <p>{name}</p>
+            </div>
         </div>
     )
 }

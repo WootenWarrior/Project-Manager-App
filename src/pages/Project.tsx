@@ -6,9 +6,9 @@ import { Stage, Button, Input, HiddenMenu,
     TimeInput, DateInput, Textbox, ThemeChanger,
     BackgroundWaves
 } from "../components/index";
-import { TaskProps, StageProps } from "../utils/Interfaces";
+import { TaskProps, StageProps, AttachmentProps } from "../utils/Interfaces";
 import { FaPlus, FaRegTrashCan, FaX } from "react-icons/fa6";
-import { FaArrowCircleLeft } from "react-icons/fa";
+import { FaArrowCircleLeft, FaSave } from "react-icons/fa";
 import { DndContext, DragEndEvent, DragStartEvent, useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
 import { Loading } from "./index";
 import { IoColorPalette } from "react-icons/io5";
@@ -20,7 +20,8 @@ function Project() {
     const MAX_FILE_SIZE = 2 * 1024 * 1024;
     const navigate = useNavigate();
     const { projectID } = useParams();
-    const [projectTitle, setProjectTitle] = useState<string | null>("");
+    const [projectTitle, setProjectTitle] = useState("");
+    const token = sessionStorage.getItem("token") || localStorage.getItem("token");
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
     const [uploading, setUploading] = useState(false);
@@ -34,6 +35,7 @@ function Project() {
     const [taskEditActive, setTaskEditActive] = useState(false);
     const [stageEditActive, setStageEditActive] = useState(false);
     const [attachmentMenuActive, setAttachmentMenuActive] = useState(false);
+    const [attachmentEditActive, setAttachmentEditActive] = useState(false);
     const [_attachmentEditActive, _setAttachmentEditActive] = useState(false);
     const [confirmTaskMenuActive, setConfirmTaskMenuActive] = useState(false);
     const [confirmStageMenuActive, setConfirmStageMenuActive] = useState(false);
@@ -41,6 +43,7 @@ function Project() {
     const [_restoreMenuActive, setRestoreMenuActive] = useState(false);
     const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
     const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
+    const [selectedAttachmentId, setSelectedAttachmentId] = useState<string | null>(null);
     const [_completeTaskSelected, setCompleteTaskSelected] = useState<string | null>(null);
     const [taskStart, setTaskStart] = useState<{ date: string; time: string }>({
         date: new Date().toISOString().split("T")[0],
@@ -58,28 +61,44 @@ function Project() {
     const [stageName, setStageName] = useState("");
     const [taskDescription, setTaskDescription] = useState("");
     const [filterText, setFilterText] = useState("");
+    const [updatedProject, setUpdatedProject] = useState<{
+        title: string
+    }>({
+        title: ""
+    });
     const [updatedTask, setUpdatedTask] = useState<{
         name: string,
         status: boolean,
         description: string,
-        color: string
-    }>({ name: "", status: false, description: "", color: "" });
+        color: string,
+        stageName: string
+    }>({ name: "", status: false, description: "", color: "", stageName });
     const [updatedStage, setUpdatedStage] = useState<{
         name: string
         color: string
     }>({ name: "", color: "" });
+    const [updatedAttachment, setUpdatedAttachment] = useState<{
+        name: string,
+        newURL: string,
+        mimeType: string
+    }>({ name: "", newURL: "", mimeType: "" });
     const sensors = useSensors(useSensor(PointerSensor, {
-        activationConstraint: {
-            delay: 100,
-            tolerance: 5,
-        },
+        activationConstraint: { distance: 10 }
     }));
+    const [draggingObjectData, setDraggingObjectData] = useState<{
+        type: string | null,
+        id: string | null
+    }>({type: null, id: null});
+    const completedTasks = stages.flatMap((stage) =>
+        stage.taskList.filter((task) => task.completed)
+    );
 
     if (!projectID) {
         console.log("No project ID set.");
         navigate("/Dashboard");
         return;
     }
+
 
     // MENU TOGGLES
 
@@ -96,12 +115,14 @@ function Project() {
 
         const stageObject = stages.find((stage) => stage.stageID === stageID);
         const task = stageObject?.taskList.find((task) => task.taskID === taskID) || null;
+
         const description = task?.description || "";
         const name = task?.name || "";
         const status = task?.completed || false;
         const color = task?.color || "";
+        const stageName = stageObject?.stageName || "";
         
-        setUpdatedTask(({ status, name, description, color }));
+        setUpdatedTask(({ status, name, description, color, stageName }));
     }
 
     const hideTaskEdit = () => {
@@ -112,7 +133,8 @@ function Project() {
             status: false, 
             name: "", 
             description: "", 
-            color: ""
+            color: "",
+            stageName: ""
         });
     }
 
@@ -138,8 +160,31 @@ function Project() {
 
     const hideAttachmentMenu = () => {
         setSelectedStageId(null);
+        setSelectedAttachmentId(null);
         setAttachmentMenuActive(false);
     }
+
+    const showAttachmentEdit = (stageID: string, attachmentID: string) => {
+        setSelectedStageId(stageID);
+        setSelectedAttachmentId(attachmentID);
+        setAttachmentEditActive(true);
+
+        const stageObject = stages.find((stage) => stage.stageID === stageID);
+        const attachment = stageObject?.attachmentList.find((attachment) => attachment.attachmentID === attachmentID) || null;
+
+        setUpdatedAttachment(({ name: attachment?.name || "", 
+            newURL: attachment?.attachment || "" ,
+            mimeType: attachment?.mimeType || ""
+        }));
+    }
+
+    const hideAttachmentEdit = () => {
+        setSelectedStageId(null);
+        setSelectedAttachmentId(null);
+        setAttachmentEditActive(false);
+    }
+
+
 
 
     // API CALL FUNCTIONS
@@ -159,11 +204,11 @@ function Project() {
             showTaskMenu,
             showTaskEdit,
             showStageEdit,
-            showAttachmentMenu
+            showAttachmentMenu,
+            showAttachmentEdit
         };
 
         try {
-            const token = sessionStorage.getItem("token") || localStorage.getItem("token");
             const res = await fetch(`${URL}/api/stage`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -183,6 +228,28 @@ function Project() {
             console.log(error)
         }
         setStages((prevStages) => [...prevStages, newStage]);
+        setStages((prevStages) => {
+            const updatedStages = prevStages.map((stage) => {
+                const newStageRect = document.getElementById(newStage.stageID)?.getBoundingClientRect();
+                if (!newStageRect) return stage;
+        
+                const newStageWidth = newStageRect.width;
+                const newStageHeight = newStageRect.height;
+        
+                const newTaskList = stage.taskList.map((task) => {
+                    const taskRect = document.getElementById(task.taskID)?.getBoundingClientRect();
+                    if (!taskRect) return task;
+                    let newX = Math.max(0, Math.min(task.x, newStageWidth - taskRect.width));
+                    let newY = Math.max(0, Math.min(task.y, newStageHeight - taskRect.height));
+        
+                    return { ...task, x: newX, y: newY };
+                });
+        
+                return { ...stage, taskList: newTaskList };
+            });
+        
+            return [...updatedStages];
+        });
         setStageMenuActive(false);
     }
 
@@ -205,6 +272,7 @@ function Project() {
             stageID: stageID,
             name: newTaskName,
             completed: false,
+            dragging: false,
             startDate: taskStart.date,
             startTime: taskStart.time,
             endDate: taskEnd.date,
@@ -216,8 +284,12 @@ function Project() {
             prevTask: null,
         };
 
+        const titleRect = document.getElementById(stageID + "title-section")?.getBoundingClientRect();
+        if (titleRect) {
+            newTask.y = titleRect.height;
+        }
+
         try {
-            const token = sessionStorage.getItem("token") || localStorage.getItem("token");
             const res = await fetch(`${URL}/api/task`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -263,7 +335,6 @@ function Project() {
     const loadProjectData = async () => {
         setLoading(true);
         try {
-            const token = sessionStorage.getItem("token") || localStorage.getItem("token");
             const res = await fetch(`${URL}/api/project?projectID=${projectID}&token=${token}`);
 
             if(!res.ok){
@@ -273,9 +344,10 @@ function Project() {
             }
 
             const data = await res.json();
-
             const projectData = data.projectData;
+            setUpdatedProject(({ ...projectData }));
             setProjectTitle(projectData.title);
+            
 
             if (projectData.stages) {
                 const stages: StageProps[] = Object.entries(
@@ -302,7 +374,6 @@ function Project() {
         setStages((prevStages) => prevStages.filter((stage) => stage.stageID !== stageID));
 
         try {
-            const token = sessionStorage.getItem("token") || localStorage.getItem("token");
             const res = await fetch(`${URL}/api/stage`, {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json" },
@@ -342,7 +413,6 @@ function Project() {
         );
 
         try {
-            const token = sessionStorage.getItem("token") || localStorage.getItem("token");
             const res = await fetch(`${URL}/api/task`, {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json" },
@@ -402,7 +472,6 @@ function Project() {
         );
 
         try {
-            const token = sessionStorage.getItem("token") || localStorage.getItem("token");
             const res = await fetch(`${URL}/api/task`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
@@ -412,6 +481,66 @@ function Project() {
                     sourceID: stageID, 
                     destID: stageID,
                     task: newTask
+                }),
+            });
+
+            if(!res.ok){
+                const errorData = await res.text();
+                console.log(errorData);
+                return;
+            }
+
+            const data = await res.json();
+            console.log(data);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const updateAttachment = async (stageID: string | null, attachmentID: string | null) => {
+        if (!stageID) {
+            console.log("No selected stage ID set.")
+            return;
+        }
+        if (!attachmentID) {
+            console.log("No selected attachment ID set.")
+            return;
+        }
+
+        const stageWithAttachment = stages.find((stage) =>
+            stage.stageID === stageID
+        );
+
+        const attachment = stageWithAttachment?.attachmentList.find((attachment) => attachment.attachmentID === attachmentID) || null;
+
+        const newAttachment = {
+            ...attachment,
+            name: updatedAttachment.name,
+        };
+
+        setStages((prevStages) =>
+            prevStages.map((stage) => stage.stageID === stageID
+                ? {...stage,
+                    attachmentList: stage.attachmentList.map((attachment) =>
+                        attachment.attachmentID === attachmentID ? { 
+                        ...attachment,
+                        name: updatedAttachment.name,
+                    } : attachment)
+                }
+                : stage
+            )
+        );
+
+        try {
+            const res = await fetch(`${URL}/api/file`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    token, 
+                    projectID, 
+                    sourceID: stageID, 
+                    destID: stageID,
+                    attachmentData: newAttachment
                 }),
             });
 
@@ -444,8 +573,6 @@ function Project() {
         );
 
         try {
-            console.log(updatedStage);
-            const token = sessionStorage.getItem("token") || localStorage.getItem("token");
             const res = await fetch(`${URL}/api/stage`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
@@ -479,19 +606,31 @@ function Project() {
             return;
         }
 
+        const newAttachment: AttachmentProps = {
+            attachmentID: `attachment-invalid-${Date.now()}`,
+            stageID: selectedStageId,
+            name: selectedFile.name,
+            x: 0,
+            y: 0,
+            onclick: showAttachmentMenu,
+            mimeType: selectedFile.type,
+            attachment: ""
+        }
+
         setUploading(true);
         
         try {
-            const token = sessionStorage.getItem("token") || localStorage.getItem("token");
             const formData = new FormData();
             formData.append("file", selectedFile);
             formData.append("projectID", projectID);
             formData.append("stageID", selectedStageId);
+            formData.append("attachmentData", JSON.stringify(newAttachment));
             formData.append("token", token || "");
             const res = await fetch(`${URL}/api/file`, {
-                method: "PUT",
+                method: "POST",
                 body: formData
             });
+
 
             if(!res.ok){
                 const errorData = await res.text();
@@ -505,6 +644,8 @@ function Project() {
                 console.log("No file URL returned.");
                 return;
             }
+            newAttachment.attachmentID = "attachment-" + data.attachmentID;
+            newAttachment.attachment = fileURL;
 
             setMessage("File uploaded successfully.");
         } catch (error) {
@@ -513,11 +654,138 @@ function Project() {
         finally {
             setUploading(false);
             setTimeout(() => setMessage(""), 5000);
+            setStages((prevStages) =>
+                prevStages.map((stage) =>
+                    stage.stageID === selectedStageId
+                        ? { ...stage, attachmentList: [...stage.attachmentList, newAttachment] }
+                        : stage
+                )
+            );
+            hideAttachmentMenu();
         }
-    };
+    }
+
+    const updateProjectTitle = async () => {
+        setProjectTitle(updatedProject.title);
+        try {
+            const res = await fetch(`${URL}/api/project`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    token, 
+                    projectID,
+                    projectData: updatedProject
+                }),
+            });
+
+            if(!res.ok){
+                const errorData = await res.text();
+                console.log(errorData);
+                return;
+            }
+
+            const data = await res.json();
+            console.log(data);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const handleStageChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const newStageID = e.target.value;
+        if (!selectedTaskId) {
+            console.log("No selected task ID set.")
+            return;
+        }
+        if (!selectedStageId) {
+            console.log("No selected stage ID set.")
+            return;
+        }
+
+        let movedTask: TaskProps | null = null;
+
+        const updatedStages = stages.map((stage) => {
+            const newTaskList = stage.taskList.filter((task) => {
+                if (task.taskID === selectedTaskId) {
+                    movedTask = { ...task, stageID: newStageID, x: 0, y: 0 };
+                    return false;
+                }
+                return true;
+            });
+            return { ...stage, taskList: newTaskList };
+        });
+
+        const finalUpdatedStages = updatedStages.map((stage) => {
+            if (stage.stageID === newStageID && movedTask) {
+                const taskRect = document.getElementById(movedTask.taskID)?.getBoundingClientRect();
+                const newStageRect = document.getElementById(stage.stageID)?.getBoundingClientRect();
+                const titleRect = document.getElementById(stage.stageID + "title-section")?.getBoundingClientRect();
+                if (!taskRect || !newStageRect) return { ...stage, taskList: [...stage.taskList, movedTask] };;
+        
+                const taskWidth = taskRect.width;
+                const taskHeight = taskRect.height;
+                const newStageWidth = newStageRect.width;
+                const newStageHeight = newStageRect.height;
+
+                let newX = movedTask.x;
+                let newY = movedTask.y;
+
+                newX = Math.max(0, Math.min(newX, newStageWidth - taskWidth));
+                if (titleRect) {
+                    const titleBottom = titleRect.bottom - newStageRect.top;
+                    newY = Math.max(titleBottom, Math.min(newY, newStageHeight - taskHeight));
+                } else {
+                    newY = Math.max(0, Math.min(newY, newStageHeight - taskHeight));
+                }
+
+                movedTask = { ...movedTask, x: newX, y: newY };
+                return { ...stage, taskList: [...stage.taskList, movedTask] };
+            }
+            return stage;
+        });
+
+        setStages(finalUpdatedStages);
+
+        try {
+            const res = await fetch(`${URL}/api/task`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    token, 
+                    projectID,
+                    sourceID: selectedStageId,
+                    destID: newStageID,
+                    task: movedTask
+                }),
+            });
+
+            if (!res.ok) {
+                const errorData = await res.text();
+                console.log(errorData);
+                return;
+            }
+
+            const data = await res.json();
+            console.log(data);
+        } 
+        catch (error) {
+            console.log(error);
+        } 
+        finally {
+            const newStageName = stages.find((stage) => stage.stageID === newStageID)?.stageName;
+            if (newStageName) setUpdatedTask((prev) => ({ ...prev, stageName: newStageName }));
+            setSelectedStageId(newStageID);
+        }
+    }
     
     // FRONTEND INPUT CHANGES
 
+    const handleProjectNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setUpdatedProject((prev) => ({
+            ...prev,
+            title: e.target.value
+        }));
+    }
     const handleTaskNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setTaskName(e.target.value);
     }
@@ -526,34 +794,34 @@ function Project() {
     }
     const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFilterText(e.target.value);
-    };
+    }
     const handleTaskDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setTaskDescription(e.target.value);
-    };
+    }
     const handleStartTimeChange = (time: string) => {
         setTaskStart((prev) => ({
             ...prev,
             time: time,
         }));
-    };
+    }
     const handleStartDateChange = (date: string) => {
         setTaskStart((prev) => ({
             ...prev,
             date: date,
         }));
-    };
+    }
     const handleEndTimeChange = (time: string) => {
         setTaskEnd((prev) => ({
             ...prev,
             time: time,
         }));
-    };
+    }
     const handleEndDateChange = (date: string) => {
         setTaskEnd((prev) => ({
             ...prev,
             date: date,
         }));
-    };
+    }
     const handleTaskNameUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
         setUpdatedTask((prev) => ({
             ...prev,
@@ -566,16 +834,11 @@ function Project() {
             description: e.target.value,
         }));
     }
+    /*
     const handleTaskColorUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
         setUpdatedTask((prev) => ({
             ...prev,
             description: e.target.value,
-        }));
-    }
-    const handleStageNameUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setUpdatedStage((prev) => ({
-            ...prev,
-            name: e.target.value,
         }));
     }
     const handleStageColorUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -584,13 +847,24 @@ function Project() {
             description: e.target.value,
         }));
     }
+    */
+    const handleStageNameUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setUpdatedStage((prev) => ({
+            ...prev,
+            name: e.target.value,
+        }));
+    }
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             setSelectedFile(e.target.files[0]);
         }
     }
-
-    console.log(handleStageColorUpdate, handleTaskColorUpdate);
+    const handleAttachmentNameUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setUpdatedAttachment((prev) => ({
+            ...prev,
+            name: e.target.value,
+        }));
+    }
 
     useEffect(() => {
         loadProjectData();
@@ -598,73 +872,129 @@ function Project() {
 
     const handleDragStart = (event: DragStartEvent) => {
         const { active } = event;
-
-        console.log(active);
+        console.log("dragging");
+    
+        if (active.id.toString().startsWith("task-")) {
+            setDraggingObjectData({ type: "task", id: String(active.id) });
+        } 
+        else if (active.id.toString().startsWith("attachment-")) {
+            setDraggingObjectData({ type: "attachment", id: String(active.id) });
+        } 
+        else {
+            console.log("Unknown drag object type", active);
+        }
     };
 
     const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over, delta } = event;
         if (!over) return;
-    
-        const taskId = active.id as string;
-        const newStageID = over.id as string;
+        if (!draggingObjectData.type) return;
+
+        let dragObjectID = active.id as string;
+        let newStageID = over.id as string;
         let draggedTask: TaskProps | null = null;
+        let draggedAttachment: AttachmentProps | null = null;
         let oldStageID: string | null = null;
 
         setStages((prevStages) =>
             prevStages.map((stage) => ({
                 ...stage,
                 taskList: stage.taskList.map((task) => ({ ...task, dragging: false })),
+                attachmentList: stage.attachmentList.map((attachment) => ({ ...attachment, dragging: false })),
             }))
         );
 
         const updatedStages = stages.map((stage) => {
-            let newTaskList = stage.taskList.map((task: TaskProps) => {
-                if (task.taskID === taskId) {
-                    const taskRect = document.getElementById(task.taskID)?.getBoundingClientRect();
-                    const currentStageRect = document.getElementById(stage.stageID)?.getBoundingClientRect();
-                    const titleRect = document.getElementById(stage.stageID + "title-section")?.getBoundingClientRect();
-                    const newStageRect = document.getElementById(newStageID)?.getBoundingClientRect();
-                    if (!taskRect || !currentStageRect || !newStageRect) return task;
-        
-                    const taskWidth = taskRect.width;
-                    const taskHeight = taskRect.height;
-                    const newStageWidth = newStageRect.width;
-                    const newStageHeight = newStageRect.height;
+            if (draggingObjectData.type === "task") {
+                console.log("here")
+                let newTaskList = stage.taskList.map((task: TaskProps) => {
+                    if (task.taskID === dragObjectID) {
+                        const taskRect = document.getElementById(task.taskID)?.getBoundingClientRect();
+                        const currentStageRect = document.getElementById(stage.stageID)?.getBoundingClientRect();
+                        const titleRect = document.getElementById(stage.stageID + "title-section")?.getBoundingClientRect();
+                        const newStageRect = document.getElementById(newStageID)?.getBoundingClientRect();
+                        if (!taskRect || !currentStageRect || !newStageRect) return task;
+            
+                        const taskWidth = taskRect.width;
+                        const taskHeight = taskRect.height;
+                        const newStageWidth = newStageRect.width;
+                        const newStageHeight = newStageRect.height;
 
-                    let newX = task.x + delta.x;
-                    let newY = task.y + delta.y;
+                        let newX = task.x + delta.x;
+                        let newY = task.y + delta.y;
 
-                    newX = Math.max(0, Math.min(newX, newStageWidth - taskWidth));
-                    if (titleRect) {
-                        const titleBottom = titleRect.bottom - newStageRect.top;
-                        newY = Math.max(titleBottom, Math.min(newY, newStageHeight - taskHeight));
-                    } else {
-                        newY = Math.max(0, Math.min(newY, newStageHeight - taskHeight));
+                        newX = Math.max(0, Math.min(newX, newStageWidth - taskWidth));
+                        if (titleRect) {
+                            const titleBottom = titleRect.bottom - newStageRect.top;
+                            newY = Math.max(titleBottom, Math.min(newY, newStageHeight - taskHeight));
+                        } else {
+                            newY = Math.max(0, Math.min(newY, newStageHeight - taskHeight));
+                        }
+
+                        draggedTask = { ...task, stageID: newStageID, x: newX, y: newY };
+                        oldStageID = stage.stageID;
                     }
 
-                    draggedTask = { ...task, stageID: newStageID, x: newX, y: newY };
-                    oldStageID = stage.stageID;
+                    return task;
+                });
+
+                newTaskList = newTaskList.filter((task) => task.taskID !== draggedTask?.taskID);
+
+                if (stage.stageID === oldStageID && draggedTask !== null) {
+                    newTaskList = [...newTaskList, draggedTask];
                 }
 
-                return task;
-            });
-
-            
-            newTaskList = newTaskList.filter((task) => task.taskID !== draggedTask?.taskID);
-
-            if (stage.stageID === oldStageID && draggedTask !== null) {
-                newTaskList = [...newTaskList, draggedTask];
+                return { ...stage, taskList: newTaskList };
             }
 
-            return { ...stage, taskList: newTaskList };
+            if (draggingObjectData.type === "attachment") {
+                let newAttachmentList = stage.attachmentList.map((attachment: AttachmentProps) => {
+                    if (attachment.attachmentID === dragObjectID) {
+                        const attachmentRect = document.getElementById(attachment.attachmentID)?.getBoundingClientRect();
+                        const currentStageRect = document.getElementById(stage.stageID)?.getBoundingClientRect();
+                        const titleRect = document.getElementById(stage.stageID + "title-section")?.getBoundingClientRect();
+                        const newStageRect = document.getElementById(newStageID)?.getBoundingClientRect();
+                        if (!attachmentRect || !currentStageRect || !newStageRect) return attachment;
+
+                        const attachmentWidth = attachmentRect.width;
+                        const attachmentHeight = attachmentRect.height;
+                        const newStageWidth = newStageRect.width;
+                        const newStageHeight = newStageRect.height;
+
+                        let newX = attachment.x + delta.x;
+                        let newY = attachment.y + delta.y;
+
+                        newX = Math.max(0, Math.min(newX, newStageWidth - attachmentWidth));
+                        if (titleRect) {
+                            const titleBottom = titleRect.bottom - newStageRect.top;
+                            console.log(titleRect.bottom)
+                            newY = Math.max(titleBottom, Math.min(newY, newStageHeight - attachmentHeight));
+                        } else {
+                            newY = Math.max(0, Math.min(newY, newStageHeight - attachmentHeight));
+                        }
+
+                        draggedAttachment = { ...attachment, stageID: newStageID, x: newX, y: newY };
+                        oldStageID = stage.stageID;
+                    }
+
+                    return attachment;
+                });
+
+                newAttachmentList = newAttachmentList.filter((attachment) => attachment.attachmentID !== draggedAttachment?.attachmentID);
+
+                if (stage.stageID === oldStageID && draggedAttachment !== null) {
+                    newAttachmentList = [...newAttachmentList, draggedAttachment];
+                }
+                return { ...stage, attachmentList: newAttachmentList };
+            }
+
+            return stage;
         });
 
         setStages(updatedStages);
         
         if (draggedTask) {
             try {
-                const token = sessionStorage.getItem("token") || localStorage.getItem("token");
                 const res = await fetch(`${URL}/api/task`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
@@ -689,6 +1019,37 @@ function Project() {
                 console.log(error);
             }
         }
+
+        if (draggedAttachment) {
+            try {
+                console.log(draggedAttachment);
+                console.log(oldStageID);
+                const res = await fetch(`${URL}/api/file`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        token, 
+                        projectID, 
+                        sourceID: oldStageID, 
+                        destID: oldStageID,
+                        attachmentData: draggedAttachment
+                    }),
+                });
+
+                if (!res.ok) {
+                    const errorData = await res.text();
+                    console.log(errorData);
+                    return;
+                }
+        
+                const data = await res.json();
+                console.log(data.message? data.message : "");
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        setDraggingObjectData({ type: null, id: null });
     };
 
     /*
@@ -732,7 +1093,18 @@ function Project() {
                 color2="var(--themecolor2)"
                 color3="var(--themecolor3)"
             />
-            <div className="project-title">{projectTitle}</div>
+            <div className="project-title">
+                <Input value={updatedProject.title ?? "Untitled"}
+                    visible={true}
+                    onchange={(e) => handleProjectNameChange(e)}/>
+                {updatedProject.title !== projectTitle &&
+                    <Button classname="default-button"
+                        onclick={updateProjectTitle}
+                        beforeicon={<FaSave />}
+                        text="Save"
+                    />
+                }
+            </div>
             <div className="panels">
                 <div className="toolbar">
                     <Button classname="default-button"
@@ -789,6 +1161,7 @@ function Project() {
                                     showTaskEdit={showTaskEdit}
                                     showStageEdit={showStageEdit}
                                     showAttachmentMenu={showAttachmentMenu}
+                                    showAttachmentEdit={showAttachmentEdit}
                                     filterText={filterText}
                                 />
                             ))}
@@ -823,15 +1196,18 @@ function Project() {
                     setTaskName("");
                     setSelectedStageId(null);
                 }}
-                create={() => addTaskToStage(selectedStageId)}>
+                create={() => addTaskToStage(selectedStageId)}
+                createButtonText="Create Task">
                 <h1>Create new task</h1>
-                <Input
-                    textcolor="black"
-                    width="100%"
-                    onchange={handleTaskNameChange}
-                    visible={true}
-                    placeholder="Enter task title..."
-                />
+                <div className="task-name">
+                    <p>Enter task name:</p>
+                    <Input textcolor="black"
+                        width="100%"
+                        onchange={handleTaskNameChange}
+                        visible={true}
+                        placeholder="Enter task title..."
+                    />
+                </div>
                 <div className="task-timing-inputs">
                     <div className="block">
                         <DateInput text="Set start date: "
@@ -860,6 +1236,7 @@ function Project() {
                         onchange={handleTaskDescriptionChange} 
                         placeholder="Task description... "
                         width="100%"
+                        classname="task-description-container"
                     />
                 </div>
             </HiddenMenu>
@@ -912,6 +1289,17 @@ function Project() {
                                 placeholder="Enter description..."
                                 value={updatedTask.description}
                                 onchange={handleTaskDescriptionUpdate}/>
+                            <p>Move to different stage?</p>
+                            <div className="select-container">
+                                <select value={selectedStageId? selectedStageId : ""} onChange={handleStageChange}>
+                                    {stages.map((stage) => (
+                                        <option key={stage.stageID} 
+                                            value={stage.stageID}>
+                                                {stage.stageName}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -941,25 +1329,25 @@ function Project() {
                 visible={completeMenuActive}
                 close={() => setCompleteMenuActive(false)}
                 closeButtonText="Close">
+                {completedTasks.length <= 0 && <p>No completed tasks.</p>}
                 <div className="completed-tasks-container">
-                    {stages.flatMap(stage => 
-                        stage.taskList
-                            .filter(task => task.completed)
-                            .map(task => (
-                                <span key={task.taskID} className="completed-task"
-                                    onClick={() => {
-                                        setCompleteTaskSelected(task.taskID);
-                                        setRestoreMenuActive(true)
-                                    }}>
-                                    <p className="task-name">{task.name}</p>
-                                    {
-                                    task.description? 
-                                        <p className="task-description">{task.description}</p> :
-                                        <p>No description</p>
-                                    }
-                                    <p className="ID">{task.taskID}</p>
-                                </span>
-                            ))
+                    {completedTasks.map(task => (
+                            <span key={task.taskID} className="completed-task"
+                                onClick={() => {
+                                    setCompleteTaskSelected(task.taskID);
+                                    setRestoreMenuActive(true)
+                                }}>
+                                <p className="task-name">{task.name}</p>
+                                {
+                                task.description? 
+                                    <p className="task-description">
+                                        {task.description}
+                                    </p> :
+                                    <p>No description</p>
+                                }
+                                <p className="ID">{task.taskID}</p>
+                            </span>
+                            )
                         )
                     }
                 </div>
@@ -975,6 +1363,7 @@ function Project() {
                 createButtonText="Confirm"
                 closeButtonText="Back"
             >
+                <h1>Are you sure you want to delete this task?</h1>
             </HiddenMenu>
             <HiddenMenu visible={confirmStageMenuActive}
                 classname="confirm-stage-menu"
@@ -987,28 +1376,60 @@ function Project() {
                 createButtonText="Confirm"
                 closeButtonText="Back"
             >
+                <h1>Are you sure you want to delete this stage?</h1>
             </HiddenMenu>
             <HiddenMenu visible={attachmentMenuActive}
                 classname="create-attachment-menu"
-                close={() => setAttachmentMenuActive(false)}
+                close={() => {
+                    setAttachmentMenuActive(false)
+                    setSelectedFile(null);
+                }}
                 create={() => {
                     uploadFile();
-                    hideAttachmentMenu();
+                    setSelectedFile(null);
+                    setAttachmentMenuActive(false);
                 }}
                 createButtonText="Upload">
-                    <div className="create-attachment">
-                        <div className="attachment-display">
-                            
-                        </div>
-                        <div className="details">
-                            <p>Upload new file: </p>
-                            <p>Files must be less than 2MB</p>
-                            <p>Files must be either an image or a pdf / txt file</p>
-                            {uploading && <p>Uploading...</p>}
-                            {message && <p>{message}</p>}
-                        </div>
-                        <input type="file" onChange={handleFileChange} />
+                <div className="create-attachment">
+                    <div className="details">
+                        <h1>Upload new file: </h1>
+                        <p>Files must be less than 2MB</p>
+                        <p>Files must be either an image or a pdf / txt file</p>
+                        {uploading && <p>Uploading...</p>}
+                        {message && <p>{message}</p>}
                     </div>
+                    <input type="file" onChange={handleFileChange}/>
+                </div>
+            </HiddenMenu>
+            <HiddenMenu visible={attachmentEditActive}
+                classname="edit-attachment-menu"
+                close={() => {
+                    updateAttachment(selectedStageId, selectedAttachmentId);
+                    hideAttachmentEdit();
+                }}>
+                <h1>Edit attachment: {updatedAttachment.name}</h1>
+                <Input placeholder="Set a new attachment name..."
+                    value={updatedAttachment.name}
+                    visible={true}
+                    onchange={handleAttachmentNameUpdate}
+                />
+                {updatedAttachment.newURL && (
+                    <div className="attachment-preview">
+                        {updatedAttachment.mimeType.startsWith("image/") ? (
+                            <img src={updatedAttachment.newURL} alt={updatedAttachment.name} className="attachment-image"/>
+                        ) : updatedAttachment.mimeType === "application/pdf" ? (
+                            <iframe src={updatedAttachment.newURL} className="attachment-pdf"></iframe>
+                        ) : updatedAttachment.mimeType === "text/plain" ? (
+                            <a href={updatedAttachment.newURL} download={updatedAttachment.name} className="attachment-link">
+                                Download Text File
+                            </a>
+                        ) : (
+                            <a href={updatedAttachment.newURL} download={updatedAttachment.name} className="attachment-link">
+                                Download Attachment
+                            </a>
+                        )}
+                    </div>
+                )}
             </HiddenMenu>
             <ThemeChanger isvisible={themeMenuActive} 
                 closeMenu={() => setThemeMenuActive(false)}

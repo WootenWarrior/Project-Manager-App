@@ -5,12 +5,10 @@ import { TaskProps } from "../utils/Interfaces";
 
 const Task: React.FC<TaskProps> = ({stageID, taskID, name, completed, onclick, 
     startDate, startTime, endDate, endTime, description, x, y, selecting, dragging}) => {
-    const [isDragging, setIsDragging] = useState<boolean>(false);
+    const [isDragging, setIsDragging] = useState<boolean>(dragging);
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: taskID
     });
-
-    console.log(selecting, dragging);
 
     const style = {
         left: `${x}px`,
@@ -21,8 +19,6 @@ const Task: React.FC<TaskProps> = ({stageID, taskID, name, completed, onclick,
         transition: transform ? "transform 20ms ease" : undefined,
         zIndex: 1000,
     };
-
-    // Dates
 
     const dateOptions: Intl.DateTimeFormatOptions = {
         weekday: 'short',
@@ -85,16 +81,26 @@ const Task: React.FC<TaskProps> = ({stageID, taskID, name, completed, onclick,
         return () => clearInterval(interval);
     }, []);
 
+    useEffect(() => {
+        const handleMouseUp = () => {
+            setIsDragging(false);
+        };
+    
+        document.addEventListener("mouseup", handleMouseUp);
+    
+        return () => {
+            document.removeEventListener("mouseup", handleMouseUp);
+        };
+    }, []);
+
 
     const handleSelect = () => {
         if (!onclick) {
             console.log("No onclick method set.");
             return;
         }
-        console.log("clicked");
         onclick(String(stageID), String(taskID));
     }
-
 
     return (
         <div ref={setNodeRef} style={style} 
@@ -102,7 +108,7 @@ const Task: React.FC<TaskProps> = ({stageID, taskID, name, completed, onclick,
             {...listeners} {...attributes}
             onMouseDown={() => setIsDragging(true)}
             onMouseUp={() => setIsDragging(false)}
-            onClick={() => handleSelect()}
+            onClick={handleSelect}
             id={taskID}>
             <div className="task-container">
                 <div className="task-header">

@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom"
 import { BackgroundWaves, Button } from "../components";
+import { userLogin } from "../utils/Firebase";
 import "../styles/pages/Landing.css";
 import logo from "../assets/Logo-white.png";
 import Example from "../assets/Example1.png";
@@ -10,14 +11,17 @@ import Example4 from "../assets/Example4.png";
 
 function Landing() {
     const navigate = useNavigate();
+    const isMobile  = navigator.userAgent.includes("Mobile");
 
-
-    const goToLogin = () => {
-        navigate("/Login");
+    const handleLogin = async () => {
+        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+        if (!token) {
+            navigate("/login") 
+            return;
+        }
+        navigate("/Dashboard");
     }
-    const goToSignup = () => {
-        navigate("/Signup");
-    }
+    
 
     return (
         <div className="landing-page">
@@ -31,17 +35,20 @@ function Landing() {
                 <div className="menu">
                     <Button 
                         text="LOGIN"
-                        onclick={goToLogin} 
+                        onclick={() =>handleLogin()} 
                         classname="default-button"
                     />
                     <Button
                         text="SIGN-UP"
-                        onclick={goToSignup}
+                        onclick={() => navigate("/Signup")}
                         classname="default-button"
                     />
                 </div>
             </div>
             <div className="about-section">
+                {isMobile && <div className="text">
+                    <p>OPEN THE DESKTOP APP FOR <br/> FULL EXPERIENCE.</p>
+                </div>}
                 <div className="panel">
                     <div className="text">
                         <p>THE POWER OF <br/> STORYBOARDING, <br/>
