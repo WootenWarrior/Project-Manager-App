@@ -115,6 +115,7 @@ const deleteAllStages = async (email: string, projectID: string) => {
         const snapshot = await stages.get();
         for (const stageDoc of snapshot.docs) {
             await deleteAllTasks(email, projectID, stageDoc.id);
+            await deleteAllAttachments(email, projectID, stageDoc.id);
             await stageDoc.ref.delete();
         }
     } catch (error) {
@@ -132,6 +133,31 @@ const deleteAllTasks = async (email: string, projectID: string, stageID: string)
         const snapshot = await tasks.get();
         for (const taskDoc of snapshot.docs) {
             await taskDoc.ref.delete();
+        }
+    } catch (error) {
+        let errormessage = "Failed to delete tasks.";
+        if (error instanceof Error) {
+            errormessage = error.message;
+        }
+        throw new Error(errormessage);
+    }
+}
+
+const deleteAllAttachments = async (email: string, projectID: string, stageID: string) => {
+    try {
+        const attachments = db.collection(`users/${email}/projects/${projectID}/stages/${stageID}/attachments`);
+        const snapshot = await attachments.get();
+        for (const attachmentsDoc of snapshot.docs) {
+            await attachmentsDoc.ref.delete();
+        }
+
+        const folderPath = `userUploads/${email}/${projectID}/${stageID}`;
+        const [files] = await bucket.getFiles({ prefix: folderPath });
+        if (!files || files.length <= 0) {
+            return;
+        }
+        for (const file of files) {
+            await file.delete();
         }
     } catch (error) {
         let errormessage = "Failed to delete tasks.";
@@ -660,6 +686,7 @@ app.delete("/api/stage", async (req: Request, res: Response)=> {
         }
         
         await deleteAllTasks(email, projectID, stageID);
+        await deleteAllAttachments(email, projectID, stageID);
         await stageRef.delete();
         res.status(200).json({ message: "Stage deleted successfully." });
     } catch (error) {

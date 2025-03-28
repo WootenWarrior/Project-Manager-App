@@ -1022,8 +1022,6 @@ function Project() {
 
         if (draggedAttachment) {
             try {
-                console.log(draggedAttachment);
-                console.log(oldStageID);
                 const res = await fetch(`${URL}/api/file`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
