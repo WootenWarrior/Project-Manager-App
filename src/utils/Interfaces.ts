@@ -14,6 +14,7 @@ export interface ButtonProps {
     backgroundcolor?: string;
     highlightColor?: string;
     altIcon?: React.ReactNode;
+    tooltip?: string;
 }
 
 export interface HiddenMenuProps {
@@ -93,6 +94,8 @@ export interface StageProps {
     showAttachmentEdit: (stageID: string, attachmentID: string) => void;
     filterText?: string;
     color?: string;
+    width: number;
+    height: number;
 }
 
 export interface TextboxProps {

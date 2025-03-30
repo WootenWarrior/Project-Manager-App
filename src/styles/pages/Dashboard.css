@@ -166,9 +166,15 @@
         transition: 1s;
         grid-template-columns: repeat(1, 1fr);
     }
+
     .dashboard-page .toolbar {
         flex-direction: column;
         margin-bottom: 4rem;
         gap: 1rem;
+    }
+
+    .dashboard-page .toolbar .navigation {
+        flex-direction: row;
+        gap: 3rem;
     }
 }

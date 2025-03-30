@@ -402,7 +402,7 @@ app.delete("/api/file", async (req: Request, res: Response) => {
 
         res.status(200).json({ message: 'File deleted successfully.' });
     } catch (error) {
-        res.status(500).json({ error: "Failed to upload file." });
+        res.status(500).json({ error: "Failed to delete file." });
     }
 });
 

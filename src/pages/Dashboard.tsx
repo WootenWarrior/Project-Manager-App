@@ -259,11 +259,6 @@ function Dashboard() {
 
     return(
         <div className="dashboard">
-            <BackgroundWaves bottom={false} top={true} 
-                color1="var(--color1)"
-                color2="var(--color2)"
-                color3="var(--color3)"
-            />
             <div className="dashboard-page">
                 <div className="project-list">
                     <div className="toolbar">
@@ -293,7 +288,6 @@ function Dashboard() {
                                     text="Delete project"
                                     classname="default-button"
                                     onclick={() => setDeleteMenuActive(true)}
-                                    highlightColor="red"
                                 />
                             </div>
                         </div>

@@ -1,11 +1,13 @@
 .attachment {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border: 2px solid var(--themecolor6);
     padding: 0.5rem;
     border-radius: 1rem;
-    position: relative;
+    position: absolute;
     width: auto;
     height: fit-content;
-    max-height: 3rem;
+    max-height: 5rem;
     cursor: pointer;
     transition: 1s;
     left: var(--x);
@@ -22,11 +24,28 @@
     gap: 0.5rem;
     font-size: medium;
     color: var(--themecolor6);
+    min-width: 2rem;
+    min-height: 2rem;
+}
+
+.attachment .attachment-container p {
+    margin: 0;
+    max-width: 8rem;
+}
+
+.attachment .attachment-container svg {
+    min-height: 0.5rem;
+    min-width: 0.5rem;
 }
 
 .attachment:hover {
     transition: 1s;
-    background-color: var(--themecolor3);
+    border-color: var(--themecolor3);
+}
+
+.attachment:hover .attachment-container {
+    transition: 1s;
+    color: var(--themecolor3);
 }
 
 .attachment.grabbing {

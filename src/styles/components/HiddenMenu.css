@@ -16,8 +16,8 @@
     left: 0%;
     z-index: 100;
     width: 100vw;
-    height: 100vh;
-    max-height: 100vh;
+    height: 110vh;
+    max-height: 110vh;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -470,6 +470,29 @@ input:checked + .slider {
 
 input:checked + .slider:before {
     transform: translateX(6rem);
+}
+
+/* ATTACHMENT EDIT MENU */
+
+.edit-attachment-menu .visible-menu.active .attachment-preview {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+
+.edit-attachment-menu .visible-menu.active .attachment-preview img {
+    max-width: 70vw;
+    max-height: 70vh;
+}
+
+.edit-attachment-menu .visible-menu.active .attachment-preview iframe {
+    width: 70vw;
+    height: 70vh;
+    max-width: 70vw;
+    max-height: 70vh;
 }
 
 

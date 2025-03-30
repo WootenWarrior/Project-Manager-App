@@ -13,7 +13,9 @@ import { DndContext, DragEndEvent, DragStartEvent, useSensor, useSensors, Pointe
 import { Loading } from "./index";
 import { IoColorPalette } from "react-icons/io5";
 import { TiTick } from "react-icons/ti";
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "../styles/components/Toast.css";
 
 
 function Project() {
@@ -25,8 +27,6 @@ function Project() {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
     const [uploading, setUploading] = useState(false);
-    const [_draggingActive, _setDraggingActive] = useState(false);
-    const [_selecting, _setSelecting] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [stages, setStages] = useState<StageProps[]>([]);
     const [themeMenuActive, setThemeMenuActive] = useState(false);
@@ -36,11 +36,9 @@ function Project() {
     const [stageEditActive, setStageEditActive] = useState(false);
     const [attachmentMenuActive, setAttachmentMenuActive] = useState(false);
     const [attachmentEditActive, setAttachmentEditActive] = useState(false);
-    const [_attachmentEditActive, _setAttachmentEditActive] = useState(false);
     const [confirmTaskMenuActive, setConfirmTaskMenuActive] = useState(false);
     const [confirmStageMenuActive, setConfirmStageMenuActive] = useState(false);
     const [completeMenuActive, setCompleteMenuActive] = useState(false);
-    const [_restoreMenuActive, setRestoreMenuActive] = useState(false);
     const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
     const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
     const [selectedAttachmentId, setSelectedAttachmentId] = useState<string | null>(null);
@@ -184,7 +182,28 @@ function Project() {
         setAttachmentEditActive(false);
     }
 
+    const showToastError = (message: string) => {
+        toast.error(message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: false,
+            draggable: true,
+        });
+    };
 
+    const showToastSuccess = (message: string) => {
+        toast.success(message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: false,
+            draggable: true,
+        });
+    }
+    
 
 
     // API CALL FUNCTIONS
@@ -205,7 +224,9 @@ function Project() {
             showTaskEdit,
             showStageEdit,
             showAttachmentMenu,
-            showAttachmentEdit
+            showAttachmentEdit,
+            width: 0,
+            height: 0
         };
 
         try {
@@ -217,6 +238,7 @@ function Project() {
 
             if(!res.ok){
                 const errorData = await res.text();
+                showToastError(`Unexpected error occured with stage creation.`);
                 console.log(errorData);
                 return;
             }
@@ -225,37 +247,42 @@ function Project() {
             console.log(data);
         }
         catch (error) {
-            console.log(error)
+            console.log(error);
+            showToastError(`Unexpected error occured with stage creation.`);
         }
-        setStages((prevStages) => [...prevStages, newStage]);
-        setStages((prevStages) => {
-            const updatedStages = prevStages.map((stage) => {
-                const newStageRect = document.getElementById(newStage.stageID)?.getBoundingClientRect();
-                if (!newStageRect) return stage;
-        
-                const newStageWidth = newStageRect.width;
-                const newStageHeight = newStageRect.height;
-        
-                const newTaskList = stage.taskList.map((task) => {
-                    const taskRect = document.getElementById(task.taskID)?.getBoundingClientRect();
-                    if (!taskRect) return task;
-                    let newX = Math.max(0, Math.min(task.x, newStageWidth - taskRect.width));
-                    let newY = Math.max(0, Math.min(task.y, newStageHeight - taskRect.height));
-        
-                    return { ...task, x: newX, y: newY };
+        finally {
+            setStages((prevStages) => [...prevStages, newStage]);
+            setStages((prevStages) => {
+                const updatedStages = prevStages.map((stage) => {
+                    const newStageRect = document.getElementById(newStage.stageID)?.getBoundingClientRect();
+                    if (!newStageRect) return stage;
+            
+                    const newStageWidth = newStageRect.width;
+                    const newStageHeight = newStageRect.height;
+            
+                    const newTaskList = stage.taskList.map((task) => {
+                        const taskRect = document.getElementById(task.taskID)?.getBoundingClientRect();
+                        if (!taskRect) return task;
+                        let newX = Math.max(0, Math.min(task.x, newStageWidth - taskRect.width));
+                        let newY = Math.max(0, Math.min(task.y, newStageHeight - taskRect.height));
+            
+                        return { ...task, x: newX, y: newY };
+                    });
+            
+                    return { ...stage, taskList: newTaskList };
                 });
-        
-                return { ...stage, taskList: newTaskList };
+            
+                return [...updatedStages];
             });
-        
-            return [...updatedStages];
-        });
-        setStageMenuActive(false);
+            setStageMenuActive(false);
+            showToastSuccess(`Stage: "${stageTitle}" added successfully.`);
+        }
     }
 
     const addTaskToStage = async (stageID: string | null) => {
         if (!stageID) {
-            console.log("No selected stage ID set.")
+            showToastError(`No selected stage ID set, please try again.`);
+            setTaskMenuActive(false);
             return;
         }
 
@@ -315,21 +342,24 @@ function Project() {
         } catch (error) {
             console.log(error);
         }
-        setTaskName("");
-        setTaskDescription("");
-        setTaskStart({
-            date: new Date().toISOString().split("T")[0],
-            time: new Date().toTimeString().slice(0, 5)
-        });
-        setTaskEnd({
-            date: (() => {
-                const date = new Date();
-                date.setDate(date.getDate() + 7);
-                return date.toISOString().split("T")[0];
-            })(),
-            time: new Date().toTimeString().slice(0, 5)
-        })
-        setTaskMenuActive(false);
+        finally {
+            setTaskName("");
+            setTaskDescription("");
+            setTaskStart({
+                date: new Date().toISOString().split("T")[0],
+                time: new Date().toTimeString().slice(0, 5)
+            });
+            setTaskEnd({
+                date: (() => {
+                    const date = new Date();
+                    date.setDate(date.getDate() + 7);
+                    return date.toISOString().split("T")[0];
+                })(),
+                time: new Date().toTimeString().slice(0, 5)
+            })
+            setTaskMenuActive(false);
+            showToastSuccess(`Task: "${newTaskName}" added successfully.`);
+        }
     }
 
     const loadProjectData = async () => {
@@ -340,6 +370,7 @@ function Project() {
             if(!res.ok){
                 const errorData = await res.text();
                 console.log(errorData);
+                showToastError(`Unexpected error occured with loading project data, please refresh the page.`);
                 return;
             }
 
@@ -361,13 +392,16 @@ function Project() {
             }
         } catch (error) {
             console.log(error);
+            showToastError(`Unexpected error occured with loading project data, please refresh the page.`);
         }
-        setLoading(false);
+        finally {
+            setLoading(false);
+        }
     }
 
     const deleteStage = async (stageID : string | null) => {
         if (!stageID) {
-            console.log("No stage ID set to delete.");
+            showToastError(`Unexpected error occured when deleting stage, please try again.`);
             return;
         }
 
@@ -390,16 +424,22 @@ function Project() {
             console.log(data);
         } catch (error) {
             console.log(error);
+            showToastError(`Unexpected error occured when deleting stage, please try again.`);
+        }
+        finally {
+            showToastSuccess(`Stage deleted successfully.`);
         }
     }
 
     const deleteTask = async (stageID: string | null, taskID: string | null) => {
         if (!stageID) {
             console.log("No stage ID set to delete.");
+            showToastError(`Unexpected error occured when deleting task, please try again.`);
             return;
         }
         if (!taskID) {
             console.log("No task ID set to delete.");
+            showToastError(`Unexpected error occured when deleting task, please try again.`);
             return;
         }
 
@@ -421,6 +461,7 @@ function Project() {
 
             if (!res.ok) {
                 const errorData = await res.text();
+                showToastError(`Unexpected error occured when deleting task, please try again.`);
                 console.log(errorData);
                 return;
             }
@@ -429,16 +470,59 @@ function Project() {
             console.log(data);
         } catch (error) {
             console.log(error);
+            showToastError(`Unexpected error occured when deleting task, please try again.`);
+        }
+        finally {
+            showToastSuccess(`Task deleted successfully.`);
         }
     }
 
-    const updateTask = async (stageID: string | null, taskID: string | null) => {
+    const deleteAttachment = async (stageID: string | null, attachmentID: string | null) => {
+        if (!stageID) {
+            console.log("No stage ID set to delete.");
+            showToastError(`Unexpected error occured when deleting attachment, please try again.`);
+            return;
+        }
+        if (!attachmentID) {
+            console.log("No attachment ID set to delete.");
+            showToastError(`Unexpected error occured when deleting attachment, please try again.`);
+            return;
+        }
+
+        try {
+            const res = await fetch(`${URL}/api/file`, {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token, projectID, stageID, attachmentID }),
+            });
+    
+            if (!res.ok) {
+                const errorData = await res.text();
+                showToastError(`Unexpected error occured when deleting attachment, please try again.`);
+                console.log(errorData);
+                return;
+            }
+    
+            const data = await res.json();
+            console.log(data);
+        } catch (error) {
+            console.log(error);
+            showToastError(`Unexpected error occured when deleting attachment, please try again.`);
+        }
+        finally {
+            showToastSuccess(`Attachment deleted successfully.`);
+        }
+    }
+
+    const updateTask = async (stageID: string | null, taskID: string | null, toast?: boolean) => {
         if (!taskID) {
-            console.log("No selected task ID set.")
+            console.log("No selected task ID set.");
+            showToastError(`Unexpected error occured when updating task, please try again.`);
             return;
         }
         if (!stageID) {
-            console.log("No selected stage ID set.")
+            console.log("No selected stage ID set.");
+            showToastError(`Unexpected error occured when updating task, please try again.`);
             return;
         }
 
@@ -486,6 +570,7 @@ function Project() {
 
             if(!res.ok){
                 const errorData = await res.text();
+                showToastError(`Unexpected error occured when updating task, please try again.`);
                 console.log(errorData);
                 return;
             }
@@ -494,16 +579,24 @@ function Project() {
             console.log(data);
         } catch (error) {
             console.log(error);
+            showToastError(`Unexpected error occured when updating task, please try again.`);
+        }
+        finally {
+            if (toast) {
+                showToastSuccess(`Task updated successfully.`);
+            }
         }
     }
 
-    const updateAttachment = async (stageID: string | null, attachmentID: string | null) => {
+    const updateAttachment = async (stageID: string | null, attachmentID: string | null, toast?: boolean) => {
         if (!stageID) {
-            console.log("No selected stage ID set.")
+            console.log("No selected stage ID set.");
+            showToastError(`Unexpected error occured when updating attachment, please try again.`);
             return;
         }
         if (!attachmentID) {
-            console.log("No selected attachment ID set.")
+            console.log("No selected attachment ID set.");
+            showToastError(`Unexpected error occured when updating attachment, please try again.`);
             return;
         }
 
@@ -554,12 +647,19 @@ function Project() {
             console.log(data);
         } catch (error) {
             console.log(error);
+            showToastError(`Unexpected error occured when updating attachment, please try again.`);
+        }
+        finally {
+            if (toast) {
+                showToastSuccess(`Attachment updated successfully.`);
+            }
         }
     }
 
     const updateStage = async (stageID: string | null) => {
         if (!stageID) {
-            console.log("No selected stage ID set.")
+            console.log("No selected stage ID set.");
+            showToastError(`Unexpected error occured when updating stage, please try again.`);
             return;
         }
 
@@ -586,6 +686,7 @@ function Project() {
 
             if(!res.ok){
                 const errorData = await res.text();
+                showToastError(`Unexpected error occured when updating stage, please try again.`);
                 console.log(errorData);
                 return;
             }
@@ -594,20 +695,30 @@ function Project() {
             console.log(data);
         } catch (error) {
             console.log(error);
+            showToastError(`Unexpected error occured when updating stage, please try again.`);
+        }
+        finally {
+            showToastSuccess(`Stage updated successfully.`);
         }
     }
 
     const uploadFile = async () => {
-        if (!selectedFile) return;
-        if (!selectedStageId) return;
+        if (!selectedFile) {
+            showToastError(`Unexpected error occured when uploading file, please try again.`);
+            return;
+        }
+        if (!selectedStageId) {
+            showToastError(`Unexpected error occured when uploading file, please try again.`);
+            return;
+        }
 
         if (selectedFile.size > MAX_FILE_SIZE) {
-            console.log("File size exceeds the 2MB limit. Please choose a smaller file.");
+            showToastError(`File size exceeds the 2MB limit. Please choose a smaller file.`);
             return;
         }
 
         const newAttachment: AttachmentProps = {
-            attachmentID: `attachment-invalid-${Date.now()}`,
+            attachmentID: "",
             stageID: selectedStageId,
             name: selectedFile.name,
             x: 0,
@@ -626,6 +737,7 @@ function Project() {
             formData.append("stageID", selectedStageId);
             formData.append("attachmentData", JSON.stringify(newAttachment));
             formData.append("token", token || "");
+            console.log("created attachment: ", newAttachment)
             const res = await fetch(`${URL}/api/file`, {
                 method: "POST",
                 body: formData
@@ -634,6 +746,7 @@ function Project() {
 
             if(!res.ok){
                 const errorData = await res.text();
+                showToastError(`Unexpected error occured when uploading file, please try again.`);
                 console.log(errorData);
                 return;
             }
@@ -644,12 +757,11 @@ function Project() {
                 console.log("No file URL returned.");
                 return;
             }
-            newAttachment.attachmentID = "attachment-" + data.attachmentID;
+            newAttachment.attachmentID = data.attachmentID;
             newAttachment.attachment = fileURL;
-
-            setMessage("File uploaded successfully.");
         } catch (error) {
-            console.error("Error uploading file:", error);
+            console.log("Error uploading file:", error);
+            showToastError(`Unexpected error occured when uploading file, please try again.`);
         }
         finally {
             setUploading(false);
@@ -662,6 +774,7 @@ function Project() {
                 )
             );
             hideAttachmentMenu();
+            showToastSuccess(`File uploaded successfully.`);
         }
     }
 
@@ -680,6 +793,7 @@ function Project() {
 
             if(!res.ok){
                 const errorData = await res.text();
+                showToastError(`Unexpected error occured when updating title, please try again.`);
                 console.log(errorData);
                 return;
             }
@@ -689,16 +803,21 @@ function Project() {
         } catch (error) {
             console.log(error);
         }
+        finally {
+            showToastSuccess(`Title updated successfully.`);
+        }
     }
 
     const handleStageChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newStageID = e.target.value;
         if (!selectedTaskId) {
             console.log("No selected task ID set.")
+            showToastError(`Unexpected error occured when changing stage, please try again.`);
             return;
         }
         if (!selectedStageId) {
             console.log("No selected stage ID set.")
+            showToastError(`Unexpected error occured when changing stage, please try again.`);
             return;
         }
 
@@ -761,6 +880,7 @@ function Project() {
 
             if (!res.ok) {
                 const errorData = await res.text();
+                showToastError(`Unexpected error occured when changing stage, please try again.`);
                 console.log(errorData);
                 return;
             }
@@ -770,6 +890,7 @@ function Project() {
         } 
         catch (error) {
             console.log(error);
+            showToastError(`Unexpected error occured when changing stage, please try again.`);
         } 
         finally {
             const newStageName = stages.find((stage) => stage.stageID === newStageID)?.stageName;
@@ -872,7 +993,6 @@ function Project() {
 
     const handleDragStart = (event: DragStartEvent) => {
         const { active } = event;
-        console.log("dragging");
     
         if (active.id.toString().startsWith("task-")) {
             setDraggingObjectData({ type: "task", id: String(active.id) });
@@ -882,6 +1002,7 @@ function Project() {
         } 
         else {
             console.log("Unknown drag object type", active);
+            showToastError("Unexpected error occured when dragging object, this object may be broken. Please delete and create a new one.");
         }
     };
 
@@ -905,8 +1026,7 @@ function Project() {
         );
 
         const updatedStages = stages.map((stage) => {
-            if (draggingObjectData.type === "task") {
-                console.log("here")
+            if (draggingObjectData.type === "task") {   
                 let newTaskList = stage.taskList.map((task: TaskProps) => {
                     if (task.taskID === dragObjectID) {
                         const taskRect = document.getElementById(task.taskID)?.getBoundingClientRect();
@@ -967,7 +1087,6 @@ function Project() {
                         newX = Math.max(0, Math.min(newX, newStageWidth - attachmentWidth));
                         if (titleRect) {
                             const titleBottom = titleRect.bottom - newStageRect.top;
-                            console.log(titleRect.bottom)
                             newY = Math.max(titleBottom, Math.min(newY, newStageHeight - attachmentHeight));
                         } else {
                             newY = Math.max(0, Math.min(newY, newStageHeight - attachmentHeight));
@@ -1009,6 +1128,7 @@ function Project() {
 
                 if (!res.ok) {
                     const errorData = await res.text();
+                    showToastError("Unexpected error occured when dragging task. Please try again.");
                     console.log(errorData);
                     return;
                 }
@@ -1017,6 +1137,7 @@ function Project() {
                 console.log(data.message? data.message : "");
             } catch (error) {
                 console.log(error);
+                showToastError("Unexpected error occured when dragging task. Please try again.");
             }
         }
 
@@ -1036,6 +1157,7 @@ function Project() {
 
                 if (!res.ok) {
                     const errorData = await res.text();
+                    showToastError("Unexpected error occured when dragging task. Please try again.");
                     console.log(errorData);
                     return;
                 }
@@ -1044,6 +1166,7 @@ function Project() {
                 console.log(data.message? data.message : "");
             } catch (error) {
                 console.log(error);
+                showToastError("Unexpected error occured when dragging attachment. Please try again.");
             }
         }
 
@@ -1161,6 +1284,8 @@ function Project() {
                                     showAttachmentMenu={showAttachmentMenu}
                                     showAttachmentEdit={showAttachmentEdit}
                                     filterText={filterText}
+                                    width={stage.width}
+                                    height={stage.height}
                                 />
                             ))}
                         </div>
@@ -1333,7 +1458,6 @@ function Project() {
                             <span key={task.taskID} className="completed-task"
                                 onClick={() => {
                                     setCompleteTaskSelected(task.taskID);
-                                    setRestoreMenuActive(true)
                                 }}>
                                 <p className="task-name">{task.name}</p>
                                 {
@@ -1385,7 +1509,6 @@ function Project() {
                 create={() => {
                     uploadFile();
                     setSelectedFile(null);
-                    setAttachmentMenuActive(false);
                 }}
                 createButtonText="Upload">
                 <div className="create-attachment">
@@ -1406,6 +1529,7 @@ function Project() {
                     hideAttachmentEdit();
                 }}>
                 <h1>Edit attachment: {updatedAttachment.name}</h1>
+                <p>Update attachment name: </p>
                 <Input placeholder="Set a new attachment name..."
                     value={updatedAttachment.name}
                     visible={true}
@@ -1417,15 +1541,13 @@ function Project() {
                             <img src={updatedAttachment.newURL} alt={updatedAttachment.name} className="attachment-image"/>
                         ) : updatedAttachment.mimeType === "application/pdf" ? (
                             <iframe src={updatedAttachment.newURL} className="attachment-pdf"></iframe>
-                        ) : updatedAttachment.mimeType === "text/plain" ? (
-                            <a href={updatedAttachment.newURL} download={updatedAttachment.name} className="attachment-link">
-                                Download Text File
-                            </a>
-                        ) : (
-                            <a href={updatedAttachment.newURL} download={updatedAttachment.name} className="attachment-link">
-                                Download Attachment
-                            </a>
-                        )}
+                        ) : updatedAttachment.mimeType === "text/plain" ? ( 
+                            <iframe src={updatedAttachment.newURL} className="attachment-plain-text"></iframe>
+                        ) : <p>Unsupported file type.</p>}
+                        <Button onclick={() => deleteAttachment(selectedStageId, selectedAttachmentId)}
+                            text="Delete Attachment"
+                            classname="default-button"
+                        />
                     </div>
                 )}
             </HiddenMenu>
@@ -1433,6 +1555,7 @@ function Project() {
                 closeMenu={() => setThemeMenuActive(false)}
                 projectID={projectID}
             />
+            <ToastContainer toastClassName="default-toast"/>
         </div>
     )
 }

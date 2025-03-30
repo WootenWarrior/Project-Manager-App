@@ -96,7 +96,7 @@ body, html {
     height: 100%;
     display: flex;
     justify-content: space-between;
-    flex-direction: row;
+    flex-direction: column;
     align-items: flex-start;
     overflow: hidden;
     margin: 0;
@@ -162,13 +162,8 @@ body, html {
     border: 1px solid var(--theme-outline-color);
 }
 
-.project .panels .project-creation-window .stages::-webkit-scrollbar{
+.project .project-creation-window::-webkit-scrollbar {
     display: block;
-}
-
-.project .panels .project-creation-window .stages::-webkit-scrollbar-thumb{
-    background: var(--themecolor2);
-    outline: 1px solid var(--themecolor6);
 }
 
 @media screen and (max-width: 600px) {
