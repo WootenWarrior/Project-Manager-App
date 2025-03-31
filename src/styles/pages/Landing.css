@@ -1,6 +1,7 @@
 body{
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
+  height: auto;
 }
 
 .landing-page{
@@ -40,7 +41,7 @@ body{
 }
 
 .landing-page .about-section{
-  height: 100%;
+  min-height: 100vh;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -57,7 +58,8 @@ body{
   align-items: center;
   animation: appear 5s linear;  
   animation-timeline: view();
-  animation-range: entry 30%;
+  animation-range: entry 10%;
+  flex-wrap:nowrap;
 }
 
 .landing-page .about-section .panel .text{
@@ -72,6 +74,7 @@ body{
 .landing-page .about-section .panel .item{
   width: 70rem;
   height: 40rem;
+  min-width: 60rem;
   outline: 1px solid var(--default-text-color);
   border-radius: 20px;
   overflow: hidden;
@@ -81,7 +84,7 @@ body{
   width: 100%;
   height: 100%;
   border-radius: 2rem;
-  object-fit: cover;
+  object-fit:fill;
 }
 
 .landing-page .footer{
@@ -140,7 +143,7 @@ body{
     flex-direction: column;
     animation: appear 5s linear;  
     animation-timeline: view();
-    animation-range: entry 30%;
+    animation-range: entry 5%;
   }
 
   .landing-page .about-section .panel{
@@ -156,9 +159,17 @@ body{
   }
 
   .landing-page .about-section .panel .item{
+    min-width: 70%;
     width: 70%;
-    height: 30rem;
+    height: 20rem;
     outline: 1px solid black;
     border-radius: 20px;
+  }
+
+  .landing-page .about-section .panel .item img{
+    width: 100%;
+    height: 100%;
+    border-radius: 2rem;
+    object-fit:fill;
   }
 }
