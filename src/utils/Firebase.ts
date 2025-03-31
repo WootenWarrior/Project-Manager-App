@@ -1,8 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+  signInWithEmailAndPassword } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import { URL } from "./BackendURL";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_APP_API_KEY,

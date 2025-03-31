@@ -1,6 +1,6 @@
 import "../styles/pages/Dashboard.css"
 import { useState, useEffect } from "react";
-import { Button, Option, Input, Textbox, BackgroundWaves } from "../components";
+import { Button, Option, Input, Textbox } from "../components";
 import { FaPlus, FaRegTrashCan } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { handleLogout } from "../utils/Logout";
