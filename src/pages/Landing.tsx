@@ -29,7 +29,7 @@ function Landing() {
                 color3="var(--color3)"
             />
             <div className="navbar">
-                <img className="logo" src={logo} alt="logo"/>
+                <img className="logo" src={logo} alt="logo" loading="lazy"/>
                 <div className="menu">
                     <Button 
                         text="LOGIN"
@@ -53,13 +53,13 @@ function Landing() {
                         TAILORED FOR YOU.</p>
                     </div>
                     <div className="item">
-                    <img src={Example} alt="GIF"/>
+                    <img src={Example} alt="IMG" loading="lazy"/>
                     </div>
 
                 </div>
                 <div className="panel">
                     <div className="item">
-                    <img src={Example2} alt="IMG"/>
+                    <img src={Example2} alt="IMG" loading="lazy"/>
                     </div>
                     <div className="text">
                         <p>QUICKLY EDIT TASKS <br/>
@@ -73,13 +73,13 @@ function Landing() {
                         TASKS ACROSS ALL YOUR PROJECTS. </p>
                     </div>
                     <div className="item">
-                    <img src={Example3} alt="IMG"/>
+                    <img src={Example3} alt="IMG" loading="lazy"/>
                     </div>
                 </div>
 
                 <div className="panel">
                     <div className="item">
-                    <img src={Example4} alt="GIF"/>
+                    <img src={Example4} alt="IMG" loading="lazy"/>
                     </div>
                     <div className="text">
                         <p>CUSTOMISE EACH PROJECT <br/>
