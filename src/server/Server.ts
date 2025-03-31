@@ -10,9 +10,10 @@ import { projectData, stageData, taskData } from "./ServerUtils";
 import fs from 'fs';
 import multer from "multer";
 import axios from "axios";
+import { JwtPayload } from "jsonwebtoken";
 
 
-// SETUP
+// Server setup-----------------------------------------------------------------|
 
 const serverOrigin = getServerOrigin();
 const serviceAccountPath = getServiceAccountOrigin();
@@ -26,7 +27,7 @@ try {
 }
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    storageBucket: process.env.VITE_APP_STORAGE_BUCKET
+    storageBucket: process.env.VITE_APP_STORAGE_BUCKET,
 });
 
 const MAX_PROJECTS = 10;
@@ -37,26 +38,29 @@ const config = JSON.parse(readFileSync(configPath, 'utf8'));
 
 const PORT = 3000;
 const app = express();
-
 app.use(express.json());
 app.use(cors({
     origin: [serverOrigin],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 }));
 
+
+// Static serving-----------------------------------------------------------------|
+
 const filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(filename);
 const static_path = getStaticFilePath();
 app.use(express.static(path.join(__dirname, static_path)));
 
-// Bucket
+
+// Bucket-----------------------------------------------------------------------|
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
 const bucket = admin.storage().bucket();
 const upload = multer({ storage: multer.memoryStorage() });
 
 
-// FUNCTIONS
+// FUNCTIONS-------------------------------------------------------------------|
 
 const createProject = async (email: string, projectData: projectData) => {
     try {
@@ -237,7 +241,6 @@ const getUrgentTask = async (email: string) => {
 
 // ROUTES
 
-
 // FILES----------------------------------------------------------------------------|
 app.post("/api/file", upload.single('file'), async (req: Request, res: Response) => {
     const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/jpg", "application/pdf", "text/plain",];
@@ -277,6 +280,8 @@ app.post("/api/file", upload.single('file'), async (req: Request, res: Response)
             res.status(403).json({ error: "Failed to get user email." });
             return;
         }
+        
+        const ID = "attachment-" + Date.now();
 
         const folderPath = `userUploads/${email}/${projectID}/${stageID}`;
         const [files] = await bucket.getFiles({ prefix: folderPath });
@@ -285,13 +290,13 @@ app.post("/api/file", upload.single('file'), async (req: Request, res: Response)
             return;
         }
 
-        const isExistingFile = files.some((userFile) => file.originalname === userFile.name);
+        const isExistingFile = files.some((userFile) => ID === userFile.name);
         if (isExistingFile) {
             res.status(403).json({ error: "File already exists." });
             return;
         }
 
-        const destination = `${folderPath}/${file.originalname}`;
+        const destination = `${folderPath}/${ID}`;
         const fileUpload = bucket.file(destination);
         await fileUpload.save(file.buffer, {
             metadata: { contentType: file.mimetype },
@@ -303,7 +308,6 @@ app.post("/api/file", upload.single('file'), async (req: Request, res: Response)
         let parsedAttachmentData = JSON.parse(attachmentData);
         parsedAttachmentData.attachment = url;
         const attachments = db.collection(`users/${email}/projects/${projectID}/stages/${stageID}/attachments`);
-        const ID = "attachment-" + Date.now();
         await attachments.doc(ID).set(parsedAttachmentData);
 
         res.status(200).json({ message: 'File uploaded successfully.', 
@@ -380,18 +384,23 @@ app.delete("/api/file", async (req: Request, res: Response) => {
             return;
         }
 
-        const folderPath = `userUploads/${email}/${projectID}/${stageID}/${attachmentID}/`;
+        const folderPath = `userUploads/${email}/${projectID}/${stageID}/${attachmentID}`;
         const file = bucket.file(folderPath);
+        const [exists] = await file.exists();
+        if (!exists) {
+            res.status(404).json({ error: "File not found." });
+            return;
+        }
         const deletedFile = await file.delete();
         if (!deletedFile) {
-            res.status(403).json({ error: "Failed to delete file." });
+            res.status(403).json({ error: "Failed to delete attachment data." });
             return;
         }
 
         const attachments = db.collection(`users/${email}/projects/${projectID}/stages/${stageID}/attachments`);
         const attachmentSnapshot = await attachments.doc(attachmentID).get();
         if (!attachmentSnapshot.exists) {
-            res.status(404).json({ error: "Attachment not found." });
+            res.status(404).json({ error: "Attachment data not found." });
             return;
         }
         const deletedAttachment = await attachmentSnapshot.ref.delete();
@@ -807,7 +816,8 @@ app.delete("/api/task", async (req: Request, res: Response)=> {
 });
 
 
-// LOGIN----------------------------------------------------------------------------|
+// USER SIGNUP/LOGIN----------------------------------------------------------------------------|
+
 app.post("/api/login", async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body; 
@@ -828,6 +838,38 @@ app.post("/api/login", async (req: Request, res: Response) => {
         res.status(200).json({ uid, token, data: response.data });
     } catch (error) {
         res.status(500).json({ error: "An error occurred during login." });
+    }
+});
+
+app.post("/api/signup", async (req: Request, res: Response) => {
+    try {
+        const { email } = req.body;
+        const userRecord = await admin.auth().getUserByEmail(email);
+        await admin.auth().updateUser(userRecord.uid, { disabled: true });
+        res.status(200).json({ message: "Account disabled successfully." });
+    }
+    catch {
+        res.status(500).json({ error: "Account not disabled successfully." });
+    }
+});
+
+app.post("/api/activate", async (req: Request, res: Response) => {
+    try {
+        const { email } = req.body;
+        const user = await admin.auth().getUserByEmail(email);
+        const uid = user.uid;
+
+        const payload: JwtPayload = {
+            uid,
+            email
+        }
+        
+        const token = generateToken(payload, "24h");
+        await admin.auth().updateUser(uid, { disabled: false });
+
+        res.status(200).json({ message: "Account activated successfully.", token });
+    } catch (error) {
+        res.status(500).json({ error: "Problem when trying to activate account. Link may be invalid." });
     }
 });
 

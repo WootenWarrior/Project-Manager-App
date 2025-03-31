@@ -1,15 +1,32 @@
 .default-toast {
     background-color: transparent;
+    color: var(--color6) !important;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+
+.default-toast .Toastify__progress-bar {
+    background-color: var(--color6) !important;
+}
+
+.default-toast .Toastify__toast--warning .Toastify__toast-icon svg {
+    fill: var(--color6) !important;
+    width: 24px !important;
+    height: 24px !important;
+}
+
+.project-toast {
+    background-color: transparent;
     color: var(--themecolor6) !important;
     backdrop-filter: blur(3px);
     -webkit-backdrop-filter: blur(3px);
 }
 
-.Toastify__progress-bar {
+.project-toast .Toastify__progress-bar {
     background-color: var(--themecolor6) !important;
 }
 
-.Toastify__toast--warning .Toastify__toast-icon svg {
+.project-toast .Toastify__toast--warning .Toastify__toast-icon svg {
     fill: var(--themecolor6) !important;
     width: 24px !important;
     height: 24px !important;

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button,Input } from "../components"
 import "../styles/pages/Login.css"
 import { FaUser,FaEye,FaEyeSlash } from "react-icons/fa";
@@ -7,20 +7,27 @@ import { useNavigate } from "react-router-dom";
 import { userLogin } from "../utils/Firebase";
 import { URL } from "../utils/BackendURL";
 import { IoPersonAdd } from "react-icons/io5";
+import { ToastContainer, toast } from "react-toastify";
+import Loading from "./Loading";
 
 
 function Login() {
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
     const [rememberMe, setRememberMe] = useState(false);
 
-    useEffect(() => {
-        setTimeout(() => {
-            setError("");
-        }, 10000);
-    }, [error]);
+    const showToastError = (message: string) => {
+        toast.error(message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: false,
+            draggable: true,
+        });
+    };
 
     const goToSignup = () => {
         navigate("/Signup");
@@ -29,15 +36,18 @@ function Login() {
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
+            setLoading(true);
             const loginMessage = await userLogin(email,password);
             
             if (!(loginMessage && loginMessage == "Success")) {
                 if (loginMessage) {
-                    setError(loginMessage);
+                    showToastError(loginMessage);
+                    setLoading(false);
                     return;
                 }
                 else {
-                    setError("Unexpected error occured.");
+                    showToastError("Unexpected error occured.");
+                    setLoading(false);
                     return;
                 }
             }
@@ -50,8 +60,9 @@ function Login() {
 
             if (!res.ok) {
                 const errorData = await res.json();
-                if (errorData.error) {setError(errorData.error);}
-                else {setError("Unexpected error occured.");}
+                if (errorData.error) {showToastError(errorData.error);}
+                else {showToastError("Unexpected error occured.");}
+                setLoading(false);
                 console.log(errorData);
                 return;
             }
@@ -64,16 +75,19 @@ function Login() {
                 sessionStorage.setItem("token", token);
                 sessionStorage.setItem("user", uid);
             }
+            setLoading(false);
             navigate("/Dashboard");
         } catch (e) {
             console.log(e);
-            setError("Unexpected error occured.");
+            setLoading(false);
+            showToastError("Unexpected error occured.");
             return;
         }
     }
 
     return (
         <div className="login-page">
+            {loading ? <Loading/> :
             <div className="login-box">
                 <h1>LOGIN</h1>
                 <form className="form" onSubmit={handleLogin}>
@@ -110,7 +124,6 @@ function Login() {
                             Remember me
                         </label>
                     </div>
-                    {error && <p className="error" style={{ color: "red"}}>{error}</p>}
                 </form>
                 <p>Don't have an account?</p>
                 <Button text="Sign Up" 
@@ -118,7 +131,8 @@ function Login() {
                     onclick={goToSignup}
                     altIcon={<IoPersonAdd />}
                 />
-            </div>
+            </div>}
+            <ToastContainer toastClassName="default-toast"/>
         </div>
     )
 }

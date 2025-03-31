@@ -1,8 +1,9 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { URL } from "./BackendURL";
 
-// Web app's Firebase configuration
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_APP_API_KEY,
   authDomain: import.meta.env.VITE_APP_AUTH_DOMAIN,
@@ -13,7 +14,6 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_APP_MEASUREMENT_ID
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
@@ -23,6 +23,7 @@ interface UserData {
   email: string;
   password: string;
   createdAt: Date;
+  uid: string;
 }
 
 export const userSignup = async (data: UserData) => {
@@ -43,7 +44,7 @@ export const userSignup = async (data: UserData) => {
         case "auth/network-request-failed":
           return "Network error. Check your internet connection.";
         default:
-          console.error("Error:", error.message);
+          return "An error occurred.";
       }
     }
   }
@@ -69,13 +70,13 @@ export const userLogin = async (email: string, password: string) => {
         case "auth/invalid-credential":
           return "Email or password is incorrect.";
         case "auth/user-disabled": 
-          return "This account has been disabled.";
+          return "Account has not been verified. Please check your email.";
         case "auth/too-many-requests":
           return "Too many login attempts. Please try again later.";
         case "auth/network-request-failed":
           return "Network error. Check your connection.";
         default:
-          console.error("Error:", error.message);
+          return "An error occurred.";
       }
     }
   }

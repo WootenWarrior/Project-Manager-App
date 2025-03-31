@@ -123,6 +123,7 @@ body, html {
     flex-direction: row;
     overflow-x: scroll;
     overflow-y: hidden;
+    margin-bottom: 2rem;
     z-index: 4;
 }
 
@@ -162,8 +163,16 @@ body, html {
     border: 1px solid var(--theme-outline-color);
 }
 
-.project .project-creation-window::-webkit-scrollbar {
+.project .project-creation-window .stages::-webkit-scrollbar {
     display: block;
+}
+
+.project .project-creation-window .stages::-webkit-scrollbar-thumb {
+    display: block;
+    height: 2rem;
+    width: 2rem;
+    background: var(--themecolor1);
+    padding: 1rem;
 }
 
 @media screen and (max-width: 600px) {

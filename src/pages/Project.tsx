@@ -249,6 +249,7 @@ function Project() {
         catch (error) {
             console.log(error);
             showToastError(`Unexpected error occured with stage creation.`);
+            return;
         }
         finally {
             setStages((prevStages) => [...prevStages, newStage]);
@@ -341,6 +342,7 @@ function Project() {
             );
         } catch (error) {
             console.log(error);
+            return;
         }
         finally {
             setTaskName("");
@@ -393,6 +395,7 @@ function Project() {
         } catch (error) {
             console.log(error);
             showToastError(`Unexpected error occured with loading project data, please refresh the page.`);
+            return;
         }
         finally {
             setLoading(false);
@@ -425,6 +428,7 @@ function Project() {
         } catch (error) {
             console.log(error);
             showToastError(`Unexpected error occured when deleting stage, please try again.`);
+            return;
         }
         finally {
             showToastSuccess(`Stage deleted successfully.`);
@@ -471,6 +475,7 @@ function Project() {
         } catch (error) {
             console.log(error);
             showToastError(`Unexpected error occured when deleting task, please try again.`);
+            return;
         }
         finally {
             showToastSuccess(`Task deleted successfully.`);
@@ -488,6 +493,15 @@ function Project() {
             showToastError(`Unexpected error occured when deleting attachment, please try again.`);
             return;
         }
+
+        setStages((prevStages) =>
+            prevStages.map((stage) => stage.stageID === stageID
+                ? {...stage,
+                    attachmentList: stage.attachmentList.filter((attachment) => attachment.attachmentID !== attachmentID)
+                }
+                : stage
+            )
+        );
 
         try {
             const res = await fetch(`${URL}/api/file`, {
@@ -508,9 +522,11 @@ function Project() {
         } catch (error) {
             console.log(error);
             showToastError(`Unexpected error occured when deleting attachment, please try again.`);
+            return;
         }
         finally {
             showToastSuccess(`Attachment deleted successfully.`);
+            hideAttachmentEdit();
         }
     }
 
@@ -532,7 +548,6 @@ function Project() {
 
         const task = stageWithTask?.taskList.find((task) => task.taskID === taskID) || null;
 
-        console.log(updatedTask.status);
         const newTask = {
             ...task,
             completed: updatedTask.status,
@@ -580,6 +595,7 @@ function Project() {
         } catch (error) {
             console.log(error);
             showToastError(`Unexpected error occured when updating task, please try again.`);
+            return;
         }
         finally {
             if (toast) {
@@ -648,6 +664,7 @@ function Project() {
         } catch (error) {
             console.log(error);
             showToastError(`Unexpected error occured when updating attachment, please try again.`);
+            return;
         }
         finally {
             if (toast) {
@@ -696,6 +713,7 @@ function Project() {
         } catch (error) {
             console.log(error);
             showToastError(`Unexpected error occured when updating stage, please try again.`);
+            return;
         }
         finally {
             showToastSuccess(`Stage updated successfully.`);
@@ -728,6 +746,11 @@ function Project() {
             attachment: ""
         }
 
+        const titleRect = document.getElementById(selectedStageId + "title-section")?.getBoundingClientRect();
+        if (titleRect) {
+            newAttachment.y = titleRect.height;
+        }
+
         setUploading(true);
         
         try {
@@ -737,7 +760,6 @@ function Project() {
             formData.append("stageID", selectedStageId);
             formData.append("attachmentData", JSON.stringify(newAttachment));
             formData.append("token", token || "");
-            console.log("created attachment: ", newAttachment)
             const res = await fetch(`${URL}/api/file`, {
                 method: "POST",
                 body: formData
@@ -762,6 +784,7 @@ function Project() {
         } catch (error) {
             console.log("Error uploading file:", error);
             showToastError(`Unexpected error occured when uploading file, please try again.`);
+            return;
         }
         finally {
             setUploading(false);
@@ -802,6 +825,7 @@ function Project() {
             console.log(data);
         } catch (error) {
             console.log(error);
+            return;
         }
         finally {
             showToastSuccess(`Title updated successfully.`);
@@ -891,6 +915,7 @@ function Project() {
         catch (error) {
             console.log(error);
             showToastError(`Unexpected error occured when changing stage, please try again.`);
+            return;
         } 
         finally {
             const newStageName = stages.find((stage) => stage.stageID === newStageID)?.stageName;
@@ -1138,6 +1163,7 @@ function Project() {
             } catch (error) {
                 console.log(error);
                 showToastError("Unexpected error occured when dragging task. Please try again.");
+                return;
             }
         }
 
@@ -1167,6 +1193,7 @@ function Project() {
             } catch (error) {
                 console.log(error);
                 showToastError("Unexpected error occured when dragging attachment. Please try again.");
+                return;
             }
         }
 
@@ -1555,7 +1582,7 @@ function Project() {
                 closeMenu={() => setThemeMenuActive(false)}
                 projectID={projectID}
             />
-            <ToastContainer toastClassName="default-toast"/>
+            <ToastContainer toastClassName="project-toast"/>
         </div>
     )
 }

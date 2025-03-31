@@ -16,3 +16,8 @@ Dependancies / libraries used:
 - dotenv (Copyright (c) 2015, Scott Motte) https://www.npmjs.com/package/dotenv
 - concurrently (Copyright (c) 2015 Kimmo Brunfeldt) https://www.npmjs.com/package/concurrently
 - jsonwebtoken (Copyright (c) 2015 Auth0, Inc. <support@auth0.com>) http://auth0.com
+
+Themes sources:
+https://www.canva.com/colors/color-palettes/cool-cream-strawberry/
+https://www.canva.com/colors/color-palettes/wall-greens/
+https://www.canva.com/colors/color-palettes/dark-road-curve/

@@ -213,7 +213,6 @@ function Dashboard() {
 
             const data = await res.json();
             const projects = data.projects;
-            console.log(projects)
 
             if (projects && Array.isArray(projects)) {
                 const mappedOptions = data.projects.map((project: any) => {

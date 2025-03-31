@@ -1,1 +1,0 @@
-Change on render.com run scripts when updating git

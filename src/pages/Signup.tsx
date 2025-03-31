@@ -1,71 +1,69 @@
 import "../styles/pages/Signup.css"
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { userSignup } from "../utils/Firebase";
 import { Button, Input } from "../components";
 import { FaEye,FaEyeSlash } from "react-icons/fa";
 import { MdOutlineEmail } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import Loading from "./Loading";
 
-function Signup(){
+function Signup() {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        setTimeout(() => {
-            setError("");
-        }, 5000);
-    }, [error]);
+    const showToastError = (message: string) => {
+        toast.error(message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: false,
+            draggable: true,
+        });
+    };
 
     const handleSignup = async (e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setError("");
         const userData = {
             email: email,
             password: password,
             createdAt: new Date(),
+            uid: ""
         }
 
         try {
-            /*
-            const apiKey = import.meta.env.VITE_APP_EMAIL_VERIFY_API_KEY;
-            await fetch(`https://api.mails.so/v1/validate?email=${email}`, {
-                method: 'GET',
-                headers: {
-                    'x-mails-api-key': apiKey
-                },
-                mode: 'no-cors'
-            })
-            .then(response => response.json())
-            .then(data => console.log(data));
-            */
-
+            setLoading(true);
             const signupMessage = await userSignup(userData);
 
-            if (!(signupMessage && signupMessage == "Success")) {
+            if (!(signupMessage && signupMessage === "Success")) {
                 if (signupMessage) {
-                    setError(signupMessage);
+                    showToastError(signupMessage);
+                    setLoading(false);
                     return;
                 }
                 else {
-                    setError("Unexpected error occured.");
+                    showToastError("Unexpected error occured.");
+                    setLoading(false);
                     return;
                 }
             }
+
+            setLoading(false);
+            navigate("/Login");
         } catch (error) {
-            if(error instanceof Error && error.message) {
-                setError(error.message);
-            }
-            else {
-                setError("Unexpected error occured.");
-            }
+            showToastError("Unexpected error occured.");
+            setLoading(false);
             console.log(error);
+            return;
         }
     };
 
     return(
         <div className="signup-page">
+            {loading ? <Loading/> :
             <div className="signup-box">
                 <h1>SIGN UP</h1>
                 <form className="form" onSubmit={handleSignup}>
@@ -89,12 +87,12 @@ function Signup(){
                     />
                     <Button text="Sign up" classname="default-button"/>
                 </form>
-                {error && <p style={{ color: "red" }}>{error}</p>}
                 <p>Already have an account?</p>
                 <Button text="Login" 
                     classname="default-button" 
                     onclick={() => navigate("/Login")}/>
-            </div>
+            </div>}
+            <ToastContainer toastClassName="default-toast"/>
         </div>
     )
 }

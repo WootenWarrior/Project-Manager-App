@@ -1,4 +1,3 @@
-import { Tooltip } from "react-tooltip";
 import "../styles/components/Button.css"
 import { ButtonProps } from "../utils/Interfaces"
 
@@ -17,7 +16,6 @@ const Button: React.FC<ButtonProps> = ({text, aftericon, beforeicon,
                 {text && <span className="button-text">{text}</span>}
                 {aftericon && <span className="button-after-icon">{aftericon}</span>}
             </button>
-            {tooltip && <Tooltip id="button-tooltip" />}
         </>
     )
 }

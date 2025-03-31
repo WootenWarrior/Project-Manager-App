@@ -1,19 +1,20 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { handleLogout } from "./Logout";
-import { Error, Loading } from "../pages";
+import { Loading } from "../pages";
 import { useNavigate } from "react-router-dom";
 import { URL } from "./BackendURL";
 
 export const ProtectedRoute = () => {
     const nav = useNavigate();
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-    const [isMobile, setIsMobile] = useState<boolean | null>(null);
+    const [_isMobile, _setIsMobile] = useState<boolean | null>(null);
 
     useEffect(() => {
         const token = localStorage.getItem("token") || sessionStorage.getItem("token");
         const uid = localStorage.getItem("user") || sessionStorage.getItem("user");
 
+        /*
         const restrictMobile = async () => {
             const res = await fetch(`${URL}/api/mobile-restrict?token=${token}&userAgent=${navigator.userAgent}`);
             
@@ -28,6 +29,7 @@ export const ProtectedRoute = () => {
             const data = await res.json();
             setIsMobile(!data.verified && (data.uid == uid));
         }
+        */
 
         const verifyUser = async () => {
             try {
@@ -56,7 +58,6 @@ export const ProtectedRoute = () => {
                 return;
             }
         }
-        restrictMobile();
         verifyUser();
     }, []);
 
@@ -64,9 +65,11 @@ export const ProtectedRoute = () => {
         return <Loading />;
     }
 
+    /*
     if (isMobile) {
         return <Error header="404" message="Page not available on mobile"/>
     }
+    */
 
     return isAuthenticated ? <Outlet /> : <Navigate to="/Login" />;
 }

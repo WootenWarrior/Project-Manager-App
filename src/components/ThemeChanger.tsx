@@ -71,7 +71,6 @@ const ThemeChanger: React.FC<ThemeChangerProps> = ({isvisible, closeMenu, projec
                 }
                 else {
                     applyTheme(defaultTheme);
-                    console.log("Problem with fetched theme");
                 }
             } catch (error) {
                 console.log(error);
