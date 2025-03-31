@@ -9,6 +9,8 @@ import { URL } from "../utils/BackendURL";
 import { IoPersonAdd } from "react-icons/io5";
 import { ToastContainer, toast } from "react-toastify";
 import Loading from "./Loading";
+import "react-toastify/dist/ReactToastify.css";
+import "../styles/components/Toast.css";
 
 
 function Login() {

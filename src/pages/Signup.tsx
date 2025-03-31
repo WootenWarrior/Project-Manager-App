@@ -7,6 +7,8 @@ import { MdOutlineEmail } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import Loading from "./Loading";
+import "react-toastify/dist/ReactToastify.css";
+import "../styles/components/Toast.css";
 
 function Signup() {
     const navigate = useNavigate();

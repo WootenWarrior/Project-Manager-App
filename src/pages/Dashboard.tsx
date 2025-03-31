@@ -12,6 +12,9 @@ import Template1 from "../assets/Template1.png";
 import Placeholder from "../assets/Placeholder.png";
 import { FiLogOut } from "react-icons/fi";
 import { MdArrowBackIos } from "react-icons/md";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "../styles/components/Toast.css";
 
 
 
@@ -19,7 +22,6 @@ function Dashboard() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [options, setOptions] = useState<OptionProps[]>([]);
-    const [error, setError] = useState("");
     const [menuActive, setMenuActive] = useState(false);
     const [isBlank, _setIsBlank] = useState(true);
     const [deleteMenuActive, setDeleteMenuActive] = useState(false);
@@ -67,13 +69,26 @@ function Dashboard() {
         navigate(`/Project/${projectId}`);
     }
 
-    const updateErrorMessage = (message: string): void => {
-        setError(message);
-        setTimeout(() => {
-            setError("");
-        }, 3000);
-        setMenuActive(false);
-        setDeleteMenuActive(false);
+    const showToastError = (message: string) => {
+        toast.error(message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: false,
+            draggable: true,
+        });
+    };
+
+    const showToastSuccess = (message: string) => {
+        toast.success(message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: false,
+            draggable: true,
+        });
     }
 
     const formatRemainingTime = (remainingTime: number) => {
@@ -87,8 +102,7 @@ function Dashboard() {
     
     const createProject = async () => {
         if (projectData.title === "") {
-            updateErrorMessage("Project title required.");
-            setMenuActive(false);
+            showToastError("Project title required.");
             return;
         }
         try {
@@ -102,7 +116,7 @@ function Dashboard() {
 
             if(!res.ok){
                 const errorData = await res.text();
-                updateErrorMessage(errorData);
+                showToastError("Unexpected error occured, please try again.");
                 console.log(errorData);
                 return;
             }
@@ -112,12 +126,15 @@ function Dashboard() {
             navigate(`/Project/${data.projectId}`);
         } catch (error) {
             console.log(error);
+            showToastError("Unexpected error occured, please try again.");
+            setMenuActive(false);
+            return;
         }
     };
 
     const createTemplate = async () => {
         if (projectData.title === "") {
-            updateErrorMessage("Project title required.");
+            showToastError("Project title required.");
             setMenuActive(false);
             return;
         }
@@ -132,7 +149,7 @@ function Dashboard() {
 
             if(!res.ok){
                 const errorData = await res.text();
-                updateErrorMessage(errorData);
+                showToastError("Unexpected error occured, please try again.");
                 console.log(errorData);
                 return;
             }
@@ -142,12 +159,15 @@ function Dashboard() {
             navigate(`/Project/${data.projectId}`);
         } catch (error) {
             console.log(error);
+            showToastError("Unexpected error occured, please try again.");
+            setMenuActive(false);
+            return;
         }
     };
 
     const deleteProject = async () => {
         if (!projectName) {
-            updateErrorMessage("No project name set.");
+            showToastError("No project name set.");
             setDeleteMenuActive(false);
             return;
         }
@@ -162,7 +182,7 @@ function Dashboard() {
             }
         });
         if (!project) {
-            updateErrorMessage("Project not found.");
+            showToastError("Project not found.");
             return;
         }
         const projectID = project.id;
@@ -178,16 +198,19 @@ function Dashboard() {
 
             if(!res.ok){
                 const errorData = await res.text();
-                updateErrorMessage(errorData);
+                showToastError("Unexpected error occured, please try again.");
                 console.log(errorData);
                 return;
             }
 
             loadDashboard();
-            updateErrorMessage(`Project ${projectName} has been deleted.`);
+            showToastSuccess(`Project "${projectName}" has been deleted.`);
             setDeleteMenuActive(false);
         } catch (error) {
             console.log(error);
+            showToastError("Unexpected error occured, please try again.");
+            setDeleteMenuActive(false);
+            return;
         }
     }
 
@@ -197,7 +220,7 @@ function Dashboard() {
         try {
             const token = sessionStorage.getItem("token") || localStorage.getItem("token");
             if (!token) {
-                console.log("No token in session.")
+                console.log("No token in session.");
                 handleLogout(navigate);
                 return;
             }
@@ -227,7 +250,9 @@ function Dashboard() {
                 setOptions(mappedOptions);
             }
             else {
+                showToastError("Problem with fetched projects. Please refresh.");
                 console.log("Problem with fetched projects.");
+                return;
             }
 
             const upcomingTask = data.urgentTask;
@@ -305,7 +330,6 @@ function Dashboard() {
                             </div>
                         </div>
                     </div>
-                    {error && <p className="error" style={{ color: "red" }}>{error}</p>}
                     <h2>MY PROJECTS:</h2>
                     <div className="projects">
                         {options.length === 0 && loading && <Loading background="transparent"/>}
@@ -381,6 +405,7 @@ function Dashboard() {
                     />
                 </div>
             </HiddenMenu>
+            <ToastContainer toastClassName="default-toast"/>
         </div>
     )
 }
