@@ -10,15 +10,18 @@ body{
 }
 
 .landing-page .navbar{
+  top: 0;
+  left: 0;
+  width: 100%;
   transition: 0.5s;
   height: var(--navbarheight);
-  background: var(--navbar-default-color);
+  background: transparent;
   display: flex;
   justify-content: space-between;
   align-items: center;
   overflow: hidden;
   border-bottom: var(--navbar-outline);
-  box-shadow: var(--under-shadow);
+  z-index: 1;
 }
 
 .landing-page .navbar .logo{
@@ -27,6 +30,9 @@ body{
   border-radius: 2rem;
   margin-left: 1rem;
   z-index: 5;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 2rem;
 }
 
 .landing-page .navbar .menu{

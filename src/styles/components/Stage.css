@@ -86,3 +86,9 @@
     background-color: var(--stage-highlight-color);
     color: var(--theme-highlight-color);
 }
+
+@supports (scrollbar-width: thin) {
+    .stage {
+        scrollbar-width: none;
+    }
+}

@@ -51,3 +51,9 @@
 .attachment.grabbing {
     cursor: grabbing;
 }
+
+@supports (scrollbar-width: thin) {
+    .attachment {
+        scrollbar-width: none;
+    }
+}

@@ -10,7 +10,7 @@
 
     /* Navbars */
     --navbar-default-color: linear-gradient(to top, var(--color1), var(--color2));
-    --navbarheight: 15rem;
+    --navbarheight: 10rem;
     --footer-default-color: linear-gradient(to bottom, var(--color1), var(--color2));
 
     /* Buttons */
@@ -28,6 +28,7 @@
     --under-shadow: 5px 4px 8px var(--color1);
     --inside-shadow: inset 4px 4px 8px var(--color2),
                   inset -4px -4px 8px var(--color2);
+    scrollbar-width: none;
     
     --color1: #477bd0;
     --color2: #7098da;
