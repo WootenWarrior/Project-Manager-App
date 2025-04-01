@@ -50,6 +50,15 @@ body{
   padding-bottom: var(--navbarheight);
 }
 
+.landing-page .about-section .panel:first-child {
+  opacity: 1 !important;
+  scale: 1 !important;
+  animation: none !important;
+  animation-timeline: none !important;
+  animation-range: none !important;
+  animation-duration: 0s !important;
+}
+
 .landing-page .about-section .panel{
   width: 100%;
   height: calc(100vh - var(--navbarheight));
@@ -59,10 +68,10 @@ body{
   animation: appear 5s linear;  
   animation-timeline: view();
   animation-range: entry 10%;
-  flex-wrap:nowrap;
+  flex-wrap: nowrap;
 }
 
-.landing-page .about-section .panel .text{
+.landing-page .about-section .text{
   font-size: x-large;
   display: flex;
   align-items: center;
@@ -118,10 +127,7 @@ body{
     align-items: center;
     justify-content: center;
     height: 10rem;
-  }
-
-  .landing-page .navbar .menu {
-    display: none;
+    flex-direction: column;
   }
 
   .landing-page .about-section{
@@ -162,7 +168,7 @@ body{
     min-width: 70%;
     width: 70%;
     height: 20rem;
-    outline: 1px solid black;
+    outline: 1px solid white;
     border-radius: 20px;
   }
 

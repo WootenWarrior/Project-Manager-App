@@ -6,6 +6,9 @@ import Example from "../assets/Example1.png";
 import Example2 from "../assets/Example2.png";
 import Example3 from "../assets/Example3.png";
 import Example4 from "../assets/Example4.png";
+import { FaUserPlus } from "react-icons/fa6";
+import { LuLogIn } from "react-icons/lu";
+
 
 
 function Landing() {
@@ -35,11 +38,13 @@ function Landing() {
                         text="LOGIN"
                         onclick={() =>handleLogin()} 
                         classname="default-button"
+                        altIcon={<LuLogIn />}
                     />
                     <Button
                         text="SIGN-UP"
                         onclick={() => navigate("/Signup")}
                         classname="default-button"
+                        altIcon={<FaUserPlus/>}
                     />
                 </div>
             </div>

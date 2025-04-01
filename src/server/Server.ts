@@ -357,7 +357,7 @@ app.put("/api/file", async (req: Request, res: Response) => {
         res.status(200).json({ message: "Successfully updated attachment." });
     } catch (error) {
         res.status(500).json({ error });
-    }
+    }   
 });
 
 app.delete("/api/file", async (req: Request, res: Response) => {
@@ -820,11 +820,17 @@ app.delete("/api/task", async (req: Request, res: Response)=> {
 
 app.post("/api/login", async (req: Request, res: Response) => {
     try {
-        const { email, password } = req.body; 
+        const { email, password, time } = req.body; 
         const userRecord = await admin.auth().getUserByEmail(email);
         const uid = userRecord.uid;
 
-        const token = generateToken({ userId: uid, email: email }, "24h");
+        let token;
+        if (time) {
+            token = generateToken({ userId: uid, email: email }, "24h");
+        }
+        else {
+            token = generateToken({ userId: uid, email: email }, "1h");
+        }
 
         const response = await axios.post(
             `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.VITE_APP_API_KEY}`,
@@ -840,39 +846,6 @@ app.post("/api/login", async (req: Request, res: Response) => {
         res.status(500).json({ error: "An error occurred during login." });
     }
 });
-
-app.post("/api/signup", async (req: Request, res: Response) => {
-    try {
-        const { email } = req.body;
-        const userRecord = await admin.auth().getUserByEmail(email);
-        await admin.auth().updateUser(userRecord.uid, { disabled: true });
-        res.status(200).json({ message: "Account disabled successfully." });
-    }
-    catch {
-        res.status(500).json({ error: "Account not disabled successfully." });
-    }
-});
-
-app.post("/api/activate", async (req: Request, res: Response) => {
-    try {
-        const { email } = req.body;
-        const user = await admin.auth().getUserByEmail(email);
-        const uid = user.uid;
-
-        const payload: JwtPayload = {
-            uid,
-            email
-        }
-        
-        const token = generateToken(payload, "24h");
-        await admin.auth().updateUser(uid, { disabled: false });
-
-        res.status(200).json({ message: "Account activated successfully.", token });
-    } catch (error) {
-        res.status(500).json({ error: "Problem when trying to activate account. Link may be invalid." });
-    }
-});
-
 
 // DASHBOARD----------------------------------------------------------------------------|
 app.get("/api/dashboard", async (req: Request, res: Response) => {
@@ -934,40 +907,6 @@ app.get("/api/protected", async (req: Request, res: Response) => {
 
         res.status(200).json({ verified: true, uid });
     } catch (error) {
-        res.status(500).json({ message: "Unexpected error: ", error });
-    }
-});
-
-app.get("/api/mobile-restrict", async (req: Request, res: Response) => {
-    try {
-        const token = String(req.query.token);
-        const userAgent = String(req.query.userAgent);
-
-        const verifiedToken = verifyToken(token);
-        if(!verifiedToken){
-            res.status(401).json({ message: "Token verification failed." });
-            return;
-        }
-        const uid = verifiedToken.userId;
-        const user = await admin.auth().getUser(uid);
-        if(!user){
-            res.status(401).json({ message: "Invalid session user ID." });
-            return;
-        }
-
-        if(!userAgent){
-            res.status(401).json({ message: "Invalid user agent." });
-            return;
-        }
-
-        const isMobile = /mobile|android|iphone|ipad/i.test(userAgent);
-        if (isMobile) {
-            res.status(403).json({ verified: false, uid });
-            return;
-        }
-        res.status(200).json({ verified: true, uid });
-    }
-    catch (error) {
         res.status(500).json({ message: "Unexpected error: ", error });
     }
 });
@@ -1057,7 +996,92 @@ app.get("/api/theme", async (req: Request, res: Response) => {
     }
 });
 
-// Catch-all route
+// TEST----------------------------------------------------------------------------|
+app.delete('/api/user', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const adminPassword = process.env.VITE_APP_ADMIN_PASSWORD;
+        if (!password || adminPassword !== password) {
+            res.status(401).json({ message: 'Invalid admin password.' });
+            return;
+        }
+        
+        const user = await admin.auth().getUserByEmail(email);
+        const uid = user.uid;
+        await admin.auth().deleteUser(uid);
+        res.status(200).json({ message: 'User deleted successfully.' });
+    } catch (error) {
+        res.status(404).json({ message: "Unexpected error: ", error });
+    }
+});
+
+app.post("/api/signup", async (req: Request, res: Response) => {
+    try {
+        const { email } = req.body;
+        const userRecord = await admin.auth().getUserByEmail(email);
+        await admin.auth().updateUser(userRecord.uid, { disabled: true });
+        res.status(200).json({ message: "Account disabled successfully." });
+    }
+    catch {
+        res.status(500).json({ error: "Account not disabled successfully." });
+    }
+});
+
+app.post("/api/activate", async (req: Request, res: Response) => {
+    try {
+        const { email } = req.body;
+        const user = await admin.auth().getUserByEmail(email);
+        const uid = user.uid;
+
+        const payload: JwtPayload = {
+            uid,
+            email
+        }
+        
+        const token = generateToken(payload, "24h");
+        await admin.auth().updateUser(uid, { disabled: false });
+
+        res.status(200).json({ message: "Account activated successfully.", token });
+    } catch (error) {
+        res.status(500).json({ error: "Problem when trying to activate account. Link may be invalid." });
+    }
+});
+
+app.get("/api/mobile-restrict", async (req: Request, res: Response) => {
+    try {
+        const token = String(req.query.token);
+        const userAgent = String(req.query.userAgent);
+
+        const verifiedToken = verifyToken(token);
+        if(!verifiedToken){
+            res.status(401).json({ message: "Token verification failed." });
+            return;
+        }
+        const uid = verifiedToken.userId;
+        const user = await admin.auth().getUser(uid);
+        if(!user){
+            res.status(401).json({ message: "Invalid session user ID." });
+            return;
+        }
+
+        if(!userAgent){
+            res.status(401).json({ message: "Invalid user agent." });
+            return;
+        }
+
+        const isMobile = /mobile|android|iphone|ipad/i.test(userAgent);
+        if (isMobile) {
+            res.status(403).json({ verified: false, uid });
+            return;
+        }
+        res.status(200).json({ verified: true, uid });
+    }
+    catch (error) {
+        res.status(500).json({ message: "Unexpected error: ", error });
+    }
+});
+
+// CATCH-ALL----------------------------------------------------------------------------|
 
 app.get('*', (_req, res) => {
     try {
@@ -1072,7 +1096,7 @@ app.get('*', (_req, res) => {
 });
 
 
-// SERVER ENTRY
+// SERVER 
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${config["server-connection"],PORT}`);
