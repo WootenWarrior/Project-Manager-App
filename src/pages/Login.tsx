@@ -11,6 +11,7 @@ import { ToastContainer, toast } from "react-toastify";
 import Loading from "./Loading";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/components/Toast.css";
+import { FaArrowLeft } from "react-icons/fa6";
 
 
 function Login() {
@@ -94,6 +95,11 @@ function Login() {
 
     return (
         <div className="login-page">
+            <Button text="Back to home" 
+                classname="default-button home"
+                onclick={() => navigate("/")}
+                altIcon={<FaArrowLeft />}
+            />
             {loading ? <Loading/> :
             <div className="login-box">
                 <h1>LOGIN</h1>

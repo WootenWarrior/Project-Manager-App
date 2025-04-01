@@ -9,6 +9,7 @@ import { ToastContainer, toast } from "react-toastify";
 import Loading from "./Loading";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/components/Toast.css";
+import { FaArrowLeft } from "react-icons/fa6";
 
 function Signup() {
     const navigate = useNavigate();
@@ -65,6 +66,11 @@ function Signup() {
 
     return(
         <div className="signup-page">
+            <Button text="Back to home" 
+                classname="default-button home"
+                onclick={() => navigate("/")}
+                altIcon={<FaArrowLeft />}
+            />
             {loading ? <Loading/> :
             <div className="signup-box">
                 <h1>SIGN UP</h1>

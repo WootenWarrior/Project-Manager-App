@@ -12,6 +12,12 @@ body {
     flex-direction: column;
 }
 
+.login-page .home {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+}
+
 .login-box {
     border: 0.1rem solid var(--box-border-color);
     transform: scale(1.25);

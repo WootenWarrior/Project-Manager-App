@@ -8,6 +8,12 @@
     flex-direction: column;
 }
 
+.signup-page .home {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+}
+
 .signup-box{
     transform: scale(1.25);
     height: fit-content;
