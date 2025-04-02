@@ -134,6 +134,11 @@ body{
     justify-content: center;
     height: 10rem;
     flex-direction: column;
+    height: auto;
+  }
+
+  .landing-page .navbar .menu {
+    margin: 0;
   }
 
   .landing-page .about-section{
