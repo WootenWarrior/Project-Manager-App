@@ -321,7 +321,7 @@ function Project() {
             const res = await fetch(`${URL}/api/task`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ newTask, stageID, projectID, token }),
+                body: JSON.stringify({ task: newTask, stageID, projectID, token }),
             });
 
             if(!res.ok){
