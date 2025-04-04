@@ -256,7 +256,7 @@ app.post("/api/file", upload.single('file'), async (req: Request, res: Response)
         const { token, projectID, stageID, attachmentData } = req.body;
         const file = req.file;
         if (file?.mimetype && !ALLOWED_TYPES.includes(file.mimetype)) {
-            res.status(400).json({ error: 'Invalid file type.' });
+            res.status(415).json({ error: 'Invalid file type.' });
             return;
         }
         if (!file) {
@@ -269,11 +269,11 @@ app.post("/api/file", upload.single('file'), async (req: Request, res: Response)
         }
 
         if (!projectID || typeof projectID !== "string") {
-            res.status(400).json({ error: "Project ID not provided or invalid." });
+            res.status(401).json({ error: "Project ID not provided or invalid." });
             return;
         }
         if (!token || typeof token !== "string") {
-            res.status(400).json({ error: "Token not provided or invalid." });
+            res.status(401).json({ error: "Token not provided or invalid." });
             return;
         }
         const verifiedToken = verifyToken(token);
@@ -285,7 +285,7 @@ app.post("/api/file", upload.single('file'), async (req: Request, res: Response)
         const user = await admin.auth().getUser(uid);
         const email = user.email;
         if (!email) {
-            res.status(403).json({ error: "Failed to get user email." });
+            res.status(401).json({ error: "Failed to get user email." });
             return;
         }
         
@@ -328,8 +328,8 @@ app.post("/api/file", upload.single('file'), async (req: Request, res: Response)
 app.put("/api/file", async (req: Request, res: Response) => {
     try {
         const { token, projectID, sourceID, destID, attachmentData } = req.body;
-        if (!token) {
-            res.status(400).json({ error: "Token not provided or invalid." });
+        if (!token || typeof token !== "string") {
+            res.status(401).json({ error: "Token not provided or invalid." });
             return;
         }
         const verifiedToken = verifyToken(token);
@@ -372,11 +372,11 @@ app.delete("/api/file", async (req: Request, res: Response) => {
     try {
         const { token, projectID, stageID, attachmentID } = req.body;
         if (!projectID || typeof projectID !== "string") {
-            res.status(400).json({ error: "Project ID not provided or invalid." });
+            res.status(401).json({ error: "Project ID not provided or invalid." });
             return;
         }
         if (!token || typeof token !== "string") {
-            res.status(400).json({ error: "Token not provided or invalid." });
+            res.status(401).json({ error: "Token not provided or invalid." });
             return;
         }
         const verifiedToken = verifyToken(token);
@@ -430,11 +430,11 @@ app.get("/api/project", async (req: Request, res: Response) => {
         const usersCollection = admin.firestore().collection("users");
         const { projectID, token } = req.query;
         if (!projectID || typeof projectID !== "string") {
-            res.status(400).json({ error: "Project ID not provided or invalid." });
+            res.status(401).json({ error: "Project ID not provided or invalid." });
             return;
         }
         if (!token || typeof token !== "string") {
-            res.status(400).json({ error: "Token not provided or invalid." });
+            res.status(401).json({ error: "Token not provided or invalid." });
             return;
         }
         const verifiedToken = verifyToken(token);
@@ -617,8 +617,7 @@ app.delete("/api/project", async (req: Request, res: Response) => {
 // STAGE----------------------------------------------------------------------------|
 app.post("/api/stage", async (req: Request, res: Response) => {
     try {
-        const data = req.body;
-        const token = data.token;
+        const { stage, token, projectID } = req.body;
         const verifiedToken = verifyToken(token);
         if(!verifiedToken){
             res.status(401).json({ message: "Token verification failed." });
@@ -633,15 +632,12 @@ app.post("/api/stage", async (req: Request, res: Response) => {
             return;
         }
 
-        const stage = data.newStage;
-        const projectID = data.projectID;
-
         if (!stage) {
-            res.status(401).json({ message: "Missing stage data." });
+            res.status(403).json({ message: "Missing stage data." });
             return;
         }
         if (!projectID) {
-            res.status(401).json({ message: "Missing project ID." });
+            res.status(403).json({ message: "Missing project ID." });
             return;
         }
 
@@ -715,8 +711,7 @@ app.delete("/api/stage", async (req: Request, res: Response)=> {
 // TASK----------------------------------------------------------------------------|
 app.post("/api/task", async (req: Request, res: Response) => {
     try {
-        const data = req.body;
-        const token = data.token;
+        const { token, task, projectID, stageID } = req.body;
         const verifiedToken = verifyToken(token);
         if(!verifiedToken){
             res.status(401).json({ message: "Token verification failed." });
@@ -731,19 +726,16 @@ app.post("/api/task", async (req: Request, res: Response) => {
             return;
         }
 
-        const task = data.newTask;
-        const stageID = data.stageID;
-        const projectID = data.projectID;
         if (!task) {
-            res.status(401).json({ message: "Missing task data." });
+            res.status(403).json({ message: "Missing task data." });
             return;
         }
         if (!stageID) {
-            res.status(401).json({ message: "Missing stage ID." });
+            res.status(403).json({ message: "Missing stage ID." });
             return;
         }
         if (!projectID) {
-            res.status(401).json({ message: "Missing project ID." });
+            res.status(403).json({ message: "Missing project ID." });
             return;
         }
 
@@ -772,7 +764,7 @@ app.put("/api/task", async (req: Request, res: Response) =>{
         }
 
         if (!task) {
-            res.status(401).json({ message: "No task set." });
+            res.status(403).json({ message: "No task set." });
             return;
         }
         const taskRef = db.collection(`users/${email}/projects/${projectID}/stages/${sourceID}/tasks`).doc(task.taskID);
@@ -992,13 +984,13 @@ app.get("/api/theme", async (req: Request, res: Response) => {
         const projectSnapshot = await projectRef.get();
 
         if (!projectSnapshot.exists) {
-            res.status(401).json({ message: "Failed to get project." });
+            res.status(403).json({ message: "Failed to get project." });
             return;
         }
 
         const projectData = projectSnapshot.data();
         if (!projectData) {
-            res.status(401).json({ message: "Failed to get project data." });
+            res.status(404).json({ message: "Failed to get project data." });
             return;
         }
 
