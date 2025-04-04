@@ -9,7 +9,8 @@ import { ToastContainer, toast } from "react-toastify";
 import Loading from "./Loading";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/components/Toast.css";
-import { FaArrowLeft } from "react-icons/fa6";
+import { FaArrowLeft, FaPlus } from "react-icons/fa6";
+import { BiLogIn } from "react-icons/bi";
 
 function Signup() {
     const navigate = useNavigate();
@@ -93,12 +94,13 @@ function Signup() {
                         onchange={(e) => setPassword(e.target.value)}
                         select={true}
                     />
-                    <Button text="Sign up" classname="default-button"/>
+                    <Button text="Sign up" classname="default-button" altIcon={<FaPlus/>}/>
                 </form>
                 <p>Already have an account?</p>
                 <Button text="Login" 
                     classname="default-button" 
-                    onclick={() => navigate("/Login")}/>
+                    onclick={() => navigate("/Login")}
+                    altIcon={<BiLogIn/>}/>
             </div>}
             <ToastContainer toastClassName="default-toast"/>
         </div>
