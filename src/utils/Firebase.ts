@@ -31,19 +31,20 @@ export const userSignup = async (data: UserData) => {
     return "Success";
   } catch (error: any) {
     if (error.code) {
+      console.log(error.code)
       switch (error.code) {
         case "auth/email-already-in-use":
           return "This email is already in use.";
         case "auth/invalid-email":
           return "Invalid email address.";
-        case "auth/weak-password":
-          return "The password must be at least 6 characters long.";
+        case "auth/password-does-not-meet-requirements":
+          return "Your password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, and one number.";
         case "auth/operation-not-allowed":
           return "Email/password accounts are currently disabled.";
         case "auth/network-request-failed":
           return "Network error. Check your internet connection.";
         default:
-          return "An error occurred.";
+          return "An unexpected error occurred.";
       }
     }
   }

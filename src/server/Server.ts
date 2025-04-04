@@ -11,6 +11,8 @@ import fs from 'fs';
 import multer from "multer";
 import axios from "axios";
 import { JwtPayload } from "jsonwebtoken";
+import { rateLimit } from 'express-rate-limit';
+
 
 
 // Server setup-----------------------------------------------------------------|
@@ -43,6 +45,12 @@ app.use(cors({
     origin: [serverOrigin],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 }));
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 3,
+    message: "Too many login attempts. Try again later.",
+});
+app.use("/api/login", loginLimiter);
 
 
 // Static serving-----------------------------------------------------------------|
@@ -270,7 +278,7 @@ app.post("/api/file", upload.single('file'), async (req: Request, res: Response)
         }
         const verifiedToken = verifyToken(token);
         if(!verifiedToken) {
-            res.status(401).json({ message: "Token verification failed." });
+            res.status(401).json({ error: "Token verification failed." });
             return;
         }
         const uid = verifiedToken.userId;
@@ -313,7 +321,7 @@ app.post("/api/file", upload.single('file'), async (req: Request, res: Response)
         res.status(200).json({ message: 'File uploaded successfully.', 
             url, mimetype: file.mimetype, attachmentID: ID });
     } catch (error) {
-        res.status(500).json({ error });
+        res.status(500).json({ error: "Unexpected error when creating file." });
     }
 });
 
@@ -326,7 +334,7 @@ app.put("/api/file", async (req: Request, res: Response) => {
         }
         const verifiedToken = verifyToken(token);
         if(!verifiedToken) {
-            res.status(401).json({ message: "Token verification failed." });
+            res.status(401).json({ error: "Token verification failed." });
             return;
         }
         const uid = verifiedToken.userId;
@@ -356,7 +364,7 @@ app.put("/api/file", async (req: Request, res: Response) => {
 
         res.status(200).json({ message: "Successfully updated attachment." });
     } catch (error) {
-        res.status(500).json({ error });
+        res.status(500).json({ error: "Unexpected error when updating file." });
     }   
 });
 
@@ -821,6 +829,14 @@ app.delete("/api/task", async (req: Request, res: Response)=> {
 app.post("/api/login", async (req: Request, res: Response) => {
     try {
         const { email, password, time } = req.body; 
+        const response = await axios.post(
+            `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.VITE_APP_API_KEY}`,
+            { email, password, returnSecureToken: false }
+        );
+
+        if (response.status !== 200) {
+            res.status(500).json({ error: "Incorrect password." });
+        }
         const userRecord = await admin.auth().getUserByEmail(email);
         const uid = userRecord.uid;
 
@@ -832,16 +848,7 @@ app.post("/api/login", async (req: Request, res: Response) => {
             token = generateToken({ userId: uid, email: email }, "1h");
         }
 
-        const response = await axios.post(
-            `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.VITE_APP_API_KEY}`,
-            { email, password, returnSecureToken: false }
-        );
-
-        if (response.status !== 200) {
-            res.status(500).json({ error: "Incorrect password." });
-        }
-
-        res.status(200).json({ uid, token, data: response.data });
+        res.status(200).json({ uid, token });
     } catch (error) {
         res.status(500).json({ error: "An error occurred during login." });
     }
@@ -892,6 +899,7 @@ app.get("/api/dashboard", async (req: Request, res: Response) => {
 app.get("/api/protected", async (req: Request, res: Response) => {
     try {
         const token = String(req.query.token);
+        const userID = String(req.query.uid);
 
         const verifiedToken = verifyToken(token);
         if(!verifiedToken){
@@ -899,15 +907,19 @@ app.get("/api/protected", async (req: Request, res: Response) => {
             return;
         }
         const uid = verifiedToken.userId;
+        if (uid !== userID) {
+            res.status(401).json({ message: "User ID." });
+            return;
+        }
         const user = await admin.auth().getUser(uid);
         if(!user){
             res.status(401).json({ message: "Invalid session user ID." });
             return;
         }
 
-        res.status(200).json({ verified: true, uid });
+        res.status(200).json({ verified: true });
     } catch (error) {
-        res.status(500).json({ message: "Unexpected error: ", error });
+        res.status(500).json({ message: "Unexpected error when verifying token." });
     }
 });
 
@@ -946,7 +958,7 @@ app.put("/api/theme", async (req: Request, res: Response) => {
 
         res.status(200).json({ message: "Theme updated successfully." });
     } catch (error) {
-        res.status(500).json({ message: "Unexpected error: ", error });
+        res.status(500).json({ message: "Unexpected error when updating theme." });
     }
 });
 
@@ -992,7 +1004,7 @@ app.get("/api/theme", async (req: Request, res: Response) => {
 
         res.status(200).json({ theme: projectData.theme });
     } catch (error) {
-        res.status(500).json({ message: "Unexpected error: ", error });
+        res.status(500).json({ message: "Unexpected error when getting theme." });
     }
 });
 
@@ -1011,7 +1023,7 @@ app.delete('/api/user', async (req, res) => {
         await admin.auth().deleteUser(uid);
         res.status(200).json({ message: 'User deleted successfully.' });
     } catch (error) {
-        res.status(404).json({ message: "Unexpected error: ", error });
+        res.status(404).json({ message: "Unexpected error when deleting user." });
     }
 });
 
@@ -1077,7 +1089,7 @@ app.get("/api/mobile-restrict", async (req: Request, res: Response) => {
         res.status(200).json({ verified: true, uid });
     }
     catch (error) {
-        res.status(500).json({ message: "Unexpected error: ", error });
+        res.status(500).json({ message: "Unexpected error when verifying token." });
     }
 });
 
@@ -1091,7 +1103,7 @@ app.get('*', (_req, res) => {
         }
         res.sendFile(path.join(__dirname, static_path, 'index.html'));
     } catch (error) {
-        res.status(404).json({ message: "Unexpected error: ", error });
+        res.status(404).json({ message: "Unexpected error when loading page." });
     }
 });
 

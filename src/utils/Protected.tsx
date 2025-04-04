@@ -39,7 +39,7 @@ export const ProtectedRoute = () => {
                     return;
                 }
 
-                const res = await fetch(`${URL}/api/protected?token=${token}`);
+                const res = await fetch(`${URL}/api/protected?token=${token}&uid=${uid}`);
 
                 if(!res.ok){
                     const errorData = await res.text();
@@ -50,7 +50,7 @@ export const ProtectedRoute = () => {
 
                 const data = await res.json();
 
-                setIsAuthenticated(data.verified && (data.uid == uid));
+                setIsAuthenticated(data.verified);
             } catch (error) {
                 console.error("Error verifying user:", error);
                 setIsAuthenticated(false);

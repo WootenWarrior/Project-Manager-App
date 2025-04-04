@@ -27,11 +27,6 @@ const ThemeChanger: React.FC<ThemeChangerProps> = ({isvisible, closeMenu, projec
         { background: "#0a0708", highlight: "#444444", hiddenMenuBackground: "#747474", outlineColor: "#b1b1b1" }
     ];
 
-    //Themes sources:
-    //https://www.canva.com/colors/color-palettes/cool-cream-strawberry/
-    //https://www.canva.com/colors/color-palettes/wall-greens/
-    //https://www.canva.com/colors/color-palettes/dark-road-curve/
-
     const setTheme = async (theme: ColorTheme) => {
         try {
             const token = sessionStorage.getItem("token") || localStorage.getItem("token");
