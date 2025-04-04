@@ -620,7 +620,7 @@ app.delete("/api/project", async (req: Request, res: Response) => {
 // STAGE----------------------------------------------------------------------------|
 app.post("/api/stage", async (req: Request, res: Response) => {
     try {
-        const { stage, token, projectID } = req.body;
+        const { newStage, token, projectID } = req.body;
         const verifiedToken = verifyToken(token);
         if(!verifiedToken){
             res.status(401).json({ message: "Token verification failed." });
@@ -635,7 +635,7 @@ app.post("/api/stage", async (req: Request, res: Response) => {
             return;
         }
 
-        if (!stage) {
+        if (!newStage) {
             res.status(403).json({ message: "Missing stage data." });
             return;
         }
@@ -644,7 +644,7 @@ app.post("/api/stage", async (req: Request, res: Response) => {
             return;
         }
 
-        const docid = createStage(email, stage, projectID);
+        const docid = createStage(email, newStage, projectID);
 
         res.status(200).json({ message: "Stage added succesfully.", docid });
     } catch (error) {
