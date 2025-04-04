@@ -19,6 +19,13 @@ import { rateLimit } from 'express-rate-limit';
 
 const serverOrigin = getServerOrigin();
 const serviceAccountPath = getServiceAccountOrigin();
+const MAX_PROJECTS = 10;
+const MAX_FILE_NUM = 10;
+
+const configPath = './src/server/serverconfig.json';
+const config = JSON.parse(readFileSync(configPath, 'utf8'));
+
+// Firestore-----------------------------------------------------------------|
 let serviceAccount;
 try {
     const serviceAccountData = readFileSync(serviceAccountPath, 'utf8');
@@ -31,13 +38,9 @@ admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     storageBucket: process.env.VITE_APP_STORAGE_BUCKET,
 });
-
-const MAX_PROJECTS = 10;
-const MAX_FILE_NUM = 10;
 const db = admin.firestore();
-const configPath = './src/server/serverconfig.json';
-const config = JSON.parse(readFileSync(configPath, 'utf8'));
 
+// Runtime-----------------------------------------------------------------|
 const PORT = 3000;
 const app = express();
 app.use(express.json());
